@@ -1,0 +1,268 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model CatalogueViewModel
+
+@{
+    ViewData["Title"] = L["Page_Catalogue"];
+    var allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+}
+
+<div class="page-header">
+    <h1 class="page-title">@L["Page_Catalogue"]</h1>
+    <button class="btn btn-primary" onclick="openModal('modalAddAuthor')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        @L["Btn_AddAuthor"]
+    </button>
+</div>
+
+<div class="search-bar">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" class="search-input" placeholder="@L["Search_Placeholder"]" value="@Model.SearchQuery" autocomplete="off"/>
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.SearchQuery))
+{
+    <div id="searchResultsWrap">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+            <h2 style="font-size:1.2rem">@L["Search_Results"]</h2>
+            <span class="badge badge-dim">«@Model.SearchQuery»</span>
+        </div>
+        @if (Model.SearchResult == null || Model.SearchResult.IsEmpty)
+        {
+            <div class="empty-state" style="padding:2.5rem 1rem">
+                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-title">@L["Search_NoResults"] «@Model.SearchQuery»</div>
+            </div>
+        }
+        else
+        {
+            @if (Model.SearchResult.MatchedAuthors.Any())
+            {
+                <div class="search-section">
+                    <div class="search-section-title">@L["Author_Books"]</div>
+                    @foreach (var author in Model.SearchResult.MatchedAuthors)
+                    {
+                        <div class="search-result-row">
+                            <div class="author-avatar" style="width:30px;height:30px;font-size:0.85rem;flex-shrink:0">
+                                @if (!string.IsNullOrEmpty(author.PhotoPath))
+                                {
+                                    <img src="@author.PhotoPath" alt="" onerror="this.style.display='none';this.parentElement.textContent='@(author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?")'" />
+                                }
+                                else { @(author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?") }
+                            </div>
+                            <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id" class="item-link" style="flex:1">
+                                @Html.Raw(HighlightMatch(author.Name, Model.SearchQuery))
+                            </a>
+                            <span class="badge badge-dim">@L["Label_Author"]</span>
+                        </div>
+                    }
+                </div>
+            }
+            @if (Model.SearchResult.MatchedSeries.Any())
+            {
+                <div class="search-section">
+                    <div class="search-section-title">@L["Nav_Catalogue"]</div>
+                    @foreach (var (author, series) in Model.SearchResult.MatchedSeries)
+                    {
+                        <div class="search-result-row">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <div style="flex:1">
+                                <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link">@Html.Raw(HighlightMatch(series.Name, Model.SearchQuery))</a>
+                                <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem">— @author.Name</span>
+                            </div>
+                            <span class="badge badge-gold">@L["Label_Series"]</span>
+                        </div>
+                    }
+                </div>
+            }
+            @if (Model.SearchResult.MatchedBooks.Any())
+            {
+                <div class="search-section">
+                    <div class="search-section-title">@L["Author_Books"]</div>
+                    @foreach (var (author, book, series) in Model.SearchResult.MatchedBooks)
+                    {
+                        <div class="search-result-row">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <div style="flex:1">
+                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link">@Html.Raw(HighlightMatch(book.Title, Model.SearchQuery))</a>
+                                <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem">
+                                    — @author.Name@(series != null ? " / " + series.Name : "")
+                                </span>
+                            </div>
+                            <span class="badge badge-dim">@L["Label_Book"]</span>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    @if (!Model.AuthorsByLetter.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <div class="empty-state-title">@L["Catalogue_Empty"]</div>
+        </div>
+    }
+    else
+    {
+        <div class="catalogue-layout">
+            <div id="catalogueList">
+                @foreach (var (letter, authors) in Model.AuthorsByLetter)
+                {
+                    <div class="author-section" id="letter-@letter">
+                        <div class="author-letter-divider">@letter</div>
+                        @foreach (var author in authors)
+                        {
+                            var initials = author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?";
+                            <div class="author-card">
+                                <div class="author-card-header" onclick="toggleAuthor('@author.Id')">
+                                    <div class="author-avatar">
+                                        <span class="avatar-letter">@initials</span>
+                                        @if (!string.IsNullOrEmpty(author.PhotoPath))
+                                        {
+                                            <img src="@author.PhotoPath" alt="@author.Name"
+                                                 onerror="this.remove()" />
+                                        }
+                                    </div>
+                                    <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id"
+                                       class="author-name-link" onclick="event.stopPropagation()">@author.Name</a>
+                                    <div class="author-stats">
+                                        @if (author.Books.Any()) { <span>@author.Books.Count @L["Author_Books"].ToLower()</span> }
+                                        @if (author.Series.Any()) { <span>@author.Series.Count @L["Author_Series"].ToLower()</span> }
+                                    </div>
+                                    <div class="author-toggle" id="toggle-@author.Id">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                                    </div>
+                                </div>
+                                <div class="author-items" id="items-@author.Id">
+                                    <ul class="item-list" style="margin-top:0.5rem">
+                                        @foreach (var book in author.Books)
+                                        {
+                                            <li class="item-row">
+                                                <svg class="item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
+                                                @if (book.IsMissing) { <span class="badge badge-dim" style="font-size:0.65rem">@L["Missing_Badge"]</span> }
+                                            </li>
+                                        }
+                                        @foreach (var series in author.Series)
+                                        {
+                                            <li class="item-row series-row">
+                                                <div class="series-header" onclick="toggleSeries('@series.Id')">
+                                                    <svg class="series-toggle" id="stoggle-@series.Id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                                                    <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                                    <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
+                                                    <span class="badge badge-gold" style="font-size:0.65rem">@series.Books.Count</span>
+                                                </div>
+                                                <div class="series-books" id="sbooks-@series.Id">
+                                                    @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))
+                                                    {
+                                                        <div class="series-book-row">
+                                                            <span class="series-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                                                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <nav class="alphabet-nav">
+                @foreach (var letter in allLetters)
+                {
+                    var hasEntries = Model.ExistingLetters.Contains(letter);
+                    <button class="alpha-btn @(hasEntries ? "has-entries" : "disabled")" onclick="scrollToLetter('@letter')" title="@letter">@letter</button>
+                }
+            </nav>
+        </div>
+    }
+}
+
+<!-- Модалка: Добавить автора -->
+<div class="modal-overlay" id="modalAddAuthor">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('modalAddAuthor')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <h2 class="modal-title">@L["Author_AddTitle"]</h2>
+        <form id="formAddAuthor" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label class="form-label">@L["Author_Name"] <span class="text-danger">*</span></label>
+                <input type="text" name="Name" class="form-control" placeholder="e.g. J.R.R. Tolkien" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Author_Photo"]</label>
+                <div class="img-preview-wrap">
+                    <img id="prevAddAuthor" class="img-preview" src="" alt="" />
+                </div>
+                <input type="file" name="PhotoFile" id="fileAddAuthor" class="file-input-hidden" accept="image/*" />
+                <button type="button" class="file-pick-btn" id="btnFileAddAuthor">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    @L["Book_SelectFile"]
+                </button>
+            </div>
+            <div id="errAddAuthor" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalAddAuthor')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary" id="btnAddAuthor">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+initFilePicker('fileAddAuthor','prevAddAuthor','btnFileAddAuthor');
+
+let searchTimer;
+const si = document.getElementById('searchInput');
+const sc = document.getElementById('searchClear');
+if (si) {
+    if (si.value) sc.style.display = 'flex';
+    si.addEventListener('input', function() {
+        sc.style.display = this.value ? 'flex' : 'none';
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => { window.location.href = '/?q=' + encodeURIComponent(this.value.trim()); }, 500);
+    });
+}
+function clearSearch() { window.location.href = '/'; }
+function toggleAuthor(id) {
+    document.getElementById('items-'+id)?.classList.toggle('open');
+    document.getElementById('toggle-'+id)?.classList.toggle('open');
+}
+function toggleSeries(id) {
+    document.getElementById('sbooks-'+id)?.classList.toggle('open');
+    document.getElementById('stoggle-'+id)?.classList.toggle('open');
+}
+function scrollToLetter(l) {
+    const el = document.getElementById('letter-'+l);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth' });
+}
+document.getElementById('formAddAuthor')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitFormWithFile(this, '/Author/Add', 'errAddAuthor', document.getElementById('btnAddAuthor'),
+        'Author added!', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; setTimeout(()=>location.reload(),700); });
+});
+</script>
+}
+
+@functions {
+    static string HighlightMatch(string text, string query) {
+        if (string.IsNullOrEmpty(query)) return System.Net.WebUtility.HtmlEncode(text);
+        int idx = text.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+        if (idx < 0) return System.Net.WebUtility.HtmlEncode(text);
+        return System.Net.WebUtility.HtmlEncode(text[..idx])
+             + $"<mark class=\"search-highlight\">{System.Net.WebUtility.HtmlEncode(text.Substring(idx, query.Length))}</mark>"
+             + System.Net.WebUtility.HtmlEncode(text[(idx+query.Length)..]);
+    }
+}

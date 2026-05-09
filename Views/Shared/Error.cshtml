@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="empty-state" style="padding:8rem 2rem">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">Something went wrong</div>
+    <div class="empty-state-text" style="margin-top:0.75rem">
+        An unexpected error occurred. Please try again or return to the catalogue.
+    </div>
+    <div style="margin-top:2rem">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            Return to Catalogue
+        </a>
+    </div>
+</div>

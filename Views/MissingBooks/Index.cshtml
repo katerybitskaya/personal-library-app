@@ -1,0 +1,43 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model MissingBooksViewModel
+
+@{
+    ViewData["Title"] = L["Missing_Title"];
+}
+
+<div class="page-header">
+    <h1 class="page-title">@L["Missing_Title"]</h1>
+    @if (Model.Items.Any())
+    {
+        <span class="badge badge-gold">@Model.Items.Count @L["Missing_Badge"]</span>
+    }
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">✅</div>
+        <div class="empty-state-title">@L["Missing_Empty"]</div>
+    </div>
+}
+else
+{
+    <p style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text-muted);margin-bottom:1.5rem">
+        @L["Missing_Hint"]
+    </p>
+    <div class="missing-grid">
+        @foreach (var item in Model.Items)
+        {
+            <div class="missing-card">
+                <div class="missing-card-series">@item.SeriesName</div>
+                <div class="missing-card-meta">
+                    <div><span style="color:var(--text-muted)">@L["Missing_Author"]:</span> @item.AuthorName</div>
+                    <div>
+                        <span style="color:var(--text-muted)">@L["Missing_Order"]:</span>
+                        <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,232 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model AuthorViewModel
+
+@{
+    ViewData["Title"] = Model.Author.Name;
+    var author = Model.Author;
+    var initials = author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?";
+}
+@Html.AntiForgeryToken()
+
+<div style="margin-bottom:1rem">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-ghost btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        @L["Nav_Catalogue"]
+    </a>
+</div>
+
+<div class="detail-layout">
+    <div>
+        <div class="detail-photo" onclick="openModal('modalUpdatePhoto')" title="Click to change photo">
+            <span style="font-size:3rem;z-index:1">@initials</span>
+            <span style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">Add photo</span>
+            @if (!string.IsNullOrEmpty(author.PhotoPath))
+            {
+                <img src="@author.PhotoPath" alt="@author.Name"
+                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2"
+                     onerror="this.remove()" />
+            }
+        </div>
+        <div style="margin-top:0.75rem;text-align:center">
+            <div class="meta-label">@L["Author_DateAdded"]</div>
+            <div style="font-family:var(--font-ui);font-size:0.85rem;color:var(--text-secondary)">@L.FormatDate(author.DateAdded)</div>
+        </div>
+    </div>
+
+    <div class="detail-meta">
+        <h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">@author.Name</h1>
+
+        <div class="detail-actions">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modalAddBook')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                @L["Author_AddBook"]
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('modalAddSeries')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                @L["Author_AddSeries"]
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteAuthor()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                @L["Author_Delete"]
+            </button>
+        </div>
+
+        @if (author.Books.Any())
+        {
+            <div class="items-section">
+                <div class="items-section-title">@L["Author_Books"] (@author.Books.Count)</div>
+                @foreach (var book in author.Books)
+                {
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
+                        @if (book.IsMissing) { <span class="badge badge-dim">@L["Missing_Badge"]</span> }
+                    </a>
+                }
+            </div>
+        }
+
+        @if (author.Series.Any())
+        {
+            <div class="items-section">
+                <div class="items-section-title">@L["Author_Series"] (@author.Series.Count)</div>
+                @foreach (var series in author.Series)
+                {
+                    <div class="series-accordion">
+                        <div class="series-accordion-header" onclick="toggleAccordion('@series.Id')">
+                            <svg class="series-accordion-arrow" id="arr-@series.Id" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
+                            <span class="badge badge-gold">@series.Books.Count</span>
+                        </div>
+                        <div class="series-accordion-body" id="acc-@series.Id">
+                            @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))
+                            {
+                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item" style="padding:0.4rem 0.6rem">
+                                    <span class="series-order" style="min-width:22px">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                                    <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (!author.Books.Any() && !author.Series.Any())
+        {
+            <p class="text-muted" style="font-family:var(--font-ui);font-size:0.9rem">@L["Author_NoBooksOrSeries"]</p>
+        }
+    </div>
+</div>
+
+<!-- Модалка: Добавить книгу -->
+<div class="modal-overlay" id="modalAddBook">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('modalAddBook')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <h2 class="modal-title">@L["Book_AddTitle"]</h2>
+        <form id="formAddBook" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="AuthorId" value="@author.Id" />
+            <div class="form-group">
+                <label class="form-label">@L["Book_Title"] <span class="text-danger">*</span></label>
+                <input type="text" name="Title" class="form-control" placeholder="@L["Book_TitlePlaceholder"]" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Book_Cover"]</label>
+                <div class="img-preview-wrap"><img id="prevAddBook" class="img-preview" src="" alt="" /></div>
+                <input type="file" name="CoverFile" id="fileAddBook" class="file-input-hidden" accept="image/*" />
+                <button type="button" class="file-pick-btn" id="btnFileAddBook">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    @L["Book_SelectFile"]
+                </button>
+            </div>
+            <div id="errAddBook" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalAddBook')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary" id="btnAddBook">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модалка: Добавить серию -->
+<div class="modal-overlay" id="modalAddSeries">
+    <div class="modal modal-lg">
+        <button class="modal-close" onclick="closeModal('modalAddSeries')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <h2 class="modal-title">@L["Series_AddTitle"]</h2>
+        <form id="formAddSeries" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="AuthorId" value="@author.Id" />
+            <div class="form-group">
+                <label class="form-label">@L["Series_Name"] <span class="text-danger">*</span></label>
+                <input type="text" name="Name" class="form-control" placeholder="@L["Series_NamePlaceholder"]" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="margin-bottom:0.75rem">@L["Series_PartsOptional"]</label>
+                <div class="parts-list" id="partsList"></div>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="addPartRow()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    @L["Series_AddPart"]
+                </button>
+            </div>
+            <div id="errAddSeries" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalAddSeries')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary" id="btnAddSeries">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модалка: Сменить фото -->
+<div class="modal-overlay" id="modalUpdatePhoto">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('modalUpdatePhoto')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <h2 class="modal-title">@L["Author_Photo"]</h2>
+        <form id="formUpdatePhoto" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@author.Id" />
+            <input type="hidden" name="ItemType" value="author" />
+            <div class="form-group">
+                @if (!string.IsNullOrEmpty(author.PhotoPath))
+                {
+                    <img src="@author.PhotoPath" class="img-preview has-image" alt="" style="margin-bottom:0.75rem" />
+                }
+                <input type="file" name="PhotoFile" id="fileUpdatePhoto" class="file-input-hidden" accept="image/*" />
+                <button type="button" class="file-pick-btn" id="btnFileUpdatePhoto">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    @L["Book_SelectFile"]
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalUpdatePhoto')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary" id="btnUpdatePhoto">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+initFilePicker('fileAddBook','prevAddBook','btnFileAddBook');
+initFilePicker('fileUpdatePhoto',null,'btnFileUpdatePhoto');
+
+function toggleAccordion(id) {
+    document.getElementById('acc-'+id)?.classList.toggle('open');
+    document.getElementById('arr-'+id)?.classList.toggle('open');
+}
+let pi = 0;
+function addPartRow() {
+    const list = document.getElementById('partsList');
+    const row = document.createElement('div');
+    row.className = 'part-row';
+    row.innerHTML = `<input type="text" name="Parts[${pi}].Title" class="form-control" placeholder="@L["Series_Part"] ${pi+1}" required />
+        <button type="button" class="btn btn-icon btn-ghost" onclick="this.parentElement.remove()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>`;
+    list.appendChild(row); pi++;
+}
+document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), 'Book added!', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; setTimeout(()=>location.reload(),700); });
+});
+document.getElementById('formAddSeries')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), 'Series added!', () => { closeModal('modalAddSeries'); this.reset(); setTimeout(()=>location.reload(),700); });
+});
+document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), 'Photo updated!', () => { closeModal('modalUpdatePhoto'); setTimeout(()=>location.reload(),700); });
+});
+function confirmDeleteAuthor() {
+    openConfirmModal('@L["Author_ConfirmDelete"]', async () => {
+        const fd = new FormData(); fd.append('id','@author.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
+        const r = await fetch('/Author/Delete',{method:'POST',body:fd});
+        const d = await r.json();
+        if (d.success) { showToast('Author moved to trash.','success'); setTimeout(()=>window.location.href='/',800); }
+        else showToast(d.message,'error');
+    });
+}
+</script>
+}

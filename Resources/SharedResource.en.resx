@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- Навигация -->
+  <data name="Nav_Catalogue" xml:space="preserve"><value>Catalogue</value></data>
+  <data name="Nav_MissingBooks" xml:space="preserve"><value>Missing Books</value></data>
+  <data name="Nav_History" xml:space="preserve"><value>History</value></data>
+  <data name="Nav_Trash" xml:space="preserve"><value>Trash</value></data>
+
+  <!-- Главная страница -->
+  <data name="Page_Catalogue" xml:space="preserve"><value>Catalogue</value></data>
+  <data name="Btn_AddAuthor" xml:space="preserve"><value>+ Add Author</value></data>
+  <data name="Search_Placeholder" xml:space="preserve"><value>Search authors, books, series...</value></data>
+  <data name="Search_Results" xml:space="preserve"><value>Search Results</value></data>
+  <data name="Search_NoResults" xml:space="preserve"><value>Nothing found for</value></data>
+  <data name="Catalogue_Empty" xml:space="preserve"><value>The catalogue is empty. Add your first author!</value></data>
+
+  <!-- Автор -->
+  <data name="Author_AddTitle" xml:space="preserve"><value>Add Author</value></data>
+  <data name="Author_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Author_Photo" xml:space="preserve"><value>Photo path (optional)</value></data>
+  <data name="Author_DateAdded" xml:space="preserve"><value>Added</value></data>
+  <data name="Author_Books" xml:space="preserve"><value>Books</value></data>
+  <data name="Author_Series" xml:space="preserve"><value>Series</value></data>
+  <data name="Author_Delete" xml:space="preserve"><value>Delete Author</value></data>
+  <data name="Author_AddBook" xml:space="preserve"><value>Add Book</value></data>
+  <data name="Author_AddSeries" xml:space="preserve"><value>Add Series</value></data>
+  <data name="Author_NoBooksOrSeries" xml:space="preserve"><value>No books or series yet.</value></data>
+  <data name="Author_ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this author?</value></data>
+  <data name="Author_AlreadyExists" xml:space="preserve"><value>Author already exists in the catalogue.</value></data>
+
+  <!-- Книга -->
+  <data name="Book_Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Book_Cover" xml:space="preserve"><value>Cover path (optional)</value></data>
+  <data name="Book_AddTitle" xml:space="preserve"><value>Add Book</value></data>
+  <data name="Book_Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="Book_Delete" xml:space="preserve"><value>Delete Book</value></data>
+  <data name="Book_ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this book?</value></data>
+  <data name="Book_Author" xml:space="preserve"><value>Author</value></data>
+  <data name="Book_Type" xml:space="preserve"><value>Type: Book</value></data>
+  <data name="Book_DateAdded" xml:space="preserve"><value>Added</value></data>
+  <data name="Book_NewTitle" xml:space="preserve"><value>New title</value></data>
+  <data name="Book_AlreadyExists" xml:space="preserve"><value>Book with this title already exists.</value></data>
+
+  <!-- Серия -->
+  <data name="Series_Name" xml:space="preserve"><value>Series Name</value></data>
+  <data name="Series_AddTitle" xml:space="preserve"><value>Add Series</value></data>
+  <data name="Series_Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="Series_Delete" xml:space="preserve"><value>Delete Series</value></data>
+  <data name="Series_ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this series?</value></data>
+  <data name="Series_Type" xml:space="preserve"><value>Type: Series</value></data>
+  <data name="Series_Parts" xml:space="preserve"><value>Parts</value></data>
+  <data name="Series_AddBook" xml:space="preserve"><value>Add Book to Series</value></data>
+  <data name="Series_BookOrder" xml:space="preserve"><value>Order in series (optional)</value></data>
+  <data name="Series_AddPart" xml:space="preserve"><value>+ Add Part</value></data>
+  <data name="Series_Author" xml:space="preserve"><value>Author</value></data>
+  <data name="Series_NewName" xml:space="preserve"><value>New name</value></data>
+  <data name="Series_AlreadyExists" xml:space="preserve"><value>Series with this name already exists.</value></data>
+
+  <!-- Корзина -->
+  <data name="Trash_Title" xml:space="preserve"><value>Trash</value></data>
+  <data name="Trash_Empty" xml:space="preserve"><value>Trash is empty.</value></data>
+  <data name="Trash_Clear" xml:space="preserve"><value>Clear Trash</value></data>
+  <data name="Trash_ConfirmClear" xml:space="preserve"><value>Are you sure you want to permanently clear the trash?</value></data>
+  <data name="Trash_Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="Trash_DeleteForever" xml:space="preserve"><value>Delete Forever</value></data>
+  <data name="Trash_Author" xml:space="preserve"><value>Author</value></data>
+  <data name="Trash_Type" xml:space="preserve"><value>Type</value></data>
+
+  <!-- История -->
+  <data name="History_Title" xml:space="preserve"><value>History</value></data>
+  <data name="History_Empty" xml:space="preserve"><value>No actions recorded yet.</value></data>
+
+  <!-- Недостающие книги -->
+  <data name="Missing_Title" xml:space="preserve"><value>Missing Books</value></data>
+  <data name="Missing_Empty" xml:space="preserve"><value>No missing books found. All series are complete!</value></data>
+  <data name="Missing_Author" xml:space="preserve"><value>Author</value></data>
+  <data name="Missing_Series" xml:space="preserve"><value>Series</value></data>
+  <data name="Missing_Order" xml:space="preserve"><value>Position in series</value></data>
+
+  <!-- Общие кнопки -->
+  <data name="Btn_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Btn_Close" xml:space="preserve"><value>Close</value></data>
+
+  <!-- Сообщения об ошибках -->
+  <data name="Error_Required" xml:space="preserve"><value>This field is required.</value></data>
+  <data name="Error_NotFound" xml:space="preserve"><value>Item not found.</value></data>
+  <data name="Error_CannotRestore" xml:space="preserve"><value>Cannot restore: the author was also deleted.</value></data>
+</root>

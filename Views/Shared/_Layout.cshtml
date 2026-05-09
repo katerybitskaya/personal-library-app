@@ -1,0 +1,66 @@
+@inject PersonalLibrary.Services.LocalizationService L
+
+@{
+    var currentCulture = L.CurrentCulture;
+    var trashCount = ViewBag.TrashCount as int? ?? 0;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
+    var isHome = currentController == "home" && currentAction == "index";
+}
+<!DOCTYPE html>
+<html lang="@currentCulture">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Personal Library</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+</head>
+<body data-confirm-title="@L["Confirm_Title"]"
+      data-confirm-cancel="@L["Confirm_Cancel"]"
+      data-confirm-ok="@L["Confirm_Ok"]">
+
+<nav class="navbar">
+    <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Personal Library
+    </a>
+
+    <ul class="nav-links">
+        <li><a asp-controller="Home" asp-action="Index" class="@(isHome ? "active" : "")">@L["Nav_Catalogue"]</a></li>
+        <li><a asp-controller="MissingBooks" asp-action="Index" class="@(currentController == "missingbooks" ? "active" : "")">@L["Nav_MissingBooks"]</a></li>
+        <li><a asp-controller="History" asp-action="Index" class="@(currentController == "history" ? "active" : "")">@L["Nav_History"]</a></li>
+        <li>
+            <a asp-controller="Trash" asp-action="Index" class="@(currentController == "trash" ? "active" : "")">
+                @L["Nav_Trash"]
+                @if (trashCount > 0) { <span class="nav-badge">@trashCount</span> }
+            </a>
+        </li>
+    </ul>
+
+    <div class="lang-switcher">
+        @foreach (var lang in new[] { ("en","EN"), ("ru","RU"), ("pl","PL") })
+        {
+            <form asp-controller="Home" asp-action="SetLanguage" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="culture" value="@lang.Item1" />
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <button type="submit" class="lang-btn @(currentCulture == lang.Item1 ? "active" : "")">@lang.Item2</button>
+            </form>
+        }
+    </div>
+</nav>
+
+<main class="main-content">
+    @RenderBody()
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

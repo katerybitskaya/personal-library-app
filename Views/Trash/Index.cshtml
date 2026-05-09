@@ -1,0 +1,102 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model TrashViewModel
+
+@{
+    ViewData["Title"] = L["Trash_Title"];
+}
+@Html.AntiForgeryToken()
+
+<div class="page-header">
+    <h1 class="page-title">@L["Trash_Title"]</h1>
+    @if (Model.Items.Any())
+    {
+        <button class="btn btn-danger btn-sm" onclick="confirmClearTrash()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+            @L["Trash_Clear"]
+        </button>
+    }
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">🗑️</div>
+        <div class="empty-state-title">@L["Trash_Empty"]</div>
+    </div>
+}
+else
+{
+    <div class="trash-grid">
+        @foreach (var item in Model.Items)
+        {
+            var icon = item.ItemType switch {
+                PersonalLibrary.Models.TrashItemType.Author => "👤",
+                PersonalLibrary.Models.TrashItemType.Series => "📚",
+                _ => "📘"
+            };
+            var typeLabel = item.ItemType switch {
+                PersonalLibrary.Models.TrashItemType.Author => L["Label_Author"],
+                PersonalLibrary.Models.TrashItemType.Series => L["Label_Series"],
+                _ => L["Label_Book"]
+            };
+            <div class="trash-card" id="trashCard-@item.Id">
+                <div class="trash-card-icon">@icon</div>
+                <div class="trash-card-name">@item.ItemName</div>
+                <div class="trash-card-meta">
+                    <div><span class="text-muted">@L["Trash_Author"]:</span> @item.AuthorName</div>
+                    <div><span class="text-muted">@L["Trash_Type"]:</span> @typeLabel</div>
+                    @if (!string.IsNullOrEmpty(item.SeriesName))
+                    {
+                        <div><span class="text-muted">@L["Label_Series"]:</span> @item.SeriesName</div>
+                    }
+                    <div><span class="text-muted">@L["Trash_Deleted"]:</span> @L.FormatDate(item.DeletedAt) @item.DeletedAt.ToString("HH:mm")</div>
+                </div>
+                <div class="trash-card-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="restoreItem('@item.Id')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        @L["Trash_Restore"]
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteForever('@item.Id','@item.ItemName.Replace("'","\\'")')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                        @L["Trash_DeleteForever"]
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+<script>
+async function restoreItem(id) {
+    const fd = new FormData(); fd.append('id',id); fd.append('__RequestVerificationToken',getAntiForgeryToken());
+    const d = await (await fetch('/Trash/Restore',{method:'POST',body:fd})).json();
+    if (d.success) {
+        showToast('@L["Trash_Restore"] — OK','success');
+        const c = document.getElementById('trashCard-'+id);
+        if (c) { c.style.opacity='0'; c.style.transition='opacity 0.3s'; setTimeout(()=>c.remove(),300); }
+        setTimeout(()=>location.reload(),900);
+    } else {
+        showToast(d.message || '@L["Error_CannotRestore"]','error');
+    }
+}
+function deleteForever(id, name) {
+    openConfirmModal(`@L["Trash_DeleteForever"]: "${name}"?`, async () => {
+        const fd = new FormData(); fd.append('id',id); fd.append('__RequestVerificationToken',getAntiForgeryToken());
+        const d = await (await fetch('/Trash/DeleteForever',{method:'POST',body:fd})).json();
+        if (d.success) {
+            const c = document.getElementById('trashCard-'+id);
+            if (c) { c.style.opacity='0'; c.style.transition='opacity 0.3s'; setTimeout(()=>c.remove(),300); }
+            showToast('Deleted permanently.','success');
+        }
+    });
+}
+function confirmClearTrash() {
+    openConfirmModal('@L["Trash_ConfirmClear"]', async () => {
+        const fd = new FormData(); fd.append('__RequestVerificationToken',getAntiForgeryToken());
+        const d = await (await fetch('/Trash/Clear',{method:'POST',body:fd})).json();
+        if (d.success) { showToast('@L["Trash_Clear"] — OK','success'); setTimeout(()=>location.reload(),800); }
+    });
+}
+</script>
+}

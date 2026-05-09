@@ -1,0 +1,85 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model HistoryViewModel
+
+@{
+    ViewData["Title"] = L["History_Title"];
+}
+@Html.AntiForgeryToken()
+
+<div class="page-header">
+    <h1 class="page-title">@L["History_Title"]</h1>
+    @if (Model.Entries.Any())
+    {
+        <span class="badge badge-dim">@Model.Entries.Count</span>
+        <button class="btn btn-ghost btn-sm" onclick="confirmClearHistory()" style="margin-left:auto">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+            @L["History_Clear"]
+        </button>
+    }
+</div>
+
+@if (!Model.Entries.Any())
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">@L["History_Empty"]</div>
+    </div>
+}
+else
+{
+    <div class="card card-lg" style="padding:0">
+        <div class="history-list" style="padding:0.5rem 1.5rem">
+            @foreach (var (entry, i) in Model.Entries.Select((e,i)=>(e,i)))
+            {
+                @* Переводим запись на текущий язык при отображении *@
+                var msg = TranslateEntry(entry, L);
+                <div class="history-entry" style="animation-delay:@(Math.Min(i,30)*20)ms">
+                    <div class="history-time">
+                        <span style="opacity:0.6">@L.FormatDate(entry.Timestamp)</span>
+                        <span style="margin-left:0.4rem;color:var(--text-secondary)">@entry.Timestamp.ToString("HH:mm")</span>
+                    </div>
+                    <div class="history-message">@msg</div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+function confirmClearHistory() {
+    openConfirmModal('@L["History_ConfirmClear"]', async () => {
+        const fd = new FormData(); fd.append('__RequestVerificationToken',getAntiForgeryToken());
+        const d = await (await fetch('/History/Clear',{method:'POST',body:fd})).json();
+        if (d.success) { showToast('@L["History_Clear"]','success'); setTimeout(()=>location.reload(),800); }
+    });
+}
+</script>
+}
+
+@functions {
+    // Переводит запись истории на текущий язык
+    // Запись может быть в старом формате (Message) или новом (MessageKey + Params)
+    static string TranslateEntry(PersonalLibrary.Models.HistoryEntry entry, PersonalLibrary.Services.LocalizationService L)
+    {
+        // Новый формат: есть ключ
+        if (!string.IsNullOrEmpty(entry.MessageKey))
+        {
+            var template = L[entry.MessageKey];
+            if (entry.Params.Count > 0)
+            {
+                // Параметры которые сами являются ключами локализации — переводим
+                var translatedParams = entry.Params
+                    .Select(p => p.StartsWith("Label_") || p.StartsWith("Hist_") ? L[p] : p)
+                    .Cast<object>()
+                    .ToArray();
+                try { return string.Format(template, translatedParams); }
+                catch { return template; }
+            }
+            return template;
+        }
+
+        // Старый формат: готовый текст (обратная совместимость)
+        return entry.Message;
+    }
+}

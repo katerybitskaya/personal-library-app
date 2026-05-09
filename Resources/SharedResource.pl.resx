@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- Nawigacja -->
+  <data name="Nav_Catalogue" xml:space="preserve"><value>Katalog</value></data>
+  <data name="Nav_MissingBooks" xml:space="preserve"><value>Brakujące książki</value></data>
+  <data name="Nav_History" xml:space="preserve"><value>Historia</value></data>
+  <data name="Nav_Trash" xml:space="preserve"><value>Kosz</value></data>
+
+  <!-- Strona główna -->
+  <data name="Page_Catalogue" xml:space="preserve"><value>Katalog</value></data>
+  <data name="Btn_AddAuthor" xml:space="preserve"><value>+ Dodaj autora</value></data>
+  <data name="Search_Placeholder" xml:space="preserve"><value>Szukaj autorów, książek, serii...</value></data>
+  <data name="Search_Results" xml:space="preserve"><value>Wyniki wyszukiwania</value></data>
+  <data name="Search_NoResults" xml:space="preserve"><value>Nic nie znaleziono dla</value></data>
+  <data name="Catalogue_Empty" xml:space="preserve"><value>Katalog jest pusty. Dodaj pierwszego autora!</value></data>
+
+  <!-- Autor -->
+  <data name="Author_AddTitle" xml:space="preserve"><value>Dodaj autora</value></data>
+  <data name="Author_Name" xml:space="preserve"><value>Imię i nazwisko</value></data>
+  <data name="Author_Photo" xml:space="preserve"><value>Ścieżka do zdjęcia (opcjonalnie)</value></data>
+  <data name="Author_DateAdded" xml:space="preserve"><value>Dodano</value></data>
+  <data name="Author_Books" xml:space="preserve"><value>Książki</value></data>
+  <data name="Author_Series" xml:space="preserve"><value>Serie</value></data>
+  <data name="Author_Delete" xml:space="preserve"><value>Usuń autora</value></data>
+  <data name="Author_AddBook" xml:space="preserve"><value>Dodaj książkę</value></data>
+  <data name="Author_AddSeries" xml:space="preserve"><value>Dodaj serię</value></data>
+  <data name="Author_NoBooksOrSeries" xml:space="preserve"><value>Brak książek lub serii.</value></data>
+  <data name="Author_ConfirmDelete" xml:space="preserve"><value>Czy na pewno chcesz usunąć tego autora?</value></data>
+  <data name="Author_AlreadyExists" xml:space="preserve"><value>Taki autor już istnieje w katalogu.</value></data>
+
+  <!-- Książka -->
+  <data name="Book_Title" xml:space="preserve"><value>Tytuł</value></data>
+  <data name="Book_Cover" xml:space="preserve"><value>Ścieżka do okładki (opcjonalnie)</value></data>
+  <data name="Book_AddTitle" xml:space="preserve"><value>Dodaj książkę</value></data>
+  <data name="Book_Rename" xml:space="preserve"><value>Zmień nazwę</value></data>
+  <data name="Book_Delete" xml:space="preserve"><value>Usuń książkę</value></data>
+  <data name="Book_ConfirmDelete" xml:space="preserve"><value>Czy na pewno chcesz usunąć tę książkę?</value></data>
+  <data name="Book_Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Book_Type" xml:space="preserve"><value>Typ: Książka</value></data>
+  <data name="Book_DateAdded" xml:space="preserve"><value>Dodano</value></data>
+  <data name="Book_NewTitle" xml:space="preserve"><value>Nowy tytuł</value></data>
+  <data name="Book_AlreadyExists" xml:space="preserve"><value>Książka o takim tytule już istnieje.</value></data>
+
+  <!-- Seria -->
+  <data name="Series_Name" xml:space="preserve"><value>Nazwa serii</value></data>
+  <data name="Series_AddTitle" xml:space="preserve"><value>Dodaj serię</value></data>
+  <data name="Series_Rename" xml:space="preserve"><value>Zmień nazwę</value></data>
+  <data name="Series_Delete" xml:space="preserve"><value>Usuń serię</value></data>
+  <data name="Series_ConfirmDelete" xml:space="preserve"><value>Czy na pewno chcesz usunąć tę serię?</value></data>
+  <data name="Series_Type" xml:space="preserve"><value>Typ: Seria</value></data>
+  <data name="Series_Parts" xml:space="preserve"><value>Części</value></data>
+  <data name="Series_AddBook" xml:space="preserve"><value>Dodaj książkę do serii</value></data>
+  <data name="Series_BookOrder" xml:space="preserve"><value>Numer w serii (opcjonalnie)</value></data>
+  <data name="Series_AddPart" xml:space="preserve"><value>+ Dodaj część</value></data>
+  <data name="Series_Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Series_NewName" xml:space="preserve"><value>Nowa nazwa</value></data>
+  <data name="Series_AlreadyExists" xml:space="preserve"><value>Seria o takiej nazwie już istnieje.</value></data>
+
+  <!-- Kosz -->
+  <data name="Trash_Title" xml:space="preserve"><value>Kosz</value></data>
+  <data name="Trash_Empty" xml:space="preserve"><value>Kosz jest pusty.</value></data>
+  <data name="Trash_Clear" xml:space="preserve"><value>Opróżnij kosz</value></data>
+  <data name="Trash_ConfirmClear" xml:space="preserve"><value>Czy na pewno chcesz opróżnić kosz?</value></data>
+  <data name="Trash_Restore" xml:space="preserve"><value>Przywróć</value></data>
+  <data name="Trash_DeleteForever" xml:space="preserve"><value>Usuń na zawsze</value></data>
+  <data name="Trash_Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Trash_Type" xml:space="preserve"><value>Typ</value></data>
+
+  <!-- Historia -->
+  <data name="History_Title" xml:space="preserve"><value>Historia</value></data>
+  <data name="History_Empty" xml:space="preserve"><value>Brak zapisanych działań.</value></data>
+
+  <!-- Brakujące książki -->
+  <data name="Missing_Title" xml:space="preserve"><value>Brakujące książki</value></data>
+  <data name="Missing_Empty" xml:space="preserve"><value>Brak brakujących książek. Wszystkie serie są kompletne!</value></data>
+  <data name="Missing_Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Missing_Series" xml:space="preserve"><value>Seria</value></data>
+  <data name="Missing_Order" xml:space="preserve"><value>Pozycja w serii</value></data>
+
+  <!-- Przyciski ogólne -->
+  <data name="Btn_Save" xml:space="preserve"><value>Zapisz</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>Potwierdź</value></data>
+  <data name="Btn_Close" xml:space="preserve"><value>Zamknij</value></data>
+
+  <!-- Komunikaty o błędach -->
+  <data name="Error_Required" xml:space="preserve"><value>To pole jest wymagane.</value></data>
+  <data name="Error_NotFound" xml:space="preserve"><value>Element nie został znaleziony.</value></data>
+  <data name="Error_CannotRestore" xml:space="preserve"><value>Nie można przywrócić: autor również został usunięty.</value></data>
+</root>

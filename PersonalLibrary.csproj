@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Patterns\" />
+    <Folder Include="Repositories\" />
+    <Folder Include="Services\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Filters\" />
+    <Folder Include="Views\Author\" />
+    <Folder Include="Views\Book\" />
+    <Folder Include="Views\Series\" />
+    <Folder Include="Views\Trash\" />
+    <Folder Include="Views\History\" />
+    <Folder Include="Views\MissingBooks\" />
+    <Folder Include="Images\" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <Generator></Generator>
+    </Content>
+  </ItemGroup>
+
+</Project>
