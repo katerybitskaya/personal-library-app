@@ -109,8 +109,8 @@ PersonalLibrary/
    ```bash
    dotnet run
    ```
-   The application will start at `http://localhost:5103`
-   (or `https://localhost:7054` with `dotnet run --launch-profile https`).
+   The application will start at `http://localhost:5000` (default Kestrel port).
+   To use another port: `dotnet run --urls "http://localhost:5050"`.
 
 ### Initial Setup
 
