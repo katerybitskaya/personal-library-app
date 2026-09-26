@@ -109,7 +109,15 @@ PersonalLibrary/
    ```bash
    dotnet run
    ```
-   The application will start at `https://localhost:5001`
+   The application will start at `http://localhost:5103` (default `http` profile from
+   `Properties/launchSettings.json`; with `dotnet run --launch-profile https` —
+   `https://localhost:7054`).
+
+   To run on a fixed port (used by the Cloudflare Tunnel / Apache proxy):
+   ```bash
+   dotnet run --urls "http://localhost:5000"
+   ```
+   In production (VPS) the port is set by `ASPNETCORE_URLS=http://localhost:5000`.
 
 ### Initial Setup
 
@@ -159,6 +167,8 @@ All data is stored in JSON format in the `Data` folder:
 - **library.json** - Authors, books, and series definitions
 - **trash.json** - Deleted items with recovery metadata
 - **history.json** - Complete activity log with timestamps
+
+> The `Data/` folder is excluded from the repository (`.gitignore`) since it contains personal library data. It is created automatically on first run.
 
 ## Localization
 
@@ -272,10 +282,6 @@ The application features:
 ## License
 
 This project is developed for educational purposes.
-
-## Support
-
-For issues or questions, please refer to the project documentation in the `Notes` folder.
 
 ---
 

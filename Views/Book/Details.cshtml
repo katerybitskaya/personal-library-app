@@ -22,7 +22,7 @@
 <div class="detail-layout">
     <div>
         <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="Click to change cover">
-            <div style="font-size:3rem;z-index:1">📘</div>
+            <div style="z-index:1;color:var(--gold-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div>
             <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">Add cover</div>
             @if (!string.IsNullOrEmpty(book.CoverPath))
             {

@@ -32,7 +32,7 @@
         @if (Model.SearchResult == null || Model.SearchResult.IsEmpty)
         {
             <div class="empty-state" style="padding:2.5rem 1rem">
-                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
                 <div class="empty-state-title">@L["Search_NoResults"] «@Model.SearchQuery»</div>
             </div>
         }
@@ -67,7 +67,7 @@
                     @foreach (var (author, series) in Model.SearchResult.MatchedSeries)
                     {
                         <div class="search-result-row">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                             <div style="flex:1">
                                 <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link">@Html.Raw(HighlightMatch(series.Name, Model.SearchQuery))</a>
                                 <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem">— @author.Name</span>
@@ -84,7 +84,7 @@
                     @foreach (var (author, book, series) in Model.SearchResult.MatchedBooks)
                     {
                         <div class="search-result-row">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text-muted);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                             <div style="flex:1">
                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link">@Html.Raw(HighlightMatch(book.Title, Model.SearchQuery))</a>
                                 <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem">
@@ -104,12 +104,19 @@ else
     @if (!Model.AuthorsByLetter.Any())
     {
         <div class="empty-state">
-            <div class="empty-state-icon">📚</div>
+            <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg></div>
             <div class="empty-state-title">@L["Catalogue_Empty"]</div>
         </div>
     }
     else
     {
+        <nav class="alphabet-nav-mobile" aria-label="Alphabet quick navigation">
+            @foreach (var letter in allLetters)
+            {
+                var hasEntries = Model.ExistingLetters.Contains(letter);
+                <button class="alpha-btn @(hasEntries ? "has-entries" : "disabled")" onclick="scrollToLetter('@letter')" title="@letter">@letter</button>
+            }
+        </nav>
         <div class="catalogue-layout">
             <div id="catalogueList">
                 @foreach (var (letter, authors) in Model.AuthorsByLetter)
@@ -144,7 +151,7 @@ else
                                         @foreach (var book in author.Books)
                                         {
                                             <li class="item-row">
-                                                <svg class="item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                                <svg class="item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
                                                 @if (book.IsMissing) { <span class="badge badge-dim" style="font-size:0.65rem">@L["Missing_Badge"]</span> }
                                             </li>
@@ -154,7 +161,7 @@ else
                                             <li class="item-row series-row">
                                                 <div class="series-header" onclick="toggleSeries('@series.Id')">
                                                     <svg class="series-toggle" id="stoggle-@series.Id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-                                                    <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                                    <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
                                                     <span class="badge badge-gold" style="font-size:0.65rem">@series.Books.Count</span>
                                                 </div>
