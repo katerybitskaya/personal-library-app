@@ -109,15 +109,8 @@ PersonalLibrary/
    ```bash
    dotnet run
    ```
-   The application will start at `http://localhost:5103` (default `http` profile from
-   `Properties/launchSettings.json`; with `dotnet run --launch-profile https` —
-   `https://localhost:7054`).
-
-   To run on a fixed port (used by the Cloudflare Tunnel / Apache proxy):
-   ```bash
-   dotnet run --urls "http://localhost:5000"
-   ```
-   In production (VPS) the port is set by `ASPNETCORE_URLS=http://localhost:5000`.
+   The application will start at `http://localhost:5103`
+   (or `https://localhost:7054` with `dotnet run --launch-profile https`).
 
 ### Initial Setup
 
