@@ -16,6 +16,4 @@ desktop.ini
 .idea/
 *.swp
 STRUCTURE.md
-
-# Password protection settings (local / server only; template: protection.example.json)
 protection.json
