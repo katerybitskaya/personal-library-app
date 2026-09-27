@@ -842,6 +842,40 @@ a:hover { color: var(--gold-light); }
     padding-top: 2px;
 }
 .history-message { font-family: var(--font-body); font-size: 0.98rem; color: var(--text-secondary); }
+.history-list-older .history-entry:first-child .history-message { color: var(--text-secondary); }
+
+/* ── Постраничный вывод (история) ── */
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.pager-info { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-muted); }
+.pager-links { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
+.pager-btn {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    min-width: 2.1rem;
+    padding: 0.35rem 0.7rem;
+    text-align: center;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: all var(--transition);
+}
+a.pager-btn:hover { color: var(--gold-light); border-color: var(--border-strong); background: var(--gold-subtle); }
+.pager-btn.active { color: var(--gold); border-color: var(--border-strong); background: var(--gold-subtle); font-weight: 600; }
+.pager-btn.disabled { opacity: 0.35; cursor: default; }
+.pager-gap { color: var(--text-muted); padding: 0 0.2rem; }
+@media (max-width: 480px) {
+    .pager { justify-content: center; }
+    .pager-text { display: none; }
+    .pager-btn { min-width: 2rem; padding: 0.35rem 0.55rem; }
+}
 
 /* ── Недостающие книги ── */
 .missing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }

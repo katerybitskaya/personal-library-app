@@ -10,7 +10,7 @@
     <h1 class="page-title">@L["History_Title"]</h1>
     @if (Model.Entries.Any())
     {
-        <span class="badge badge-dim">@Model.Entries.Count</span>
+        <span class="badge badge-dim">@Model.TotalCount</span>
         <button class="btn btn-ghost btn-sm" onclick="confirmClearHistory()" style="margin-left:auto">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
             @L["History_Clear"]
@@ -28,7 +28,7 @@
 else
 {
     <div class="card card-lg" style="padding:0">
-        <div class="history-list" style="padding:0.5rem 1.5rem">
+        <div class="history-list @(Model.Page > 1 ? "history-list-older" : "")" style="padding:0.5rem 1.5rem">
             @foreach (var (entry, i) in Model.Entries.Select((e,i)=>(e,i)))
             {
                 @* Переводим запись на текущий язык при отображении *@
@@ -43,6 +43,55 @@ else
             }
         </div>
     </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        var current = Model.Page;
+        var last = Model.TotalPages;
+        // Номера страниц: первая, последняя и по две вокруг текущей; пропуски — «…»
+        var pages = Enumerable.Range(1, last)
+            .Where(p => p == 1 || p == last || Math.Abs(p - current) <= 2)
+            .ToList();
+
+        <nav class="pager" aria-label="@L["Pager_Label"]">
+            <div class="pager-info">@string.Format(L["Pager_Info"], Model.FirstItem, Model.LastItem, Model.TotalCount)</div>
+            <div class="pager-links">
+                @if (current > 1)
+                {
+                    <a class="pager-btn" asp-action="Index" asp-route-page="@(current - 1)" aria-label="@L["Pager_Prev"]">‹<span class="pager-text"> @L["Pager_Prev"]</span></a>
+                }
+                else
+                {
+                    <span class="pager-btn disabled">‹<span class="pager-text"> @L["Pager_Prev"]</span></span>
+                }
+
+                @for (var k = 0; k < pages.Count; k++)
+                {
+                    if (k > 0 && pages[k] - pages[k - 1] > 1)
+                    {
+                        <span class="pager-gap">…</span>
+                    }
+                    if (pages[k] == current)
+                    {
+                        <span class="pager-btn active" aria-current="page">@pages[k]</span>
+                    }
+                    else
+                    {
+                        <a class="pager-btn" asp-action="Index" asp-route-page="@pages[k]">@pages[k]</a>
+                    }
+                }
+
+                @if (current < last)
+                {
+                    <a class="pager-btn" asp-action="Index" asp-route-page="@(current + 1)" aria-label="@L["Pager_Next"]"><span class="pager-text">@L["Pager_Next"] </span>›</a>
+                }
+                else
+                {
+                    <span class="pager-btn disabled"><span class="pager-text">@L["Pager_Next"] </span>›</span>
+                }
+            </div>
+        </nav>
+    }
 }
 
 @section Scripts {

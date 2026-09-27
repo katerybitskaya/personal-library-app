@@ -8,6 +8,10 @@ namespace PersonalLibrary.Services
         {
             ["en"] = new()
             {
+                ["Pager_Label"]          = "Pages",
+                ["Pager_Prev"]           = "Previous",
+                ["Pager_Next"]           = "Next",
+                ["Pager_Info"]           = "{0}–{1} of {2}",
                 ["Nav_Logout"]           = "Log out",
                 ["Login_Title"]          = "Sign in",
                 ["Login_Username"]       = "Username",
@@ -131,6 +135,10 @@ namespace PersonalLibrary.Services
 
             ["ru"] = new()
             {
+                ["Pager_Label"]          = "Страницы",
+                ["Pager_Prev"]           = "Назад",
+                ["Pager_Next"]           = "Вперёд",
+                ["Pager_Info"]           = "{0}–{1} из {2}",
                 ["Nav_Logout"]           = "Выйти",
                 ["Login_Title"]          = "Вход",
                 ["Login_Username"]       = "Логин",
@@ -254,6 +262,10 @@ namespace PersonalLibrary.Services
 
             ["pl"] = new()
             {
+                ["Pager_Label"]          = "Strony",
+                ["Pager_Prev"]           = "Wstecz",
+                ["Pager_Next"]           = "Dalej",
+                ["Pager_Info"]           = "{0}–{1} z {2}",
                 ["Nav_Logout"]           = "Wyloguj",
                 ["Login_Title"]          = "Logowanie",
                 ["Login_Username"]       = "Login",

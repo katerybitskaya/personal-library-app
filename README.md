@@ -234,6 +234,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - Automatic logging of all operations
 - Timestamps and operation details
 - Observer pattern implementation
+- Pagination: 30 entries per page, newest first
 
 ### Trash System
 - Soft delete functionality
@@ -280,7 +281,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Account/Logout` - Sign out
 
 ### History
-- `GET /History/Index` - View activity history
+- `GET /History/Index?page={n}` - View activity history (30 entries per page)
 
 ### Missing Books
 - `GET /MissingBooks/Index` - View missing books
