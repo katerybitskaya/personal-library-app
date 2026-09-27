@@ -17,6 +17,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **🌍 Multilingual Support** - English, Russian, and Polish localization
 - **🖼️ Cover Management** - Upload and display book cover images
 - **📊 Missing Books Tracking** - Identify gaps in book series
+- **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
 
 ## Technologies Used
 
@@ -48,6 +49,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 PersonalLibrary/
 ├── Controllers/           # MVC Controllers
 │   ├── HomeController     # Catalog & language switching
+│   ├── AccountController  # Login / logout (optional protection)
 │   ├── AuthorController   # Author CRUD operations
 │   ├── BookController     # Book CRUD operations
 │   ├── SeriesController   # Series CRUD operations
@@ -59,7 +61,8 @@ PersonalLibrary/
 │   ├── Author            # Author entity
 │   ├── Series            # Book series with ordering
 │   ├── HistoryEntry      # Activity log entries
-│   └── TrashItem         # Deleted item recovery data
+│   ├── TrashItem         # Deleted item recovery data
+│   └── ProtectionSettings # Password protection options
 ├── Views/                 # Razor view templates
 ├── Services/              # Business logic
 │   ├── LibraryService    # Core library operations
@@ -73,12 +76,18 @@ PersonalLibrary/
 │   ├── LibraryComposite  # Composite pattern
 │   ├── LibraryObserver   # Observer pattern
 │   └── LibraryIterator   # Iterator pattern
+├── Security/              # Optional password protection
+│   ├── ProtectionMiddleware   # Blocks all pages and files for anonymous users
+│   ├── LoginAttemptTracker    # Temporary lockout after failed logins
+│   ├── ProtectionHelper       # Credential check, client IP detection
+│   └── PasswordTool           # --hash-password console command
 ├── Interfaces/            # Service contracts
 ├── Helpers/               # Utility classes (file upload)
 ├── Resources/             # Localization (.resx files)
 ├── Filters/               # Action filters (trash count badge)
 ├── wwwroot/               # Static files (CSS, JS, uploads)
-└── Data/                  # JSON data storage (auto-generated)
+├── Data/                  # JSON data storage (auto-generated)
+└── protection.example.json # Template for protection.json
 ```
 
 ## Getting Started
@@ -130,6 +139,48 @@ Edit `appsettings.json` to customize:
 }
 ```
 
+## Password Protection (optional)
+
+By default the library is open to everyone. To require a login, create a `protection.json` file next to the application (in the project folder when using `dotnet run`, or next to `PersonalLibrary.dll` after `dotnet publish`):
+
+1. Copy the template:
+   ```bash
+   cp protection.example.json protection.json
+   ```
+2. Generate a password hash (you choose the password, the tool only hashes it):
+   ```bash
+   dotnet run -- --hash-password
+   # or, for a published build:
+   dotnet PersonalLibrary.dll --hash-password
+   ```
+3. Put the result into `PasswordHash`, set your `Username` and `"Enabled": true`:
+   ```json
+   {
+     "Protection": {
+       "Enabled": true,
+       "Username": "admin",
+       "PasswordHash": "AQAAAAIAAYagAAAAE...",
+       "Password": "",
+       "MaxFailedAttempts": 5,
+       "GlobalMaxFailedAttempts": 20,
+       "LockoutMinutes": 15,
+       "SessionDays": 30
+     }
+   }
+   ```
+
+| Setting | Meaning |
+|---------|---------|
+| `Enabled` | `true` — every page and uploaded image requires login; `false` or no file — open access |
+| `Username` | Login name |
+| `PasswordHash` | Hash from `--hash-password` (recommended) |
+| `Password` | Plain-text password, used only when `PasswordHash` is empty (not recommended) |
+| `MaxFailedAttempts` | Failed logins from one IP before a temporary lockout |
+| `GlobalMaxFailedAttempts` | Failed logins from all IPs together before the login form is locked |
+| `LockoutMinutes` | Lockout duration; afterwards login is possible again |
+| `SessionDays` | How long "Remember me" keeps you signed in |
+
+
 ## Architecture Highlights
 
 ### Design Patterns
@@ -160,18 +211,17 @@ All data is stored in JSON format in the `Data` folder:
 - **library.json** - Authors, books, and series definitions
 - **trash.json** - Deleted items with recovery metadata
 - **history.json** - Complete activity log with timestamps
+- **keys/** - Data Protection keys for login and anti-forgery cookies (keeps sessions valid after a restart)
 
 > The `Data/` folder is excluded from the repository (`.gitignore`) since it contains personal library data. It is created automatically on first run.
 
 ## Localization
 
-The application supports three languages with language switching on the home page:
+The application supports three languages. The switcher is in the navigation bar on every page (and on the login page when protection is enabled):
 
 - 🇬🇧 **English** - SharedResource.en.resx
 - 🇷🇺 **Russian** - SharedResource.ru.resx
 - 🇵🇱 **Polish** - SharedResource.pl.resx
-
-Language preference is stored in session and persists during the user session.
 
 ## Key Features Details
 
@@ -200,6 +250,7 @@ Language preference is stored in session and persists during the user session.
 
 ### Home
 - `GET /` - Library catalog
+- `POST /Home/SetLanguage` - Change interface language (available without login)
 
 ### Authors
 - `GET /Author/Details/{id}` - Author details
@@ -222,6 +273,11 @@ Language preference is stored in session and persists during the user session.
 - `GET /Trash/Index` - View trash
 - `POST /Trash/Restore/{id}` - Restore item
 - `POST /Trash/PermanentDelete/{id}` - Permanently delete
+
+### Account (only when protection is enabled)
+- `GET /Account/Login` - Login page
+- `POST /Account/Login` - Sign in
+- `POST /Account/Logout` - Sign out
 
 ### History
 - `GET /History/Index` - View activity history
@@ -253,7 +309,7 @@ dotnet test
 The application features:
 - Dark theme with gold accents
 - Responsive design for mobile and desktop
-- CSS in `wwwroot/css/site.css`
+- CSS in `wwwroot/css/site.css` (including the login page styles)
 - JavaScript utilities in `wwwroot/js/site.js`
 
 ## Error Handling
@@ -269,7 +325,7 @@ The application features:
 - RESTful API for mobile clients
 - Advanced filtering and sorting
 - Export/Import functionality
-- User authentication and multi-user support
+- Multi-user accounts with roles
 - Book ratings and reviews
 
 ## License

@@ -1,0 +1,12 @@
+{
+  "Protection": {
+    "Enabled": false,
+    "Username": "admin",
+    "PasswordHash": "",
+    "Password": "",
+    "MaxFailedAttempts": 5,
+    "GlobalMaxFailedAttempts": 20,
+    "LockoutMinutes": 15,
+    "SessionDays": 30
+  }
+}

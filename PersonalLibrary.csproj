@@ -27,6 +27,8 @@
     <Content Update="appsettings.json">
       <Generator></Generator>
     </Content>
+    <!-- Private protection settings are never copied to the build: each installation has its own file -->
+    <Content Update="protection.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>

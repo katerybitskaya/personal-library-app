@@ -8,6 +8,15 @@ namespace PersonalLibrary.Services
         {
             ["en"] = new()
             {
+                ["Nav_Logout"]           = "Log out",
+                ["Login_Title"]          = "Sign in",
+                ["Login_Username"]       = "Username",
+                ["Login_Password"]       = "Password",
+                ["Login_Remember"]       = "Remember me",
+                ["Login_Submit"]         = "Sign in",
+                ["Login_Invalid"]        = "Wrong username or password.",
+                ["Login_LockedOut"]      = "Too many failed attempts. Try again in {0} min.",
+                ["Login_NotConfigured"]  = "Protection is enabled, but no username or password is set in protection.json.",
                 ["Nav_Catalogue"]        = "Catalogue",
                 ["Nav_MissingBooks"]     = "Missing Books",
                 ["Nav_History"]          = "History",
@@ -122,6 +131,15 @@ namespace PersonalLibrary.Services
 
             ["ru"] = new()
             {
+                ["Nav_Logout"]           = "Выйти",
+                ["Login_Title"]          = "Вход",
+                ["Login_Username"]       = "Логин",
+                ["Login_Password"]       = "Пароль",
+                ["Login_Remember"]       = "Запомнить меня",
+                ["Login_Submit"]         = "Войти",
+                ["Login_Invalid"]        = "Неверный логин или пароль.",
+                ["Login_LockedOut"]      = "Слишком много неудачных попыток. Попробуйте через {0} мин.",
+                ["Login_NotConfigured"]  = "Защита включена, но в protection.json не задан логин или пароль.",
                 ["Nav_Catalogue"]        = "Каталог",
                 ["Nav_MissingBooks"]     = "Недостающие книги",
                 ["Nav_History"]          = "История",
@@ -236,6 +254,15 @@ namespace PersonalLibrary.Services
 
             ["pl"] = new()
             {
+                ["Nav_Logout"]           = "Wyloguj",
+                ["Login_Title"]          = "Logowanie",
+                ["Login_Username"]       = "Login",
+                ["Login_Password"]       = "Hasło",
+                ["Login_Remember"]       = "Zapamiętaj mnie",
+                ["Login_Submit"]         = "Zaloguj",
+                ["Login_Invalid"]        = "Nieprawidłowy login lub hasło.",
+                ["Login_LockedOut"]      = "Zbyt wiele nieudanych prób. Spróbuj ponownie za {0} min.",
+                ["Login_NotConfigured"]  = "Ochrona jest włączona, ale w protection.json nie ustawiono loginu ani hasła.",
                 ["Nav_Catalogue"]        = "Katalog",
                 ["Nav_MissingBooks"]     = "Brakujące książki",
                 ["Nav_History"]          = "Historia",

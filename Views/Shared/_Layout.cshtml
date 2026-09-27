@@ -1,4 +1,5 @@
 @inject PersonalLibrary.Services.LocalizationService L
+@inject Microsoft.Extensions.Options.IOptionsMonitor<PersonalLibrary.Models.ProtectionSettings> Protection
 
 @{
     var currentCulture = L.CurrentCulture;
@@ -6,6 +7,7 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
     var isHome = currentController == "home" && currentAction == "index";
+    var showLogout = Protection.CurrentValue.Enabled && User.Identity?.IsAuthenticated == true;
 }
 <!DOCTYPE html>
 <html lang="@currentCulture">
@@ -39,6 +41,14 @@
                 @if (trashCount > 0) { <span class="nav-badge">@trashCount</span> }
             </a>
         </li>
+        @if (showLogout)
+        {
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                    <button type="submit" class="logout-btn">@L["Nav_Logout"]</button>
+                </form>
+            </li>
+        }
     </ul>
 
     <div class="lang-switcher">
@@ -77,6 +87,14 @@
                 @if (trashCount > 0) { <span class="nav-badge" style="display:inline-flex">@trashCount</span> }
             </a>
         </li>
+        @if (showLogout)
+        {
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                    <button type="submit" class="logout-btn">@L["Nav_Logout"]</button>
+                </form>
+            </li>
+        }
     </ul>
 </aside>
 
