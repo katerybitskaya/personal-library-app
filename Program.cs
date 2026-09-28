@@ -15,7 +15,6 @@ namespace PersonalLibrary
     {
         public static void Main(string[] args)
         {
-            // dotnet PersonalLibrary.dll --hash-password  → prints a password hash for protection.json
             if (args.Contains(PasswordTool.Argument))
             {
                 PasswordTool.Run();
@@ -24,9 +23,6 @@ namespace PersonalLibrary
 
             var builder = WebApplication.CreateBuilder(args);
 
-            // Optional password protection. The file lies next to PersonalLibrary.dll or in the
-            // content root (project folder for "dotnet run"); without it protection is off.
-            // Changes are picked up without a restart.
             builder.Configuration.AddJsonFile(
                 Path.Combine(AppContext.BaseDirectory, "protection.json"), optional: true, reloadOnChange: true);
             builder.Configuration.AddJsonFile("protection.json", optional: true, reloadOnChange: true);
@@ -46,8 +42,6 @@ namespace PersonalLibrary
             var dataDirectory = builder.Configuration["LibrarySettings:DataDirectory"] ?? "Data";
             var fullDataPath = Path.Combine(builder.Environment.ContentRootPath, dataDirectory);
 
-            // Keys that encrypt the login and anti-forgery cookies are kept with the data,
-            // so sessions survive a restart. Each instance has its own Data folder → its own keys.
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(fullDataPath, "keys")));
 
@@ -66,8 +60,6 @@ namespace PersonalLibrary
                     options.SlidingExpiration = true;
                 });
 
-            // Behind a reverse proxy the app itself receives plain http;
-            // X-Forwarded-Proto tells it that the visitor actually uses https.
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
@@ -102,7 +94,7 @@ namespace PersonalLibrary
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
-            app.UseMiddleware<ProtectionMiddleware>(); // before static files → uploads are protected too
+            app.UseMiddleware<ProtectionMiddleware>();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();

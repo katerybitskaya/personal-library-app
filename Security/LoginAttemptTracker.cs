@@ -2,12 +2,6 @@ using System.Collections.Concurrent;
 
 namespace PersonalLibrary.Security
 {
-    /// <summary>
-    /// Counts failed login attempts in memory and applies a temporary lockout:
-    /// per IP (MaxFailedAttempts) and for all IPs together (GlobalMaxFailedAttempts).
-    /// After LockoutMinutes the counters are reset and login is possible again.
-    /// Restarting the application clears all counters.
-    /// </summary>
     public class LoginAttemptTracker
     {
         private sealed class Entry
@@ -20,7 +14,6 @@ namespace PersonalLibrary.Security
         private const string GlobalKey = "*";
         private readonly ConcurrentDictionary<string, Entry> _entries = new();
 
-        /// <summary>Returns the remaining lockout time for this IP (or globally), or null if login is allowed.</summary>
         public TimeSpan? GetLockout(string ip)
         {
             var now = DateTime.UtcNow;

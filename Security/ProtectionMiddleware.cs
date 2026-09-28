@@ -5,16 +5,12 @@ using PersonalLibrary.Models;
 
 namespace PersonalLibrary.Security
 {
-    /// <summary>
-    /// When protection is enabled, lets through only logged-in users.
-    /// Runs before static files, so uploaded covers and photos are protected too.
-    /// </summary>
     public class ProtectionMiddleware
     {
         private static readonly string[] PublicPrefixes =
         {
             "/account/login",
-            "/home/setlanguage",   // language switch on the login page (only sets a cookie)
+            "/home/setlanguage",
             "/css/",
             "/js/",
             "/lib/",
@@ -38,7 +34,6 @@ namespace PersonalLibrary.Security
             var user = context.User;
             if (user.Identity?.IsAuthenticated == true)
             {
-                // Username or password changed in protection.json → old session is no longer valid.
                 var stamp = user.FindFirst(ProtectionHelper.StampClaim)?.Value;
                 if (stamp == ProtectionHelper.GetStamp(settings))
                 {

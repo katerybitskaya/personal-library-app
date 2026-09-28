@@ -40,7 +40,6 @@ namespace PersonalLibrary.ViewModels
 
     public class HistoryViewModel
     {
-        /// <summary>Entries of the current page (newest first).</summary>
         public List<HistoryEntry> Entries { get; set; } = new();
         public int TotalCount { get; set; }
         public int Page { get; set; } = 1;

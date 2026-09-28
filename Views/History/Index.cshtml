@@ -31,7 +31,6 @@ else
         <div class="history-list @(Model.Page > 1 ? "history-list-older" : "")" style="padding:0.5rem 1.5rem">
             @foreach (var (entry, i) in Model.Entries.Select((e,i)=>(e,i)))
             {
-                @* Переводим запись на текущий язык при отображении *@
                 var msg = TranslateEntry(entry, L);
                 <div class="history-entry" style="animation-delay:@(Math.Min(i,30)*20)ms">
                     <div class="history-time">

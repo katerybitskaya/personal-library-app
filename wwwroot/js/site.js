@@ -1,19 +1,11 @@
-// ============================================================
-// Личная библиотека — глобальный JavaScript
-// ============================================================
-
-// ── Модальные окна ──
-
 function openModal(id) {
     const overlay = document.getElementById(id);
     if (!overlay) return;
     overlay.classList.add('open');
-    // Автофокус на первый input
     setTimeout(() => {
         const first = overlay.querySelector('input:not([type=hidden]),textarea');
         if (first) first.focus();
     }, 260);
-    // Закрыть по клику на фон
     overlay._bgHandler = (e) => { if (e.target === overlay) closeModal(id); };
     overlay.addEventListener('click', overlay._bgHandler);
 }
@@ -25,7 +17,6 @@ function closeModal(id) {
     if (overlay._bgHandler) overlay.removeEventListener('click', overlay._bgHandler);
 }
 
-// Глобальный Escape — закрывает любую открытую модалку
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         document.querySelectorAll('.modal-overlay.open').forEach(el => {
@@ -33,8 +24,6 @@ document.addEventListener('keydown', (e) => {
         });
     }
 });
-
-// ── Toast-уведомления ──
 
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
@@ -53,13 +42,10 @@ function showToast(message, type = 'success') {
     }, 3500);
 }
 
-// ── Диалог подтверждения ──
-
 function openConfirmModal(message, onConfirm) {
     const existing = document.getElementById('_confirmModal');
     if (existing) existing.remove();
 
-    // Читаем переводы из data-атрибутов body (устанавливаются в _Layout)
     const b = document.body;
     const titleTxt  = b.dataset.confirmTitle  || 'Confirm';
     const cancelTxt = b.dataset.confirmCancel || 'Cancel';
@@ -87,13 +73,9 @@ function openConfirmModal(message, onConfirm) {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal('_confirmModal'); });
 }
 
-// ── Антифorgery-токен ──
-
 function getAntiForgeryToken() {
     return document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
 }
-
-// ── Файловый picker с предпросмотром ──
 
 function initFilePicker(inputId, previewId, btnId) {
     const input   = document.getElementById(inputId);
@@ -106,13 +88,11 @@ function initFilePicker(inputId, previewId, btnId) {
     input.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-        // Обновить текст кнопки — показать имя файла
         if (btn) {
             btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>${file.name}`;
             btn.style.color = 'var(--gold-light)';
             btn.style.borderColor = 'var(--gold-muted)';
         }
-        // Предпросмотр изображения
         if (preview) {
             const reader = new FileReader();
             reader.onload = e => {
@@ -124,8 +104,6 @@ function initFilePicker(inputId, previewId, btnId) {
         }
     });
 }
-
-// ── Отправка формы с файлом через fetch ──
 
 async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onSuccess) {
     const err = errorElId ? document.getElementById(errorElId) : null;
@@ -155,8 +133,6 @@ async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onS
     }
 }
 
-// ── Подсветка активной буквы при скролле ──
-
 function updateActiveAlphaBtn() {
     const sections = document.querySelectorAll('.author-section[id^="letter-"]');
     if (!sections.length) return;
@@ -173,8 +149,6 @@ function updateActiveAlphaBtn() {
 if (document.querySelector('.alphabet-nav')) {
     window.addEventListener('scroll', updateActiveAlphaBtn, { passive: true });
 }
-
-// ── Мобильное меню (бургер + выдвижная панель) ──
 
 (function () {
     const navToggle = document.getElementById('navToggle');

@@ -9,10 +9,6 @@ namespace PersonalLibrary.Security
     {
         public const string StampClaim = "protection_stamp";
 
-        /// <summary>
-        /// A short fingerprint of the current credentials. It is stored in the login cookie;
-        /// when the username or password in protection.json changes, old sessions become invalid.
-        /// </summary>
         public static string GetStamp(ProtectionSettings s)
         {
             var raw = $"{s.Username}\n{s.PasswordHash}\n{s.Password}";
@@ -37,7 +33,7 @@ namespace PersonalLibrary.Security
                 }
                 catch (FormatException)
                 {
-                    passOk = false; // broken hash in protection.json
+                    passOk = false;
                 }
             }
             else
@@ -48,11 +44,6 @@ namespace PersonalLibrary.Security
             return userOk && passOk;
         }
 
-        /// <summary>
-        /// Client IP. Behind a local reverse proxy (Apache / cloudflared) the connection comes from
-        /// 127.0.0.1, so the real address is taken from CF-Connecting-IP / X-Forwarded-For —
-        /// only when the request really came from the local machine.
-        /// </summary>
         public static string GetClientIp(HttpContext context)
         {
             var remote = context.Connection.RemoteIpAddress;

@@ -3,10 +3,6 @@ using System.Text;
 
 namespace PersonalLibrary.Security
 {
-    /// <summary>
-    /// Console helper: "dotnet PersonalLibrary.dll --hash-password"
-    /// asks for a password and prints its hash for protection.json.
-    /// </summary>
     public static class PasswordTool
     {
         public const string Argument = "--hash-password";
