@@ -8,10 +8,17 @@
 
 <div class="page-header">
     <h1 class="page-title">@L["Page_Catalogue"]</h1>
-    <button class="btn btn-primary" onclick="openModal('modalAddAuthor')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-        @L["Btn_AddAuthor"]
-    </button>
+    <div class="page-header-actions">
+        <div class="catalogue-stats">
+            <div class="stat-item"><span class="stat-value">@Model.AuthorCount</span><span class="stat-label">@L["Stat_Authors"]</span></div>
+            <div class="stat-item"><span class="stat-value">@Model.SeriesCount</span><span class="stat-label">@L["Stat_Series"]</span></div>
+            <div class="stat-item"><span class="stat-value">@Model.BookCount</span><span class="stat-label">@L["Stat_Books"]</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modalAddAuthor')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            @L["Btn_AddAuthor"]
+        </button>
+    </div>
 </div>
 
 <div class="search-bar">

@@ -259,6 +259,70 @@ a:hover { color: var(--gold-light); }
     margin-top: 6px;
 }
 
+.page-header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.catalogue-stats {
+    display: flex;
+    align-items: stretch;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 1.1rem;
+    min-width: 72px;
+}
+.stat-item + .stat-item { border-left: 1px solid var(--border); }
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1.1;
+}
+.stat-label {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.back-to-top {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 900;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--gold);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity var(--transition), transform var(--transition), visibility var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.back-to-top.visible { opacity: 1; visibility: visible; transform: none; }
+.back-to-top:hover { background: var(--gold-subtle); box-shadow: var(--shadow-gold); color: var(--gold-light); }
+.back-to-top:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: 2px; }
+.back-to-top svg { width: 20px; height: 20px; }
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -934,6 +998,18 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 
 @media (min-width: 769px) {
     .alphabet-nav-mobile { display: none; }
+}
+
+@media (max-width: 768px) {
+    .page-header-actions { margin-left: 0; width: 100%; justify-content: space-between; }
+    .back-to-top { right: 1rem; bottom: 1rem; width: 40px; height: 40px; }
+}
+
+@media (max-width: 480px) {
+    .page-header-actions { flex-direction: column; align-items: stretch; }
+    .catalogue-stats { width: 100%; }
+    .stat-item { flex: 1; min-width: 0; padding: 0.45rem 0.5rem; }
+    .page-header-actions .btn { justify-content: center; }
 }
 
 @media (max-width: 360px) {

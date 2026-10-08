@@ -15,10 +15,15 @@ namespace PersonalLibrary.Controllers
 
         public IActionResult Index(string? q)
         {
+            var authors = _libraryService.GetAllAuthors();
             var vm = new CatalogueViewModel
             {
                 AuthorsByLetter = _libraryService.GetAuthorsByLetter(),
-                ExistingLetters = _libraryService.GetExistingLetters()
+                ExistingLetters = _libraryService.GetExistingLetters(),
+                AuthorCount = authors.Count,
+                SeriesCount = authors.Sum(a => a.Series.Count),
+                BookCount = authors.Sum(a => a.Books.Count(b => !b.IsMissing)
+                                           + a.Series.Sum(s => s.Books.Count(b => !b.IsMissing)))
             };
             if (!string.IsNullOrWhiteSpace(q))
             {

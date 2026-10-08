@@ -174,3 +174,12 @@ if (document.querySelector('.alphabet-nav')) {
     drawer.querySelectorAll('a').forEach(link => link.addEventListener('click', closeDrawer));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 })();
+
+(function () {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+    const toggle = () => btn.classList.toggle('visible', window.scrollY > 400);
+    window.addEventListener('scroll', toggle, { passive: true });
+    toggle();
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+})();

@@ -12,6 +12,12 @@ namespace PersonalLibrary.ViewModels
         public SearchResult? SearchResult { get; set; }
 
         public string SearchQuery { get; set; } = string.Empty;
+
+        public int AuthorCount { get; set; }
+
+        public int SeriesCount { get; set; }
+
+        public int BookCount { get; set; }
     }
 
     public class AuthorViewModel
