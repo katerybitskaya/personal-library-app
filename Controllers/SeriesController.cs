@@ -62,6 +62,14 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult Reorder(string seriesId, List<string> bookIds)
+        {
+            var (success, message) = _libraryService.ReorderSeriesBooks(seriesId, bookIds ?? new List<string>());
+            if (!success) return Json(new { success = false, message = _loc[message] });
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public IActionResult SetOngoing(SetOngoingForm form)
         {
             if (!ModelState.IsValid) return Json(new { success = false, message = _loc["Error_Validation"] });

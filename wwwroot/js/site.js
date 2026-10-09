@@ -334,6 +334,69 @@ async function toggleSeriesOngoing(btn) {
     }
 }
 
+// Порядок книг в серии: на компьютере — перетаскивание строки (видно по курсору),
+// на сенсорных экранах — стрелки «выше/ниже». После сохранения номера обновляются softReload().
+function initSeriesSort(list, savedMsg) {
+    if (!list) return;
+    const rows = () => [...list.querySelectorAll('.series-part-row')];
+    if (rows().length < 2) return;
+    const orderOf = () => rows().map(r => r.dataset.bookId).join(',');
+
+    async function save(before) {
+        if (orderOf() === before) return;
+        const fd = new FormData();
+        fd.append('seriesId', list.dataset.seriesId);
+        rows().forEach(r => fd.append('bookIds', r.dataset.bookId));
+        fd.append('__RequestVerificationToken', getAntiForgeryToken());
+        try {
+            const d = await (await fetch('/Series/Reorder', { method: 'POST', body: fd })).json();
+            if (d.success) showToast(savedMsg, 'success');
+            else showToast(d.message || genericErrorText(), 'error');
+        } catch {
+            showToast(networkErrorText(), 'error');
+        }
+        softReload();
+    }
+
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        list.classList.add('is-sortable');
+        let dragged = null, before = '';
+        rows().forEach(r => r.draggable = true);
+        list.addEventListener('dragstart', e => {
+            dragged = e.target.closest('.series-part-row');
+            if (!dragged) return;
+            before = orderOf();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', dragged.dataset.bookId);
+            requestAnimationFrame(() => dragged && dragged.classList.add('dragging'));
+        });
+        list.addEventListener('dragover', e => {
+            if (!dragged) return;
+            e.preventDefault();
+            const next = rows().find(r => r !== dragged && e.clientY < r.getBoundingClientRect().top + r.offsetHeight / 2);
+            if (next) { if (next !== dragged.nextElementSibling) list.insertBefore(dragged, next); }
+            else if (list.lastElementChild !== dragged) list.appendChild(dragged);
+        });
+        list.addEventListener('drop', e => e.preventDefault());
+        list.addEventListener('dragend', () => {
+            if (!dragged) return;
+            dragged.classList.remove('dragging');
+            dragged = null;
+            save(before);
+        });
+    }
+
+    list.addEventListener('click', e => {
+        const btn = e.target.closest('.part-move-btn');
+        if (!btn) return;
+        const row = btn.closest('.series-part-row');
+        const before = orderOf();
+        if (btn.dataset.move === '-1' && row.previousElementSibling) list.insertBefore(row, row.previousElementSibling);
+        else if (btn.dataset.move === '1' && row.nextElementSibling) list.insertBefore(row.nextElementSibling, row);
+        save(before);
+    });
+}
+
 async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onSuccess) {
     const err = errorElId ? document.getElementById(errorElId) : null;
     if (err) err.style.display = 'none';

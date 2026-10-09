@@ -228,6 +228,30 @@ namespace PersonalLibrary.Services
         }
 
 
+        // Новый порядок книг серии (перетаскивание / стрелки): номера, что уже были в серии,
+        // раздаются книгам по новому порядку — пропуски в нумерации сохраняются
+        public (bool Success, string Message) ReorderSeriesBooks(string seriesId, IList<string> bookIds)
+        {
+            var series = _repository.GetSeriesById(seriesId);
+            if (series == null) return (false, "Error_NotFound");
+            if (bookIds.Count != series.Books.Count || bookIds.Distinct().Count() != bookIds.Count
+                || bookIds.Any(id => series.Books.All(b => b.Id != id)))
+                return (false, "Error_Unknown");
+
+            var numbers = new List<int>();
+            foreach (var n in series.Books.Where(b => b.OrderInSeries.HasValue).Select(b => b.OrderInSeries!.Value).OrderBy(n => n))
+                numbers.Add(numbers.Count > 0 && n <= numbers[^1] ? numbers[^1] + 1 : Math.Max(n, 1));
+            while (numbers.Count < bookIds.Count)
+                numbers.Add(numbers.Count > 0 ? numbers[^1] + 1 : 1);
+
+            for (int i = 0; i < bookIds.Count; i++)
+                series.Books.First(b => b.Id == bookIds[i]).OrderInSeries = numbers[i];
+
+            _repository.UpdateSeries(series);
+            _publisher.SeriesReordered(series.Name, _repository.GetAuthorById(series.AuthorId)?.Name ?? "");
+            return (true, string.Empty);
+        }
+
         public (bool Success, string Message) SetSeriesOngoing(string seriesId, bool isOngoing)
         {
             var series = _repository.GetSeriesById(seriesId);

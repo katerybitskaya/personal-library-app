@@ -68,16 +68,24 @@
         {
             <div class="items-section">
                 <div class="items-section-title">@L["Series_Parts"] (@(orderedBooks.Any(b => b.IsMissing) ? string.Format(L["Series_PartsOf"], orderedBooks.Count(b => !b.IsMissing), orderedBooks.Count) : orderedBooks.Count.ToString()))</div>
+                <div class="series-parts" id="seriesParts" data-series-id="@series.Id">
                 @foreach (var book in orderedBooks)
                 {
-                    <div class="series-part-row">
+                    <div class="series-part-row" data-book-id="@book.Id">
                         <span class="part-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
-                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link book-title-line @(book.IsMissing ? "text-muted" : "")"><span>@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></a>
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" draggable="false" class="item-link book-title-line @(book.IsMissing ? "text-muted" : "")"><span>@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></a>
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm part-move-btn" data-move="-1" title="@L["Btn_MoveUp"]" aria-label="@L["Btn_MoveUp"]">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm part-move-btn" data-move="1" title="@L["Btn_MoveDown"]" aria-label="@L["Btn_MoveDown"]">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
                         <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="confirmDeleteBookFromSeries(this.dataset.id, this.dataset.name)" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
                     </div>
                 }
+                </div>
             </div>
         }
         else
@@ -181,6 +189,7 @@ document.getElementById('chkAddSBookMissing')?.addEventListener('change', functi
     document.getElementById('inpAddSBookTitle').required = !this.checked;
 });
 initFilePicker('fileUpdateCover',null,'btnFileUpdateCover');
+initSeriesSort(document.getElementById('seriesParts'), '@L["Toast_OrderSaved"]');
 
 document.getElementById('formAddBookToSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();

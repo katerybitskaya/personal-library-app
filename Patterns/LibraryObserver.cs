@@ -29,6 +29,7 @@ namespace PersonalLibrary.Patterns
         public void SeriesAdded(string name, string author)                   => NotifyObservers(Msg("Hist_SeriesAdded", name, author));
         public void SeriesDeleted(string name, string author)                 => NotifyObservers(Msg("Hist_SeriesDeleted", name, author));
         public void SeriesRenamed(string o, string n, string author)          => NotifyObservers(Msg("Hist_SeriesRenamed", o, n, author));
+        public void SeriesReordered(string name, string author)               => NotifyObservers(Msg("Hist_SeriesReordered", name, author));
         public void SeriesCoverUpdated(string name, string author)            => NotifyObservers(Msg("Hist_SeriesCover", name, author));
         public void ItemRestored(string name, string type)
         {

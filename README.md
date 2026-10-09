@@ -279,6 +279,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Series/DeleteBook` - Delete book from series
 - `POST /Series/Delete` - Delete series
 - `POST /Series/SetOngoing` - Mark series as ongoing
+- `POST /Series/Reorder` - Save a new order of books in the series
 
 ### Trash
 - `GET /Trash/Index` - View trash
