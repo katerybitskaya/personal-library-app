@@ -1,7 +1,14 @@
+function syncModalScrollLock() {
+    document.body.classList.toggle('modal-open', !!document.querySelector('.modal-overlay.open'));
+}
+
 function openModal(id) {
     const overlay = document.getElementById(id);
     if (!overlay) return;
+    if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+    overlay.scrollTop = 0;
     overlay.classList.add('open');
+    syncModalScrollLock();
     setTimeout(() => {
         const first = overlay.querySelector('input:not([type=hidden]),textarea');
         if (first) first.focus();
@@ -15,6 +22,7 @@ function closeModal(id) {
     if (!overlay) return;
     overlay.classList.remove('open');
     if (overlay._bgHandler) overlay.removeEventListener('click', overlay._bgHandler);
+    syncModalScrollLock();
 }
 
 document.addEventListener('keydown', (e) => {
@@ -22,6 +30,7 @@ document.addEventListener('keydown', (e) => {
         document.querySelectorAll('.modal-overlay.open').forEach(el => {
             el.classList.remove('open');
         });
+        syncModalScrollLock();
     }
 });
 
@@ -64,7 +73,7 @@ function openConfirmModal(message, onConfirm) {
             </div>
         </div>`;
     document.body.appendChild(overlay);
-    requestAnimationFrame(() => overlay.classList.add('open'));
+    requestAnimationFrame(() => { overlay.classList.add('open'); syncModalScrollLock(); });
 
     document.getElementById('_confirmBtn').addEventListener('click', async () => {
         closeModal('_confirmModal');
@@ -107,6 +116,15 @@ function initFilePicker(inputId, previewId, btnId) {
 
 function syncFlagEditor(formEl) {
     if (!formEl) return;
+    const missingCb = formEl.querySelector('input[name="IsMissing"][type="checkbox"]');
+    const missing = missingCb && !missingCb.disabled ? missingCb.checked : formEl.dataset.missing === 'true';
+    formEl.querySelectorAll('.flag-chip').forEach(chip => {
+        const ok = missing === (chip.dataset.missingOk === 'true');
+        const cb = chip.querySelector('input');
+        chip.hidden = !ok;
+        cb.disabled = !ok;
+        if (!ok) cb.checked = false;
+    });
     const anyChecked = [...formEl.querySelectorAll('input[name="Flags"]')].some(cb => cb.checked);
     const note = formEl.querySelector('textarea[name="Note"]');
     if (note) note.disabled = !anyChecked;
@@ -114,6 +132,7 @@ function syncFlagEditor(formEl) {
 
 function initFlagEditor(formEl, onSaved) {
     if (!formEl) return;
+    formEl.querySelector('input[name="IsMissing"][type="checkbox"]')?.addEventListener('change', () => syncFlagEditor(formEl));
     formEl.querySelectorAll('input[name="Flags"]').forEach(cb => cb.addEventListener('change', () => syncFlagEditor(formEl)));
     syncFlagEditor(formEl);
 
@@ -131,7 +150,8 @@ function initFlagAutoSave(formEl) {
     const status = formEl.querySelector('.flag-status');
     const err = formEl.querySelector('.flag-error');
     const note = formEl.querySelector('textarea[name="Note"]');
-    let timer = null, pending = false, running = false, hideTimer = null;
+    let timer = null, pending = false, running = false, hideTimer = null, reloadAfter = false;
+    const missingCb = formEl.querySelector('input[name="IsMissing"][type="checkbox"]');
 
     const setStatus = (text, cls) => {
         if (!status) return;
@@ -148,8 +168,14 @@ function initFlagAutoSave(formEl) {
         setStatus(formEl.dataset.savingMsg || 'Saving…', 'is-saving');
         try {
             const d = await (await fetch('/Book/UpdateFlags', { method: 'POST', body: new FormData(formEl) })).json();
-            if (d.success) setStatus(formEl.dataset.savedMsg || 'Saved!', 'is-saved');
-            else { setStatus('', ''); if (err) { err.textContent = d.message; err.style.display = 'block'; } }
+            if (d.success) {
+                setStatus(formEl.dataset.savedMsg || 'Saved!', 'is-saved');
+                if (reloadAfter) { reloadAfter = false; setTimeout(() => location.reload(), 400); }
+            } else {
+                setStatus('', '');
+                if (err) { err.textContent = d.message; err.style.display = 'block'; }
+                if (reloadAfter && missingCb) { reloadAfter = false; missingCb.checked = !missingCb.checked; syncFlagEditor(formEl); }
+            }
         } catch {
             setStatus('', '');
             if (err) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
@@ -164,6 +190,11 @@ function initFlagAutoSave(formEl) {
         syncFlagEditor(formEl);
         saveSoon(0);
     }));
+    missingCb?.addEventListener('change', () => {
+        syncFlagEditor(formEl);
+        reloadAfter = true;
+        saveSoon(0);
+    });
     if (note) {
         note.addEventListener('input', () => saveSoon(800));
         note.addEventListener('blur', () => { if (timer) saveSoon(0); });
@@ -181,14 +212,15 @@ function openBookFlagsModal(btn) {
     const form = document.getElementById('formModalBookFlags');
     const flags = (btn.dataset.flags || '').split(',').filter(Boolean);
     form.querySelector('input[name="Id"]').value = btn.dataset.bookId;
-    const missing = btn.dataset.missing === 'true';
-    form.querySelectorAll('.flag-chip').forEach(chip => {
-        const ok = missing === (chip.dataset.missingOk === 'true');
-        const cb = chip.querySelector('input');
-        chip.hidden = !ok;
-        cb.disabled = !ok;
-        cb.checked = ok && flags.includes(cb.value);
-    });
+    const inSeries = btn.dataset.inSeries === 'true';
+    form.dataset.missing = btn.dataset.missing;
+    const wrap = form.querySelector('.missing-toggle-wrap');
+    if (wrap) {
+        wrap.hidden = !inSeries;
+        wrap.querySelectorAll('input').forEach(i => { i.disabled = !inSeries; });
+        wrap.querySelector('input[type="checkbox"]').checked = btn.dataset.missing === 'true';
+    }
+    form.querySelectorAll('input[name="Flags"]').forEach(cb => { cb.disabled = false; cb.checked = flags.includes(cb.value); });
     form.querySelector('textarea[name="Note"]').value = btn.dataset.note || '';
     form.querySelector('.flag-error').style.display = 'none';
     document.getElementById('flagModalBook').textContent = btn.dataset.bookTitle;

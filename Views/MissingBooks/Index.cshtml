@@ -31,6 +31,10 @@ else
             <div class="missing-card">
                 <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="missing-card-series flag-card-title">@item.SeriesName</a>
                 <div class="missing-card-meta">
+                    @if (!string.IsNullOrEmpty(item.Title))
+                    {
+                        <div><span style="color:var(--text-muted)">@L["Missing_Book"]:</span> <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="flag-card-link">@item.Title</a></div>
+                    }
                     <div><span style="color:var(--text-muted)">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                     <div>
                         <span style="color:var(--text-muted)">@L["Missing_Order"]:</span>

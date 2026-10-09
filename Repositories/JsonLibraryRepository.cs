@@ -93,6 +93,7 @@ namespace PersonalLibrary.Repositories
                 existing.Flags = book.Flags;
                 existing.Note = book.Note;
                 existing.IsFavorite = book.IsFavorite;
+                existing.IsMissing = book.IsMissing;
                 Save();
                 return;
             }
@@ -107,6 +108,7 @@ namespace PersonalLibrary.Repositories
                     bookInSeries.Flags = book.Flags;
                     bookInSeries.Note = book.Note;
                     bookInSeries.IsFavorite = book.IsFavorite;
+                    bookInSeries.IsMissing = book.IsMissing;
                     Save();
                     return;
                 }
@@ -217,6 +219,7 @@ namespace PersonalLibrary.Repositories
             existing.Flags = book.Flags;
             existing.Note = book.Note;
             existing.IsFavorite = book.IsFavorite;
+            existing.IsMissing = book.IsMissing;
             Save();
         }
 

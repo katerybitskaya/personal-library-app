@@ -6,10 +6,21 @@
 }
 @{
     var autoSave = ViewData["FlagAutoSave"] as bool? == true;
+    var isModal = ViewData["FlagFormFooter"] as bool? == true;
+    var showMissing = isModal || !string.IsNullOrEmpty(Model.SeriesId);
 }
-<form id="@formId" class="flag-editor" data-saved-msg="@L["Flags_Saved"]" data-saving-msg="@L["Flags_Saving"]">
+<form id="@formId" class="flag-editor" data-missing="@(Model.IsMissing ? "true" : "false")" data-saved-msg="@L["Flags_Saved"]" data-saving-msg="@L["Flags_Saving"]">
     @Html.AntiForgeryToken()
     <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="missing-toggle-wrap" @(showMissing ? "" : "hidden")>
+        <label class="missing-toggle">
+            <input type="checkbox" name="IsMissing" value="true" @(Model.IsMissing ? "checked" : "") @(showMissing ? "" : "disabled") />
+            <span class="missing-toggle-switch" aria-hidden="true"></span>
+            <span class="missing-toggle-label">@L["Book_IsMissing"]</span>
+        </label>
+        <input type="hidden" name="IsMissing" value="false" @(showMissing ? "" : "disabled") />
+        <div class="form-hint">@L["Book_IsMissingHint"]</div>
+    </div>
     <div class="flag-chips">
         @foreach (var flag in BookFlags.All)
         {

@@ -105,8 +105,15 @@
             <input type="hidden" name="SeriesId" value="@series.Id" />
             <div class="form-group">
                 <label class="form-label">@L["Book_Title"] <span class="text-danger">*</span></label>
-                <input type="text" name="Title" class="form-control" placeholder="@L["Book_TitlePlaceholder"]" required />
+                <input type="text" name="Title" id="inpAddSBookTitle" class="form-control" placeholder="@L["Book_TitlePlaceholder"]" required />
                 <div class="form-hint">@L["Book_MissingHint"]</div>
+            </div>
+            <div class="form-group">
+                <label class="missing-toggle">
+                    <input type="checkbox" name="IsMissing" value="true" id="chkAddSBookMissing" />
+                    <span class="missing-toggle-switch" aria-hidden="true"></span>
+                    <span class="missing-toggle-label">@L["Book_IsMissing"]</span>
+                </label>
             </div>
             <div class="form-group">
                 <label class="form-label">@L["Series_BookOrder"]</label>
@@ -183,6 +190,9 @@
 @section Scripts {
 <script>
 initFilePicker('fileAddSBook','prevAddSBook','btnFileAddSBook');
+document.getElementById('chkAddSBookMissing')?.addEventListener('change', function () {
+    document.getElementById('inpAddSBookTitle').required = !this.checked;
+});
 initFilePicker('fileUpdateCover',null,'btnFileUpdateCover');
 
 document.getElementById('formAddBookToSeries')?.addEventListener('submit', function(e) {

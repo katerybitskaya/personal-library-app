@@ -31,7 +31,14 @@ namespace PersonalLibrary.Models
             Console.WriteLine(new string('-', depth) + Title);
         }
 
-        public bool IsMissing => Title.Trim() == "-";
+        public bool IsMissing { get; set; }
+
+        public void NormalizeMissing()
+        {
+            if (IsMissing) IsFavorite = false;
+            Flags = ActiveFlags;
+            if (Flags.Count == 0) Note = null;
+        }
 
         [JsonIgnore]
         public List<BookFlag> ActiveFlags => Flags.Where(f => BookFlags.AllowedFor(this).Contains(f)).ToList();

@@ -62,7 +62,7 @@ namespace PersonalLibrary.Controllers
         public IActionResult UpdateFlags(UpdateFlagsForm form)
         {
             if (!ModelState.IsValid) return Json(new { success = false, message = "Validation failed." });
-            var (success, message) = _libraryService.UpdateBookFlags(form.Id, form.Flags, form.Note);
+            var (success, message) = _libraryService.UpdateBookFlags(form.Id, form.Flags, form.Note, form.IsMissing);
             if (!success) return Json(new { success = false, message });
             return Json(new { success = true });
         }

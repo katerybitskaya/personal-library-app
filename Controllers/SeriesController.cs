@@ -79,11 +79,11 @@ namespace PersonalLibrary.Controllers
         [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> AddBook(AddBookToSeriesForm form)
         {
-            if (string.IsNullOrWhiteSpace(form.Title))
+            if (string.IsNullOrWhiteSpace(form.Title) && !form.IsMissing)
                 return Json(new { success = false, message = "Title is required." });
 
             var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, form.CoverPath, _env);
-            var book = new Book { Title = form.Title, OrderInSeries = form.OrderInSeries, CoverPath = coverPath };
+            var book = new Book { Title = form.Title ?? string.Empty, OrderInSeries = form.OrderInSeries, CoverPath = coverPath, IsMissing = form.IsMissing };
 
             var (success, message) = _libraryService.AddBookToSeries(form.SeriesId, book);
             if (!success) return Json(new { success = false, message });

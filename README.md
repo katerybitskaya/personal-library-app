@@ -231,7 +231,7 @@ The application supports three languages. The switcher is in the navigation bar 
 
 ### Book Series Management
 - Add books to series with automatic ordering
-- Missing book tracking (indicated by "-" title)
+- Missing book tracking (“Not owned” switch)
 - Smart series positioning
 
 ### History Tracking

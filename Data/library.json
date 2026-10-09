@@ -253,14 +253,12 @@
               "dateAdded": "2026-02-28T00:16:23.8718885+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
-              "flags": [
-                "OutOfPrint"
-              ],
+              "flags": [],
               "note": null,
               "isFavorite": false,
               "name": "-",
               "isMissing": true,
-              "hasFlags": true
+              "hasFlags": false
             },
             {
               "id": "a49b7c12-3ce2-4e85-988e-0939b2927435",

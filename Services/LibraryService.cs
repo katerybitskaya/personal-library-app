@@ -85,6 +85,7 @@ namespace PersonalLibrary.Services
                 return (false, $"Book \"{titleTrimmed}\" already exists for this author.");
 
             book.Title = book.Title.Trim();
+            book.NormalizeMissing();
             book.Id = Guid.NewGuid().ToString();
             book.AuthorId = authorId;
             book.DateAdded = DateTime.Now;
@@ -104,10 +105,7 @@ namespace PersonalLibrary.Services
 
             var newTitleTrimmed = newTitle.Trim();
 
-            bool isInSeries = author.Series.Any(s => s.Books.Any(b => b.Id == bookId));
-            bool isMissingPlaceholder = newTitleTrimmed == "-";
-
-            if (!isMissingPlaceholder || !isInSeries)
+            if (!book.IsMissing)
             {
                 var allTitles = author.Books
                     .Where(b => b.Id != bookId)
@@ -120,9 +118,7 @@ namespace PersonalLibrary.Services
 
             string oldTitle = book.Title;
             book.Title = newTitleTrimmed;
-            if (book.IsMissing) book.IsFavorite = false;
-            book.Flags = book.ActiveFlags;
-            if (book.Flags.Count == 0) book.Note = null;
+            book.NormalizeMissing();
             _repository.UpdateBook(book);
             var _renameSeries = author.Series.FirstOrDefault(s => s.Books.Any(b => b.Id == bookId));
             _publisher.BookRenamed(oldTitle, newTitleTrimmed, author.Name, _renameSeries?.Name);
@@ -130,10 +126,16 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
-        public (bool Success, string Message) UpdateBookFlags(string bookId, IEnumerable<BookFlag>? flags, string? note)
+        public (bool Success, string Message) UpdateBookFlags(string bookId, IEnumerable<BookFlag>? flags, string? note, bool? isMissing = null)
         {
             var book = _repository.GetBookById(bookId);
             if (book == null) return (false, "Book not found.");
+
+            if (isMissing.HasValue && !string.IsNullOrEmpty(book.SeriesId))
+            {
+                book.IsMissing = isMissing.Value;
+                if (book.IsMissing) book.IsFavorite = false;
+            }
 
             var allowed = BookFlags.AllowedFor(book);
             book.Flags = (flags ?? Enumerable.Empty<BookFlag>())
@@ -181,6 +183,7 @@ namespace PersonalLibrary.Services
 
             foreach (var book in series.Books)
             {
+                book.NormalizeMissing();
                 book.Id = Guid.NewGuid().ToString();
                 book.AuthorId = authorId;
                 book.SeriesId = series.Id;
@@ -246,9 +249,8 @@ namespace PersonalLibrary.Services
             var author = _repository.GetAuthorById(series.AuthorId);
             if (author == null) return (false, "Author not found.");
 
-            var titleTrimmed = book.Title.Trim();
-            bool isMissingPlaceholder = titleTrimmed == "-";
-            if (!isMissingPlaceholder)
+            var titleTrimmed = string.IsNullOrWhiteSpace(book.Title) ? "-" : book.Title.Trim();
+            if (!book.IsMissing)
             {
                 var duplicate = series.Books.FirstOrDefault(b =>
                     b.Title.Equals(titleTrimmed, StringComparison.OrdinalIgnoreCase));
@@ -257,6 +259,7 @@ namespace PersonalLibrary.Services
             }
 
             book.Title = titleTrimmed;
+            book.NormalizeMissing();
             book.Id = Guid.NewGuid().ToString();
             book.AuthorId = series.AuthorId;
             book.SeriesId = seriesId;
@@ -307,6 +310,7 @@ namespace PersonalLibrary.Services
                             SeriesName = series.Name,
                             BookId = book.Id,
                             OrderInSeries = book.OrderInSeries ?? 0,
+                            Title = book.Title,
                             Flags = book.ActiveFlags,
                             Note = book.HasFlags ? book.Note : null
                         });
@@ -490,6 +494,7 @@ namespace PersonalLibrary.Services
         public string SeriesId { get; set; } = string.Empty;
         public string SeriesName { get; set; } = string.Empty;
         public string BookId { get; set; } = string.Empty;
+        public string? Title { get; set; }
         public int OrderInSeries { get; set; }
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }

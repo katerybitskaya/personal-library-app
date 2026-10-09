@@ -49,11 +49,12 @@ namespace PersonalLibrary.ViewModels
         [Required]
         public string SeriesId { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Title is required.")]
-        [StringLength(500, MinimumLength = 1)]
-        public string Title { get; set; } = string.Empty;
+        [StringLength(500)]
+        public string? Title { get; set; }
 
         public int? OrderInSeries { get; set; }
+
+        public bool IsMissing { get; set; }
 
         public IFormFile? CoverFile { get; set; }
         public string? CoverPath { get; set; }
@@ -80,6 +81,8 @@ namespace PersonalLibrary.ViewModels
 
         [StringLength(1000)]
         public string? Note { get; set; }
+
+        public bool? IsMissing { get; set; }
     }
 
     public class SetFavoriteForm
