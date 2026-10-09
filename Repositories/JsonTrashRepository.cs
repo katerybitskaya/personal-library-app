@@ -6,7 +6,10 @@ namespace PersonalLibrary.Repositories
     public class JsonTrashRepository
     {
         private readonly string _trashFilePath;
+        private readonly object _saveLock = new();
         private List<TrashItem> _items;
+
+        public string? LoadError { get; }
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -18,7 +21,15 @@ namespace PersonalLibrary.Repositories
         {
             _trashFilePath = Path.Combine(dataDirectory, "trash.json");
             Directory.CreateDirectory(dataDirectory);
-            _items = LoadFromFile();
+            try
+            {
+                _items = JsonFileStore.Load<List<TrashItem>>(_trashFilePath, _jsonOptions);
+            }
+            catch (StorageException ex)
+            {
+                _items = new List<TrashItem>();
+                LoadError = ex.Message;
+            }
         }
 
         public List<TrashItem> GetAll() => _items.OrderByDescending(i => i.DeletedAt).ToList();
@@ -49,23 +60,10 @@ namespace PersonalLibrary.Repositories
 
         private void Save()
         {
-            var json = JsonSerializer.Serialize(_items, _jsonOptions);
-            File.WriteAllText(_trashFilePath, json);
-        }
-
-        private List<TrashItem> LoadFromFile()
-        {
-            if (!File.Exists(_trashFilePath)) return new List<TrashItem>();
-
-            try
-            {
-                var json = File.ReadAllText(_trashFilePath);
-                return JsonSerializer.Deserialize<List<TrashItem>>(json, _jsonOptions) ?? new();
-            }
-            catch
-            {
-                return new List<TrashItem>();
-            }
+            if (LoadError != null)
+                throw new StorageException("trash.json was not loaded; saving is disabled to protect the data.");
+            lock (_saveLock)
+                JsonFileStore.Save(_trashFilePath, _items, _jsonOptions);
         }
     }
 }

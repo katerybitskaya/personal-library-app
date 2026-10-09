@@ -53,5 +53,20 @@ namespace PersonalLibrary.Controllers
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() => View();
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult StatusPage(int code)
+        {
+            if (code != StatusCodes.Status404NotFound) return StatusCode(code);
+            Response.StatusCode = code;
+            return View("PageNotFound");
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult StorageError()
+        {
+            Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            return View();
+        }
     }
 }

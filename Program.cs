@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using PersonalLibrary.Filters;
 using PersonalLibrary.Interfaces;
+using PersonalLibrary.Middleware;
 using PersonalLibrary.Models;
 using PersonalLibrary.Patterns;
 using PersonalLibrary.Repositories;
@@ -39,8 +40,8 @@ namespace PersonalLibrary
 
             builder.Services.AddScoped<LocalizationService>();
 
-            var dataDirectory = builder.Configuration["LibrarySettings:DataDirectory"] ?? "Data";
-            var fullDataPath = Path.Combine(builder.Environment.ContentRootPath, dataDirectory);
+            var librarySettings = builder.Configuration.GetSection("LibrarySettings").Get<LibrarySettings>() ?? new LibrarySettings();
+            var fullDataPath = Path.Combine(builder.Environment.ContentRootPath, librarySettings.DataDirectory);
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(fullDataPath, "keys")));
@@ -71,6 +72,7 @@ namespace PersonalLibrary
 
             builder.Services.AddSingleton<LibraryEventPublisher>();
             builder.Services.AddSingleton<HistoryService>();
+            builder.Services.AddSingleton<UploadCleanupService>();
             builder.Services.AddSingleton<TrashService>();
             builder.Services.AddSingleton<LibraryService>();
 
@@ -83,6 +85,15 @@ namespace PersonalLibrary
             app.Logger.LogInformation("Password protection: {State}",
                 app.Configuration.GetValue<bool>("Protection:Enabled") ? "ON" : "OFF");
 
+            var storageErrors = new[]
+            {
+                app.Services.GetRequiredService<ILibraryRepository>().LoadError,
+                app.Services.GetRequiredService<JsonTrashRepository>().LoadError,
+                app.Services.GetRequiredService<JsonHistoryRepository>().LoadError
+            }.Where(e => e != null);
+            foreach (var error in storageErrors)
+                app.Logger.LogCritical("Data storage error: {Error}. The site shows an error page and saving is disabled.", error);
+
 
             app.UseForwardedHeaders();
 
@@ -92,10 +103,14 @@ namespace PersonalLibrary
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/Home/StatusPage", "?code={0}");
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMiddleware<ProtectionMiddleware>();
             app.UseStaticFiles();
+            app.UseMiddleware<StorageGuardMiddleware>();
+            app.UseMiddleware<RequestLockMiddleware>();
             app.UseRouting();
             app.UseAuthorization();
 

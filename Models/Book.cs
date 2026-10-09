@@ -24,6 +24,7 @@ namespace PersonalLibrary.Models
 
         public bool IsFavorite { get; set; }
 
+        [JsonIgnore]
         public string Name => Title;
 
         public void Display(int depth)
@@ -46,6 +47,7 @@ namespace PersonalLibrary.Models
         [JsonIgnore]
         public bool IsFavoriteActive => IsFavorite && !IsMissing;
 
+        [JsonIgnore]
         public bool HasFlags => ActiveFlags.Count > 0;
     }
 }

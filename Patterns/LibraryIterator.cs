@@ -9,11 +9,6 @@ namespace PersonalLibrary.Patterns
         void Reset();
     }
 
-    public interface IIterableCollection<T>
-    {
-        ILibraryIterator<T> CreateIterator();
-    }
-
     public class AuthorIterator : ILibraryIterator<Author>
     {
         private readonly List<Author> _authors;
@@ -101,23 +96,17 @@ namespace PersonalLibrary.Patterns
         public List<(Author Author, Book Book, Series? Series)> FindBooksByPrefix(string query)
         {
             var results = new List<(Author, Book, Series?)>();
+            var authorsById = _authors.ToDictionary(a => a.Id);
+            var seriesById = _authors.SelectMany(a => a.Series).ToDictionary(s => s.Id);
+            var iterator = new BookIterator(_authors);
 
-            foreach (var author in _authors)
+            while (iterator.HasNext())
             {
-                foreach (var book in author.Books)
-                {
-                    if (!book.IsMissing && book.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase))
-                        results.Add((author, book, null));
-                }
-
-                foreach (var series in author.Series)
-                {
-                    foreach (var book in series.Books)
-                    {
-                        if (!book.IsMissing && book.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase))
-                            results.Add((author, book, series));
-                    }
-                }
+                var book = iterator.Next();
+                if (book.IsMissing || !book.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!authorsById.TryGetValue(book.AuthorId, out var author)) continue;
+                Series? series = book.SeriesId != null && seriesById.TryGetValue(book.SeriesId, out var s) ? s : null;
+                results.Add((author, book, series));
             }
 
             return results;
@@ -126,16 +115,15 @@ namespace PersonalLibrary.Patterns
         public List<(Author Author, Series Series)> FindSeriesByPrefix(string query)
         {
             var results = new List<(Author, Series)>();
-            var seriesIterator = new SeriesIterator(_authors);
-            seriesIterator.Reset();
+            var authorsById = _authors.ToDictionary(a => a.Id);
+            var iterator = new SeriesIterator(_authors);
 
-            foreach (var author in _authors)
+            while (iterator.HasNext())
             {
-                foreach (var series in author.Series)
-                {
-                    if (series.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase))
-                        results.Add((author, series));
-                }
+                var series = iterator.Next();
+                if (series.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)
+                    && authorsById.TryGetValue(series.AuthorId, out var author))
+                    results.Add((author, series));
             }
 
             return results;

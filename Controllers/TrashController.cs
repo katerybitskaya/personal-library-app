@@ -32,10 +32,10 @@ namespace PersonalLibrary.Controllers
             var dupMsg = CheckDuplicate(item);
             if (dupMsg != null) return Json(new { success = false, message = dupMsg });
 
-            bool restored = _trashService.Restore(id);
-            if (!restored) return Json(new { success = false, message = _loc["Trash_NoParentAuthor"] });
+            var error = _trashService.Restore(id);
+            if (error != null) return Json(new { success = false, message = _loc[error] });
 
-            _publisher.ItemRestored(item.ItemName, item.ItemType.ToString());
+            _publisher.ItemRestored(item.ItemType == TrashItemType.Book ? _loc.BookTitle(item.ItemName) : item.ItemName, item.ItemType.ToString());
             return Json(new { success = true });
         }
 
@@ -70,7 +70,10 @@ namespace PersonalLibrary.Controllers
                     break;
                 case TrashItemType.Book:
                     var a4b = allAuthors.FirstOrDefault(a => a.Id == item.AuthorId);
-                    if (a4b != null)
+                    var trashedBook = System.Text.Json.JsonSerializer.Deserialize<Book>(item.SerializedData,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
+                    bool untitledMissing = trashedBook != null && trashedBook.IsMissing && string.IsNullOrWhiteSpace(trashedBook.Title);
+                    if (a4b != null && !untitledMissing)
                     {
                         bool exists = a4b.Books.Any(b => b.Title.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase))
                             || a4b.Series.Any(s => s.Books.Any(b => b.Title.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase)));

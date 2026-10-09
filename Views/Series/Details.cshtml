@@ -18,9 +18,9 @@
 
 <div class="detail-layout">
     <div>
-        <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="Click to change cover">
+        <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="@L["Cover_Change"]">
             <div style="z-index:1;color:var(--gold-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg></div>
-            <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">Add cover</div>
+            <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">@L["Cover_Add"]</div>
             @if (!string.IsNullOrEmpty(series.CoverPath))
             {
                 <img src="@series.CoverPath" alt="@series.Name"
@@ -76,13 +76,13 @@
                         <span style="font-family:var(--font-ui);font-size:0.8rem;color:var(--gold-muted);min-width:28px;text-align:right;font-weight:600">@(book.OrderInSeries?.ToString() ?? "·")</span>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")" style="flex:1">
-                            @book.Title
+                            @L.BookTitle(book.Title)
                             <partial name="_BookFlagBadges" model="book" />
                         </a>
                         @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
                         else { <span class="fav-placeholder"></span> }
                         <partial name="_BookFlagButton" model="book" />
-                        <button class="btn btn-icon btn-ghost btn-sm" onclick="confirmDeleteBookFromSeries('@book.Id','@book.Title.Replace("'","\\'")')" title="@L["Book_Delete"]" style="opacity:0" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
+                        <button class="btn btn-icon btn-ghost btn-sm" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="confirmDeleteBookFromSeries(this.dataset.id, this.dataset.name)" title="@L["Book_Delete"]" style="opacity:0" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
                     </div>
@@ -91,7 +91,7 @@
         }
         else
         {
-            <p class="text-muted" style="font-family:var(--font-ui);font-size:0.9rem">No books yet.</p>
+            <p class="text-muted" style="font-family:var(--font-ui);font-size:0.9rem">@L["Series_NoBooks"]</p>
         }
     </div>
 </div>
@@ -197,32 +197,32 @@ initFilePicker('fileUpdateCover',null,'btnFileUpdateCover');
 
 document.getElementById('formAddBookToSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Series/AddBook','errAddSBook',document.getElementById('btnAddSBook'),'Book added!',()=>{ closeModal('modalAddBookToSeries'); this.reset(); document.getElementById('prevAddSBook').style.display='none'; softReload(); });
+    submitFormWithFile(this,'/Series/AddBook','errAddSBook',document.getElementById('btnAddSBook'),'@L["Toast_BookAdded"]',()=>{ closeModal('modalAddBookToSeries'); this.reset(); document.getElementById('prevAddSBook').style.display='none'; softReload(); });
 });
 document.getElementById('formRenameSeries')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const err = document.getElementById('errRenameSeries'); err.style.display='none';
     const d = await (await fetch('/Series/Rename',{method:'POST',body:new FormData(this)})).json();
-    if (d.success) { showToast('Series renamed!','success'); softReload(); }
+    if (d.success) { showToast('@L["Toast_Renamed"]','success'); softReload(); }
     else { err.textContent=d.message; err.style.display='block'; }
 });
 document.getElementById('formUpdateCover')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Series/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); softReload(); });
+    submitFormWithFile(this,'/Series/UpdateCover',null,document.getElementById('btnUpdateCover'),'@L["Toast_CoverUpdated"]',()=>{ closeModal('modalUpdateCover'); softReload(); });
 });
 function confirmDeleteSeries() {
     openConfirmModal('@L["Series_ConfirmDelete"]', async () => {
         const fd = new FormData(); fd.append('seriesId','@series.Id'); fd.append('authorId','@author.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Series/Delete',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('Series moved to trash.','success'); setTimeout(()=>window.location.href='/Author/Details/@author.Id',800); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]','success'); setTimeout(()=>window.location.href='/Author/Details/@author.Id',800); }
         else showToast(d.message,'error');
     });
 }
 function confirmDeleteBookFromSeries(bookId, bookTitle) {
-    openConfirmModal(`Move "${bookTitle}" to trash?`, async () => {
+    openConfirmModal(`@L["Book_ConfirmDelete"]<br><strong>${escapeHtml(bookTitle)}</strong>`, async () => {
         const fd = new FormData(); fd.append('bookId',bookId); fd.append('seriesId','@series.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Series/DeleteBook',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('Book moved to trash.','success'); softReload(); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]','success'); softReload(); }
         else showToast(d.message,'error');
     });
 }

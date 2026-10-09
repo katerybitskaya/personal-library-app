@@ -36,6 +36,7 @@ namespace PersonalLibrary.Controllers
         public IActionResult Clear()
         {
             _historyService.Clear();
+            _publisher.HistoryCleared();
             return Json(new { success = true });
         }
     }

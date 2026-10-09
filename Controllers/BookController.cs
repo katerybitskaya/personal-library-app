@@ -13,13 +13,16 @@ namespace PersonalLibrary.Controllers
         private readonly TrashService _trashService;
         private readonly IWebHostEnvironment _env;
 
+        private readonly UploadCleanupService _uploads;
+
         public BookController(LibraryService libraryService, TrashService trashService,
-            LibraryEventPublisher publisher, LocalizationService loc, IWebHostEnvironment env)
+            LibraryEventPublisher publisher, LocalizationService loc, IWebHostEnvironment env, UploadCleanupService uploads)
             : base(publisher, loc)
         {
             _libraryService = libraryService;
             _trashService   = trashService;
             _env            = env;
+            _uploads        = uploads;
         }
 
         public IActionResult Details(string id)
@@ -37,13 +40,20 @@ namespace PersonalLibrary.Controllers
         public async Task<IActionResult> Add(AddBookForm form)
         {
             if (string.IsNullOrWhiteSpace(form.Title))
-                return Json(new { success = false, message = "Title is required." });
+                return Json(new { success = false, message = _loc["Error_TitleRequired"] });
+
+            if (FileUploadHelper.IsRejected(form.CoverFile))
+                return Json(new { success = false, message = _loc["Error_NoImage"] });
 
             var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, form.CoverPath, _env);
             var book = new Book { Title = form.Title, CoverPath = coverPath };
 
             var (success, message) = _libraryService.AddBook(form.AuthorId, book);
-            if (!success) return Json(new { success = false, message });
+            if (!success)
+            {
+                _uploads.DeleteIfUnused(new[] { coverPath });
+                return Json(new { success = false, message = _loc[message] });
+            }
 
             _publisher.BookAdded(book.Title, _libraryService.GetAuthorById(form.AuthorId)?.Name ?? "", null);
             return Json(new { success = true });
@@ -52,18 +62,18 @@ namespace PersonalLibrary.Controllers
         [HttpPost][ValidateAntiForgeryToken]
         public IActionResult Rename(RenameForm form)
         {
-            if (!ModelState.IsValid) return Json(new { success = false, message = "Validation failed." });
+            if (!ModelState.IsValid) return Json(new { success = false, message = _loc["Error_Validation"] });
             var (success, message) = _libraryService.RenameBook(form.Id, form.NewName);
-            if (!success) return Json(new { success = false, message });
+            if (!success) return Json(new { success = false, message = _loc[message] });
             return Json(new { success = true });
         }
 
         [HttpPost][ValidateAntiForgeryToken]
         public IActionResult UpdateFlags(UpdateFlagsForm form)
         {
-            if (!ModelState.IsValid) return Json(new { success = false, message = "Validation failed." });
+            if (!ModelState.IsValid) return Json(new { success = false, message = _loc["Error_Validation"] });
             var (success, message) = _libraryService.UpdateBookFlags(form.Id, form.Flags, form.Note, form.IsMissing);
-            if (!success) return Json(new { success = false, message });
+            if (!success) return Json(new { success = false, message = _loc[message] });
             return Json(new { success = true });
         }
 
@@ -71,7 +81,7 @@ namespace PersonalLibrary.Controllers
         public async Task<IActionResult> UpdateCover(UpdatePhotoForm form)
         {
             var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);
-            if (string.IsNullOrEmpty(path)) return Json(new { success = false, message = "No image provided." });
+            if (string.IsNullOrEmpty(path)) return Json(new { success = false, message = _loc["Error_NoImage"] });
             _libraryService.UpdateBookCover(form.Id, path);
             return Json(new { success = true });
         }
@@ -85,7 +95,7 @@ namespace PersonalLibrary.Controllers
 
             var series = author.Series.FirstOrDefault(s => s.Books.Any(b => b.Id == bookId));
             _trashService.MoveBookToTrash(authorId, bookId);
-            _publisher.BookDeleted(book.Title, author.Name, series?.Name);
+            _publisher.BookDeleted(_loc.BookTitle(book.Title), author.Name, series?.Name);
             return Json(new { success = true });
         }
     }

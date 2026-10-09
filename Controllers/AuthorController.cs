@@ -13,13 +13,16 @@ namespace PersonalLibrary.Controllers
         private readonly TrashService _trashService;
         private readonly IWebHostEnvironment _env;
 
+        private readonly UploadCleanupService _uploads;
+
         public AuthorController(LibraryService libraryService, TrashService trashService,
-            LibraryEventPublisher publisher, LocalizationService loc, IWebHostEnvironment env)
+            LibraryEventPublisher publisher, LocalizationService loc, IWebHostEnvironment env, UploadCleanupService uploads)
             : base(publisher, loc)
         {
             _libraryService = libraryService;
             _trashService   = trashService;
             _env            = env;
+            _uploads        = uploads;
         }
 
         public IActionResult Details(string id)
@@ -33,13 +36,20 @@ namespace PersonalLibrary.Controllers
         public async Task<IActionResult> Add(AddAuthorForm form)
         {
             if (string.IsNullOrWhiteSpace(form.Name))
-                return Json(new { success = false, message = _loc["Author_AlreadyExists"] });
+                return Json(new { success = false, message = _loc["Author_NameRequired"] });
+
+            if (FileUploadHelper.IsRejected(form.PhotoFile))
+                return Json(new { success = false, message = _loc["Error_NoImage"] });
 
             var photoPath = await FileUploadHelper.SaveAsync(form.PhotoFile, form.PhotoPath, _env);
             var author = new Author { Name = form.Name, PhotoPath = photoPath };
 
             var (success, message) = _libraryService.AddAuthor(author);
-            if (!success) return Json(new { success = false, message });
+            if (!success)
+            {
+                _uploads.DeleteIfUnused(new[] { photoPath });
+                return Json(new { success = false, message = _loc[message] });
+            }
 
             _publisher.AuthorAdded(author.Name);
             return Json(new { success = true });
@@ -50,7 +60,7 @@ namespace PersonalLibrary.Controllers
         {
             var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);
             if (string.IsNullOrEmpty(path))
-                return Json(new { success = false, message = "No image provided." });
+                return Json(new { success = false, message = _loc["Error_NoImage"] });
 
             _libraryService.UpdateAuthorPhoto(form.Id, path);
             return Json(new { success = true });

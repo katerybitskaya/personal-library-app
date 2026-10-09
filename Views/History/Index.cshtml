@@ -47,7 +47,6 @@ else
     {
         var current = Model.Page;
         var last = Model.TotalPages;
-        // Номера страниц: первая, последняя и по две вокруг текущей; пропуски — «…»
         var pages = Enumerable.Range(1, last)
             .Where(p => p == 1 || p == last || Math.Abs(p - current) <= 2)
             .ToList();
@@ -99,26 +98,22 @@ function confirmClearHistory() {
     openConfirmModal('@L["History_ConfirmClear"]', async () => {
         const fd = new FormData(); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/History/Clear',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('@L["History_Clear"]','success'); softReload(); }
+        if (d.success) { showToast('@L["Toast_HistoryCleared"]','success'); softReload(); }
     });
 }
 </script>
 }
 
 @functions {
-    // Переводит запись истории на текущий язык
-    // Запись может быть в старом формате (Message) или новом (MessageKey + Params)
     static string TranslateEntry(PersonalLibrary.Models.HistoryEntry entry, PersonalLibrary.Services.LocalizationService L)
     {
-        // Новый формат: есть ключ
         if (!string.IsNullOrEmpty(entry.MessageKey))
         {
             var template = L[entry.MessageKey];
             if (entry.Params.Count > 0)
             {
-                // Параметры которые сами являются ключами локализации — переводим
                 var translatedParams = entry.Params
-                    .Select(p => p.StartsWith("Label_") || p.StartsWith("Hist_") ? L[p] : p)
+                    .Select(p => p.StartsWith("Label_") || p.StartsWith("Hist_") ? L[p] : L.BookTitle(p))
                     .Cast<object>()
                     .ToArray();
                 try { return string.Format(template, translatedParams); }
@@ -127,7 +122,6 @@ function confirmClearHistory() {
             return template;
         }
 
-        // Старый формат: готовый текст (обратная совместимость)
         return entry.Message;
     }
 }

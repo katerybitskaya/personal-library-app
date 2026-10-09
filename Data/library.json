@@ -108,7 +108,7 @@
             },
             {
               "id": "81862653-a0f3-4749-8989-ec87ff81b0fa",
-              "title": "-",
+              "title": "",
               "orderInSeries": 3,
               "coverPath": null,
               "dateAdded": "2026-02-28T00:45:56.1282197+01:00",
@@ -117,13 +117,13 @@
               "flags": [],
               "note": null,
               "isFavorite": false,
-              "name": "-",
+              "name": "",
               "isMissing": true,
               "hasFlags": false
             },
             {
               "id": "c2d402c0-b0f1-4621-8e4e-78e6e1376f7b",
-              "title": "-",
+              "title": "",
               "orderInSeries": 4,
               "coverPath": null,
               "dateAdded": "2026-02-28T00:45:56.1282206+01:00",
@@ -132,7 +132,7 @@
               "flags": [],
               "note": null,
               "isFavorite": false,
-              "name": "-",
+              "name": "",
               "isMissing": true,
               "hasFlags": false
             }
@@ -247,22 +247,24 @@
           "books": [
             {
               "id": "ab4acae7-4ad2-460f-ba13-8b10d3cf8150",
-              "title": "-",
+              "title": "",
               "orderInSeries": 1,
               "coverPath": null,
               "dateAdded": "2026-02-28T00:16:23.8718885+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
-              "flags": [],
+              "flags": [
+                "OutOfPrint"
+              ],
               "note": null,
               "isFavorite": false,
-              "name": "-",
+              "name": "",
               "isMissing": true,
-              "hasFlags": false
+              "hasFlags": true
             },
             {
               "id": "a49b7c12-3ce2-4e85-988e-0939b2927435",
-              "title": "-",
+              "title": "",
               "orderInSeries": 2,
               "coverPath": null,
               "dateAdded": "2026-02-28T00:16:23.8718956+01:00",
@@ -271,7 +273,7 @@
               "flags": [],
               "note": null,
               "isFavorite": false,
-              "name": "-",
+              "name": "",
               "isMissing": true,
               "hasFlags": false
             },

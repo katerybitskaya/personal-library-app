@@ -9,11 +9,13 @@ namespace PersonalLibrary.Services
     {
         private readonly ILibraryRepository _repository;
         private readonly LibraryEventPublisher _publisher;
+        private readonly UploadCleanupService _uploads;
 
-        public LibraryService(ILibraryRepository repository, LibraryEventPublisher publisher)
+        public LibraryService(ILibraryRepository repository, LibraryEventPublisher publisher, UploadCleanupService uploads)
         {
             _repository = repository;
             _publisher = publisher;
+            _uploads = uploads;
         }
 
         private LibrarySearchIterator FreshIterator() =>
@@ -47,7 +49,7 @@ namespace PersonalLibrary.Services
                 .FirstOrDefault(a => a.Name.Equals(author.Name.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (existing != null)
-                return (false, $"Author \"{author.Name}\" already exists in the catalogue.");
+                return (false, "Author_AlreadyExists");
 
             author.Name = author.Name.Trim();
             author.Id = Guid.NewGuid().ToString();
@@ -63,26 +65,30 @@ namespace PersonalLibrary.Services
             var author = _repository.GetAuthorById(authorId);
             if (author == null) return;
 
+            var oldPath = author.PhotoPath;
             author.PhotoPath = photoPath;
             _repository.UpdateAuthor(author);
+            _uploads.DeleteIfUnused(new[] { oldPath });
             _publisher.AuthorPhotoUpdated(author.Name);
         }
 
 
         public Book? GetBookById(string id) => _repository.GetBookById(id);
 
+        private static bool IsTitleTaken(Author author, string title, string? exceptBookId = null)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return false;
+            return author.Books.Concat(author.Series.SelectMany(s => s.Books))
+                .Any(b => b.Id != exceptBookId && b.Title.Trim().Equals(title.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
         public (bool Success, string Message) AddBook(string authorId, Book book)
         {
             var author = _repository.GetAuthorById(authorId);
-            if (author == null) return (false, "Author not found.");
+            if (author == null) return (false, "Error_NotFound");
 
-            var titleTrimmed = book.Title.Trim();
-
-            bool alreadyExists = author.Books.Any(b => b.Title.Equals(titleTrimmed, StringComparison.OrdinalIgnoreCase))
-                || author.Series.Any(s => s.Books.Any(b => b.Title.Equals(titleTrimmed, StringComparison.OrdinalIgnoreCase)));
-
-            if (alreadyExists)
-                return (false, $"Book \"{titleTrimmed}\" already exists for this author.");
+            if (IsTitleTaken(author, book.Title))
+                return (false, "Book_AlreadyExists");
 
             book.Title = book.Title.Trim();
             book.NormalizeMissing();
@@ -98,23 +104,15 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) RenameBook(string bookId, string newTitle)
         {
             var book = _repository.GetBookById(bookId);
-            if (book == null) return (false, "Book not found.");
+            if (book == null) return (false, "Error_NotFound");
 
             var author = _repository.GetAuthorById(book.AuthorId);
-            if (author == null) return (false, "Author not found.");
+            if (author == null) return (false, "Error_NotFound");
 
             var newTitleTrimmed = newTitle.Trim();
 
-            if (!book.IsMissing)
-            {
-                var allTitles = author.Books
-                    .Where(b => b.Id != bookId)
-                    .Select(b => b.Title)
-                    .Concat(author.Series.SelectMany(s => s.Books.Where(b => b.Id != bookId).Select(b => b.Title)));
-
-                if (allTitles.Any(t => t.Equals(newTitleTrimmed, StringComparison.OrdinalIgnoreCase)))
-                    return (false, $"Book \"{newTitleTrimmed}\" already exists for this author.");
-            }
+            if (IsTitleTaken(author, newTitleTrimmed, bookId))
+                return (false, "Book_AlreadyExists");
 
             string oldTitle = book.Title;
             book.Title = newTitleTrimmed;
@@ -129,10 +127,12 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) UpdateBookFlags(string bookId, IEnumerable<BookFlag>? flags, string? note, bool? isMissing = null)
         {
             var book = _repository.GetBookById(bookId);
-            if (book == null) return (false, "Book not found.");
+            if (book == null) return (false, "Error_NotFound");
 
             if (isMissing.HasValue && !string.IsNullOrEmpty(book.SeriesId))
             {
+                if (!isMissing.Value && string.IsNullOrWhiteSpace(book.Title))
+                    return (false, "Book_MissingNeedsTitle");
                 book.IsMissing = isMissing.Value;
                 if (book.IsMissing) book.IsFavorite = false;
             }
@@ -156,8 +156,10 @@ namespace PersonalLibrary.Services
             var book = _repository.GetBookById(bookId);
             if (book == null) return;
 
+            var oldPath = book.CoverPath;
             book.CoverPath = coverPath;
             _repository.UpdateBook(book);
+            _uploads.DeleteIfUnused(new[] { oldPath });
             var _coverAuthor = _repository.GetAuthorById(book.AuthorId);
             if (_coverAuthor != null) _publisher.BookCoverUpdated(book.Title, _coverAuthor.Name);
         }
@@ -168,13 +170,18 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) AddSeries(string authorId, Series series)
         {
             var author = _repository.GetAuthorById(authorId);
-            if (author == null) return (false, "Author not found.");
+            if (author == null) return (false, "Error_NotFound");
 
             var duplicate = author.Series.FirstOrDefault(s =>
                 s.Name.Equals(series.Name.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (duplicate != null)
-                return (false, $"Series \"{series.Name}\" already exists for this author.");
+                return (false, "Series_AlreadyExists");
+
+            var partTitles = series.Books.Select(b => b.Title.Trim()).Where(t => t.Length > 0).ToList();
+            if (partTitles.Any(t => IsTitleTaken(author, t))
+                || partTitles.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1))
+                return (false, "Book_AlreadyExists");
 
             series.Name = series.Name.Trim();
             series.Id = Guid.NewGuid().ToString();
@@ -198,10 +205,10 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) RenameSeries(string seriesId, string newName)
         {
             var series = _repository.GetSeriesById(seriesId);
-            if (series == null) return (false, "Series not found.");
+            if (series == null) return (false, "Error_NotFound");
 
             var author = _repository.GetAuthorById(series.AuthorId);
-            if (author == null) return (false, "Author not found.");
+            if (author == null) return (false, "Error_NotFound");
 
             var newNameTrimmed = newName.Trim();
 
@@ -210,7 +217,7 @@ namespace PersonalLibrary.Services
                 s.Name.Equals(newNameTrimmed, StringComparison.OrdinalIgnoreCase));
 
             if (duplicate != null)
-                return (false, $"Series \"{newNameTrimmed}\" already exists for this author.");
+                return (false, "Series_AlreadyExists");
 
             string oldName = series.Name;
             series.Name = newNameTrimmed;
@@ -224,7 +231,7 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) SetSeriesOngoing(string seriesId, bool isOngoing)
         {
             var series = _repository.GetSeriesById(seriesId);
-            if (series == null) return (false, "Series not found.");
+            if (series == null) return (false, "Error_NotFound");
 
             series.IsOngoing = isOngoing;
             _repository.UpdateSeries(series);
@@ -235,8 +242,10 @@ namespace PersonalLibrary.Services
         {
             var series = _repository.GetSeriesById(seriesId);
             if (series == null) return;
+            var oldPath = series.CoverPath;
             series.CoverPath = coverPath;
             _repository.UpdateSeries(series);
+            _uploads.DeleteIfUnused(new[] { oldPath });
             var author = _repository.GetAuthorById(series.AuthorId);
             if (author != null) _publisher.SeriesCoverUpdated(series.Name, author.Name);
         }
@@ -244,19 +253,14 @@ namespace PersonalLibrary.Services
         public (bool Success, string Message) AddBookToSeries(string seriesId, Book book)
         {
             var series = _repository.GetSeriesById(seriesId);
-            if (series == null) return (false, "Series not found.");
+            if (series == null) return (false, "Error_NotFound");
 
             var author = _repository.GetAuthorById(series.AuthorId);
-            if (author == null) return (false, "Author not found.");
+            if (author == null) return (false, "Error_NotFound");
 
-            var titleTrimmed = string.IsNullOrWhiteSpace(book.Title) ? "-" : book.Title.Trim();
-            if (!book.IsMissing)
-            {
-                var duplicate = series.Books.FirstOrDefault(b =>
-                    b.Title.Equals(titleTrimmed, StringComparison.OrdinalIgnoreCase));
-                if (duplicate != null)
-                    return (false, $"Book \"{titleTrimmed}\" already exists in this series.");
-            }
+            var titleTrimmed = book.Title?.Trim() ?? string.Empty;
+            if (IsTitleTaken(author, titleTrimmed))
+                return (false, "Book_AlreadyExists");
 
             book.Title = titleTrimmed;
             book.NormalizeMissing();
@@ -327,25 +331,25 @@ namespace PersonalLibrary.Services
             {
                 case "author":
                     var author = _repository.GetAuthorById(id);
-                    if (author == null) return (false, "Author not found.");
+                    if (author == null) return (false, "Error_NotFound");
                     author.IsFavorite = isFavorite;
                     _repository.UpdateAuthor(author);
                     return (true, string.Empty);
                 case "series":
                     var series = _repository.GetSeriesById(id);
-                    if (series == null) return (false, "Series not found.");
+                    if (series == null) return (false, "Error_NotFound");
                     series.IsFavorite = isFavorite;
                     _repository.UpdateSeries(series);
                     return (true, string.Empty);
                 case "book":
                     var book = _repository.GetBookById(id);
-                    if (book == null) return (false, "Book not found.");
-                    if (book.IsMissing && isFavorite) return (false, "A missing book cannot be a favourite.");
+                    if (book == null) return (false, "Error_NotFound");
+                    if (book.IsMissing && isFavorite) return (false, "Error_MissingNotFavorite");
                     book.IsFavorite = isFavorite && !book.IsMissing;
                     _repository.UpdateBook(book);
                     return (true, string.Empty);
                 default:
-                    return (false, "Unknown item type.");
+                    return (false, "Error_Unknown");
             }
         }
 

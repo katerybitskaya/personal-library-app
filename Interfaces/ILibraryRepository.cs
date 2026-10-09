@@ -21,9 +21,9 @@ namespace PersonalLibrary.Interfaces
         void DeleteSeries(string authorId, string seriesId);
 
         void AddBookToSeries(string seriesId, Book book);
-        void DeleteBookFromSeries(string seriesId, string bookId);
-        void UpdateBookInSeries(string seriesId, Book book);
 
         void Save();
+
+        string? LoadError { get; }
     }
 }

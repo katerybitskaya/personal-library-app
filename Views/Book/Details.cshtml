@@ -2,7 +2,7 @@
 @model BookViewModel
 
 @{
-    ViewData["Title"] = Model.Book.Title;
+    ViewData["Title"] = L.BookTitle(Model.Book.Title);
     var book = Model.Book;
     var author = Model.Author;
     var series = Model.ParentSeries;
@@ -21,12 +21,12 @@
 
 <div class="detail-layout">
     <div>
-        <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="Click to change cover">
+        <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="@L["Cover_Change"]">
             <div style="z-index:1;color:var(--gold-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div>
-            <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">Add cover</div>
+            <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">@L["Cover_Add"]</div>
             @if (!string.IsNullOrEmpty(book.CoverPath))
             {
-                <img src="@book.CoverPath" alt="@book.Title"
+                <img src="@book.CoverPath" alt="@L.BookTitle(book.Title)"
                      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2"
                      onerror="this.remove()" />
             }
@@ -41,7 +41,7 @@
         <div>
             <div class="meta-label">@L["Book_Type"]</div>
             <div class="title-row">
-                <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@book.Title</h1>
+                <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@L.BookTitle(book.Title)</h1>
                 @if (!book.IsMissing)
                 {
                     <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite, true)' />
@@ -138,18 +138,18 @@ document.getElementById('formRenameBook')?.addEventListener('submit', async func
     const err = document.getElementById('errRenameBook'); err.style.display='none';
     const r = await fetch('/Book/Rename',{method:'POST',body:new FormData(this)});
     const d = await r.json();
-    if (d.success) { showToast('@L["Book_Rename"] — saved!','success'); softReload(); }
+    if (d.success) { showToast('@L["Toast_Renamed"]','success'); softReload(); }
     else { err.textContent=d.message; err.style.display='block'; }
 });
 document.getElementById('formUpdateCover')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Book/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); softReload(); });
+    submitFormWithFile(this,'/Book/UpdateCover',null,document.getElementById('btnUpdateCover'),'@L["Toast_CoverUpdated"]',()=>{ closeModal('modalUpdateCover'); softReload(); });
 });
 function confirmDeleteBook() {
     openConfirmModal('@L["Book_ConfirmDelete"]', async () => {
         const fd = new FormData(); fd.append('bookId','@book.Id'); fd.append('authorId','@author.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Book/Delete',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('Book moved to trash.','success'); setTimeout(()=>window.location.href='@backUrl',800); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]','success'); setTimeout(()=>window.location.href='@backUrl',800); }
         else showToast(d.message,'error');
     });
 }

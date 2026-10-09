@@ -18,7 +18,9 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **🖼️ Cover Management** - Upload and display book cover images
 - **📊 Missing Books Tracking** - Identify gaps in book series
 - **❤️ Favourites** - Heart authors, series and books and see them on one page
-- **🚩 Flags & Notes** - Mark books (duplicate, for sale, out of print, lent out…) with an optional note; mark ongoing series
+- **🚩 Flags & Notes** - Mark books (duplicate, for sale, lent out, signed…) with an optional note; mark ongoing series
+- **📕 Not Owned** - Mark a series book you don't have yet; it can only carry the “out of print” flag and can't be a favourite
+- **⚡ No Page Reloads** - Changes (flags, favourites, adding or deleting) update the page in place
 - **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
 
 ## Technologies Used
@@ -32,7 +34,6 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **Razor Views** - Server-side templating
 - **HTML5 & CSS3** - Responsive UI with dark theme
 - **JavaScript** - Client-side interactions (modals, toasts, dynamic updates)
-- **Bootstrap** - Layout and responsive design
 
 ### Data & Patterns
 - **JSON** - Data storage format (library.json, trash.json, history.json)
@@ -42,8 +43,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
   - **Iterator Pattern** - Advanced search functionality
 
 ### Localization
-- **IStringLocalizer** - Multi-language support
-- **.resx Files** - Resource files for English, Russian, Polish
+- **LocalizationService** - Built-in dictionaries for English, Russian, Polish
 
 ## Project Structure
 
@@ -86,8 +86,8 @@ PersonalLibrary/
 │   ├── ProtectionHelper       # Credential check, client IP detection
 │   └── PasswordTool           # --hash-password console command
 ├── Interfaces/            # Service contracts
+├── Middleware/            # Data storage guard, request lock
 ├── Helpers/               # Utility classes (file upload)
-├── Resources/             # Localization (.resx files)
 ├── Filters/               # Action filters (trash count badge)
 ├── wwwroot/               # Static files (CSS, JS, uploads)
 ├── Data/                  # JSON data storage (auto-generated)
@@ -198,23 +198,23 @@ By default the library is open to everyone. To require a login, create a `protec
 - `HistoryService` automatically logs all modifications
 
 **Iterator Pattern**
-- `LibraryIterator` for traversing composite structures
+- `AuthorIterator`, `SeriesIterator`, `BookIterator` for traversing the library
 - `LibrarySearchIterator` for advanced search functionality
 
 ### Dependency Injection
 
 Services are configured in `Program.cs` using ASP.NET Core DI container:
-- Singleton repositories for JSON data access
-- Scoped services for request-specific operations
-- Transient filters for trash count tracking
+- Singleton repositories and services
+- Scoped localization service and trash count filter
 
 ## Data Storage
 
 All data is stored in JSON format in the `Data` folder:
 
-- **library.json** - Authors, books, and series definitions
+- **library.json** - Authors, books, and series definitions (incl. flags, notes, “not owned”, favourites, ongoing series)
 - **trash.json** - Deleted items with recovery metadata
 - **history.json** - Complete activity log with timestamps
+- **\*.json.bak** - Previous version of each file, used automatically if the main file can't be read
 - **keys/** - Data Protection keys for login and anti-forgery cookies (keeps sessions valid after a restart)
 
 > The `Data/` folder is excluded from the repository (`.gitignore`) since it contains personal library data. It is created automatically on first run.
@@ -223,9 +223,9 @@ All data is stored in JSON format in the `Data` folder:
 
 The application supports three languages. The switcher is in the navigation bar on every page (and on the login page when protection is enabled):
 
-- 🇬🇧 **English** - SharedResource.en.resx
-- 🇷🇺 **Russian** - SharedResource.ru.resx
-- 🇵🇱 **Polish** - SharedResource.pl.resx
+- 🇬🇧 **English**
+- 🇷🇺 **Russian**
+- 🇵🇱 **Polish**
 
 ## Key Features Details
 
@@ -259,27 +259,33 @@ The application supports three languages. The switcher is in the navigation bar 
 
 ### Authors
 - `GET /Author/Details/{id}` - Author details
-- `POST /Author/Create` - Add author
-- `POST /Author/Update/{id}` - Update author
-- `POST /Author/Delete/{id}` - Delete author
+- `POST /Author/Add` - Add author
+- `POST /Author/UpdatePhoto` - Update photo
+- `POST /Author/Delete` - Delete author
 
 ### Books
 - `GET /Book/Details/{id}` - Book details
-- `POST /Book/Create` - Add book
-- `POST /Book/Update/{id}` - Update book
-- `POST /Book/Delete/{id}` - Delete book
-- `POST /Book/UpdateFlags` - Set book flags and note
+- `POST /Book/Add` - Add book
+- `POST /Book/Rename` - Rename book
+- `POST /Book/UpdateCover` - Update cover
+- `POST /Book/Delete` - Delete book
+- `POST /Book/UpdateFlags` - Set book flags, note and “not owned”
 
 ### Series
 - `GET /Series/Details/{id}` - Series details
-- `POST /Series/Create` - Create series
-- `POST /Series/Update/{id}` - Update series
+- `POST /Series/Add` - Create series
+- `POST /Series/Rename` - Rename series
+- `POST /Series/UpdateCover` - Update cover
+- `POST /Series/AddBook` - Add book to series
+- `POST /Series/DeleteBook` - Delete book from series
+- `POST /Series/Delete` - Delete series
 - `POST /Series/SetOngoing` - Mark series as ongoing
 
 ### Trash
 - `GET /Trash/Index` - View trash
-- `POST /Trash/Restore/{id}` - Restore item
-- `POST /Trash/PermanentDelete/{id}` - Permanently delete
+- `POST /Trash/Restore` - Restore item
+- `POST /Trash/DeleteForever` - Permanently delete
+- `POST /Trash/Clear` - Clear trash
 
 ### Account (only when protection is enabled)
 - `GET /Account/Login` - Login page
@@ -288,6 +294,7 @@ The application supports three languages. The switcher is in the navigation bar 
 
 ### History
 - `GET /History/Index?page={n}` - View activity history (30 entries per page)
+- `POST /History/Clear` - Clear history
 
 ### Missing Books
 - `GET /MissingBooks/Index` - View missing books
@@ -330,6 +337,7 @@ The application features:
 
 - Centralized exception handling in middleware
 - User-friendly error pages
+- If the data files can't be read, a maintenance page is shown and saving is disabled
 - Development exception details in Development environment
 - HSTS enabled for production
 

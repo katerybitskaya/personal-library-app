@@ -7,7 +7,10 @@ namespace PersonalLibrary.Repositories
     public class JsonLibraryRepository : ILibraryRepository
     {
         private readonly string _libraryFilePath;
+        private readonly object _saveLock = new();
         private LibraryData _data;
+
+        public string? LoadError { get; }
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -21,7 +24,15 @@ namespace PersonalLibrary.Repositories
 
             Directory.CreateDirectory(dataDirectory);
 
-            _data = LoadFromFile();
+            try
+            {
+                _data = JsonFileStore.Load<LibraryData>(_libraryFilePath, _jsonOptions);
+            }
+            catch (StorageException ex)
+            {
+                _data = new LibraryData();
+                LoadError = ex.Message;
+            }
         }
 
 
@@ -194,57 +205,12 @@ namespace PersonalLibrary.Repositories
             Save();
         }
 
-        public void DeleteBookFromSeries(string seriesId, string bookId)
-        {
-            var series = GetSeriesById(seriesId);
-            if (series == null) return;
-
-            var book = series.Books.FirstOrDefault(b => b.Id == bookId);
-            if (book != null)
-            {
-                series.Books.Remove(book);
-                ReindexSeriesBooks(series);
-                Save();
-            }
-        }
-
-        public void UpdateBookInSeries(string seriesId, Book book)
-        {
-            var series = GetSeriesById(seriesId);
-            var existing = series?.Books.FirstOrDefault(b => b.Id == book.Id);
-            if (existing == null) return;
-
-            existing.Title = book.Title;
-            existing.CoverPath = book.CoverPath;
-            existing.Flags = book.Flags;
-            existing.Note = book.Note;
-            existing.IsFavorite = book.IsFavorite;
-            existing.IsMissing = book.IsMissing;
-            Save();
-        }
-
-
         public void Save()
         {
-            var json = JsonSerializer.Serialize(_data, _jsonOptions);
-            File.WriteAllText(_libraryFilePath, json);
-        }
-
-
-        private LibraryData LoadFromFile()
-        {
-            if (!File.Exists(_libraryFilePath))
-                return new LibraryData();
-
-            try
-            {
-                var json = File.ReadAllText(_libraryFilePath);
-                return JsonSerializer.Deserialize<LibraryData>(json, _jsonOptions) ?? new LibraryData();
-            }
-            catch
-            {
-                return new LibraryData();
-            }
+            if (LoadError != null)
+                throw new StorageException("library.json was not loaded; saving is disabled to protect the data.");
+            lock (_saveLock)
+                JsonFileStore.Save(_libraryFilePath, _data, _jsonOptions);
         }
 
         private static void ReindexSeriesBooks(Series series)

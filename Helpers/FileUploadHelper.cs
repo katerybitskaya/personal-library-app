@@ -4,6 +4,9 @@ namespace PersonalLibrary.Helpers
     {
         private static readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
 
+        public static bool IsRejected(IFormFile? file) =>
+            file != null && file.Length > 0 && !_allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLowerInvariant());
+
         public static async Task<string?> SaveAsync(IFormFile? file, string? manualPath, IWebHostEnvironment env)
         {
             if (file != null && file.Length > 0)

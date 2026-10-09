@@ -41,7 +41,7 @@ else
             };
             <div class="missing-card flag-card trash-item @typeClass" id="trashCard-@item.Id">
                 <div class="fav-card-head">
-                    <div class="missing-card-series flag-card-title">@item.ItemName</div>
+                    <div class="missing-card-series flag-card-title">@L.BookTitle(item.ItemName)</div>
                     <span class="badge badge-flag">@typeLabel</span>
                 </div>
                 <div class="missing-card-meta">
@@ -60,7 +60,7 @@ else
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                         @L["Trash_Restore"]
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteForever('@item.Id','@item.ItemName.Replace("'","\\'")')">
+                    <button class="btn btn-danger btn-sm" data-id="@item.Id" data-name="@L.BookTitle(item.ItemName)" onclick="deleteForever(this.dataset.id, this.dataset.name)">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         @L["Trash_DeleteForever"]
                     </button>
@@ -76,30 +76,27 @@ async function restoreItem(id) {
     const fd = new FormData(); fd.append('id',id); fd.append('__RequestVerificationToken',getAntiForgeryToken());
     const d = await (await fetch('/Trash/Restore',{method:'POST',body:fd})).json();
     if (d.success) {
-        showToast('@L["Trash_Restore"] — OK','success');
+        showToast('@L["Toast_Restored"]','success');
         const c = document.getElementById('trashCard-'+id);
         if (c) { c.style.opacity='0'; c.style.transition='opacity 0.3s'; setTimeout(()=>c.remove(),300); }
         softReload();
     } else {
-        showToast(d.message || '@L["Error_CannotRestore"]','error');
+        showToast(d.message || '@L["Error_Unknown"]','error');
     }
 }
 function deleteForever(id, name) {
-    openConfirmModal(`@L["Trash_DeleteForever"]: "${name}"?`, async () => {
+    openConfirmModal(`@L["Trash_DeleteForever"]:<br><strong>${escapeHtml(name)}</strong>`, async () => {
         const fd = new FormData(); fd.append('id',id); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Trash/DeleteForever',{method:'POST',body:fd})).json();
-        if (d.success) {
-            const c = document.getElementById('trashCard-'+id);
-            if (c) { c.style.opacity='0'; c.style.transition='opacity 0.3s'; setTimeout(()=>c.remove(),300); }
-            showToast('Deleted permanently.','success');
-        }
+        if (d.success) { showToast('@L["Toast_DeletedForever"]','success'); softReload(); }
+        else showToast(d.message || document.body.dataset.errorGeneric,'error');
     });
 }
 function confirmClearTrash() {
     openConfirmModal('@L["Trash_ConfirmClear"]', async () => {
         const fd = new FormData(); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Trash/Clear',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('@L["Trash_Clear"] — OK','success'); softReload(); }
+        if (d.success) { showToast('@L["Toast_TrashCleared"]','success'); softReload(); }
     });
 }
 </script>

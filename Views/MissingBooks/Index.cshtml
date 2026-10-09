@@ -9,7 +9,7 @@
     <h1 class="page-title">@L["Missing_Title"]</h1>
     @if (Model.Items.Any())
     {
-        <span class="badge badge-gold">@Model.Items.Count @L["Missing_Badge"]</span>
+        <span class="badge badge-gold">@L["Missing_Badge"] — @Model.Items.Count</span>
     }
 </div>
 
@@ -29,7 +29,7 @@ else
         @foreach (var item in Model.Items)
         {
             <div class="missing-card flag-card missing-book-card">
-                <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title">@item.Title</a>
+                <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title">@L.BookTitle(item.Title)</a>
                 <div class="missing-card-meta">
                     <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                     <div>

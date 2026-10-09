@@ -6,7 +6,10 @@ namespace PersonalLibrary.Repositories
     public class JsonHistoryRepository
     {
         private readonly string _historyFilePath;
+        private readonly object _saveLock = new();
         private List<HistoryEntry> _entries;
+
+        public string? LoadError { get; }
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -18,7 +21,15 @@ namespace PersonalLibrary.Repositories
         {
             _historyFilePath = Path.Combine(dataDirectory, "history.json");
             Directory.CreateDirectory(dataDirectory);
-            _entries = LoadFromFile();
+            try
+            {
+                _entries = JsonFileStore.Load<List<HistoryEntry>>(_historyFilePath, _jsonOptions);
+            }
+            catch (StorageException ex)
+            {
+                _entries = new List<HistoryEntry>();
+                LoadError = ex.Message;
+            }
         }
 
         public List<HistoryEntry> GetAll() =>
@@ -38,23 +49,10 @@ namespace PersonalLibrary.Repositories
 
         private void Save()
         {
-            var json = JsonSerializer.Serialize(_entries, _jsonOptions);
-            File.WriteAllText(_historyFilePath, json);
-        }
-
-        private List<HistoryEntry> LoadFromFile()
-        {
-            if (!File.Exists(_historyFilePath)) return new List<HistoryEntry>();
-
-            try
-            {
-                var json = File.ReadAllText(_historyFilePath);
-                return JsonSerializer.Deserialize<List<HistoryEntry>>(json, _jsonOptions) ?? new();
-            }
-            catch
-            {
-                return new List<HistoryEntry>();
-            }
+            if (LoadError != null)
+                throw new StorageException("history.json was not loaded; saving is disabled to protect the data.");
+            lock (_saveLock)
+                JsonFileStore.Save(_historyFilePath, _entries, _jsonOptions);
         }
     }
 }

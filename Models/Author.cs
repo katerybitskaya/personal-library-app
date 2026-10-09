@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using PersonalLibrary.Interfaces;
 
 namespace PersonalLibrary.Models
@@ -28,6 +29,7 @@ namespace PersonalLibrary.Models
                 series.Display(depth + 2);
         }
 
+        [JsonIgnore]
         public char FirstLetter => char.ToUpper(Name.FirstOrDefault());
     }
 }

@@ -1,3 +1,31 @@
+(function () {
+    const nativeFetch = window.fetch.bind(window);
+    let redirecting = false;
+    window.fetch = async (...args) => {
+        const response = await nativeFetch(...args);
+        if (response.status !== 401) return response;
+        if (!redirecting) {
+            redirecting = true;
+            showToast(document.body.dataset.sessionExpired || 'Your session has expired. Please sign in again.', 'error');
+            const returnUrl = location.pathname + location.search;
+            setTimeout(() => { location.href = '/Account/Login?returnUrl=' + encodeURIComponent(returnUrl); }, 1800);
+        }
+        return new Promise(() => {});
+    };
+})();
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function networkErrorText() {
+    return document.body.dataset.errorNetwork || 'Network error. Please try again.';
+}
+
+function genericErrorText() {
+    return document.body.dataset.errorGeneric || 'Something went wrong. Please try again.';
+}
+
 function syncModalScrollLock() {
     document.body.classList.toggle('modal-open', !!document.querySelector('.modal-overlay.open'));
 }
@@ -178,7 +206,7 @@ function initFlagAutoSave(formEl) {
             }
         } catch {
             setStatus('', '');
-            if (err) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
+            if (err) { err.textContent = networkErrorText(); err.style.display = 'block'; }
         } finally {
             running = false;
             if (pending) { pending = false; save(); }
@@ -318,9 +346,9 @@ async function toggleFavorite(btn) {
             const t = next ? btn.dataset.titleOn : btn.dataset.titleOff;
             btn.title = t; btn.setAttribute('aria-label', t);
             btn.closest('.fav-card')?.classList.toggle('is-removed', !next);
-        } else showToast(d.message || 'Error.', 'error');
+        } else showToast(d.message || genericErrorText(), 'error');
     } catch {
-        showToast('Network error. Please try again.', 'error');
+        showToast(networkErrorText(), 'error');
     } finally {
         btn.disabled = false;
     }
@@ -338,9 +366,9 @@ async function toggleSeriesOngoing(btn) {
         if (d.success) {
             btn.classList.toggle('is-on', next);
             btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-        } else showToast(d.message || 'Error.', 'error');
+        } else showToast(d.message || genericErrorText(), 'error');
     } catch {
-        showToast('Network error. Please try again.', 'error');
+        showToast(networkErrorText(), 'error');
     } finally {
         btn.disabled = false;
     }
@@ -362,10 +390,10 @@ async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onS
             if (onSuccess) onSuccess();
         } else {
             if (err) { err.textContent = d.message; err.style.display = 'block'; }
-            else showToast(d.message || 'Error.', 'error');
+            else showToast(d.message || genericErrorText(), 'error');
         }
     } catch {
-        const msg = 'Network error. Please try again.';
+        const msg = networkErrorText();
         if (err) { err.textContent = msg; err.style.display = 'block'; }
         else showToast(msg, 'error');
     } finally {

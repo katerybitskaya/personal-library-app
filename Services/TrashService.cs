@@ -9,16 +9,18 @@ namespace PersonalLibrary.Services
     {
         private readonly JsonTrashRepository _trashRepository;
         private readonly ILibraryRepository _libraryRepository;
+        private readonly UploadCleanupService _uploads;
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public TrashService(JsonTrashRepository trashRepository, ILibraryRepository libraryRepository)
+        public TrashService(JsonTrashRepository trashRepository, ILibraryRepository libraryRepository, UploadCleanupService uploads)
         {
             _trashRepository = trashRepository;
             _libraryRepository = libraryRepository;
+            _uploads = uploads;
         }
 
         public List<TrashItem> GetAll() => _trashRepository.GetAll();
@@ -83,10 +85,10 @@ namespace PersonalLibrary.Services
             _libraryRepository.DeleteAuthor(authorId);
         }
 
-        public bool Restore(string trashItemId)
+        public string? Restore(string trashItemId)
         {
             var item = _trashRepository.GetById(trashItemId);
-            if (item == null) return false;
+            if (item == null) return "Error_NotFound";
 
             try
             {
@@ -119,7 +121,7 @@ namespace PersonalLibrary.Services
                         if (restoredSeries != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);
-                            if (existingAuthor == null) return false;
+                            if (existingAuthor == null) return "Trash_NoParentAuthor";
                             _libraryRepository.AddSeries(item.AuthorId, restoredSeries);
                         }
                         break;
@@ -131,7 +133,7 @@ namespace PersonalLibrary.Services
                         if (restoredBook != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);
-                            if (existingAuthor == null) return false;
+                            if (existingAuthor == null) return "Trash_NoParentAuthor";
 
                             if (!string.IsNullOrEmpty(item.SeriesId))
                             {
@@ -139,7 +141,12 @@ namespace PersonalLibrary.Services
                                 if (existingSeries != null)
                                     _libraryRepository.AddBookToSeries(item.SeriesId, restoredBook);
                                 else
+                                {
+                                    if (restoredBook.IsMissing) return "Trash_NoParentSeries";
+                                    restoredBook.SeriesId = null;
+                                    restoredBook.OrderInSeries = null;
                                     _libraryRepository.AddBook(item.AuthorId, restoredBook);
+                                }
                             }
                             else
                             {
@@ -151,16 +158,47 @@ namespace PersonalLibrary.Services
                 }
 
                 _trashRepository.Remove(trashItemId);
-                return true;
+                return null;
             }
-            catch
+            catch (System.Text.Json.JsonException)
             {
-                return false;
+                return "Error_Unknown";
             }
         }
 
-        public void DeletePermanently(string trashItemId) => _trashRepository.Remove(trashItemId);
+        public void DeletePermanently(string trashItemId)
+        {
+            var item = _trashRepository.GetById(trashItemId);
+            if (item == null) return;
+            var images = ImagePaths(item).ToList();
+            _trashRepository.Remove(trashItemId);
+            _uploads.DeleteIfUnused(images);
+        }
 
-        public void Clear() => _trashRepository.Clear();
+        public void Clear()
+        {
+            var images = _trashRepository.GetAll().SelectMany(ImagePaths).ToList();
+            _trashRepository.Clear();
+            _uploads.DeleteIfUnused(images);
+        }
+
+        private static IEnumerable<string?> ImagePaths(TrashItem item)
+        {
+            try
+            {
+                return item.ItemType switch
+                {
+                    TrashItemType.Author => JsonSerializer.Deserialize<Author>(item.SerializedData, _jsonOptions) is { } a
+                        ? UploadCleanupService.ImagePaths(a) : Enumerable.Empty<string?>(),
+                    TrashItemType.Series => JsonSerializer.Deserialize<Series>(item.SerializedData, _jsonOptions) is { } s
+                        ? UploadCleanupService.ImagePaths(s) : Enumerable.Empty<string?>(),
+                    _ => new[] { JsonSerializer.Deserialize<Book>(item.SerializedData, _jsonOptions)?.CoverPath }
+                };
+            }
+            catch (JsonException)
+            {
+                return Enumerable.Empty<string?>();
+            }
+        }
     }
 }

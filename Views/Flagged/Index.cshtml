@@ -77,7 +77,7 @@ else
                 {
                     <div class="missing-card flag-card @BookFlags.CssClass(grp.Flag)">
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title @(item.IsMissing ? "text-muted" : "")">
-                            @item.Title
+                            @L.BookTitle(item.Title)
                             @if (item.IsMissing) { <span class="badge badge-dim" style="margin-left:0.4rem">@L["Missing_Badge"]</span> }
                         </a>
                         <div class="missing-card-meta">

@@ -17,9 +17,9 @@
 
 <div class="detail-layout">
     <div>
-        <div class="detail-photo" onclick="openModal('modalUpdatePhoto')" title="Click to change photo">
+        <div class="detail-photo" onclick="openModal('modalUpdatePhoto')" title="@L["Photo_Change"]">
             <span style="font-size:3rem;z-index:1">@initials</span>
-            <span style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">Add photo</span>
+            <span style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">@L["Photo_Add"]</span>
             @if (!string.IsNullOrEmpty(author.PhotoPath))
             {
                 <img src="@author.PhotoPath" alt="@author.Name"
@@ -63,14 +63,14 @@
                     <div class="book-row">
                     <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-                        <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
+                        <span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span>
                         <partial name="_BookFlagBadges" model="book" />
                     </a>
                         @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
                         else { <span class="fav-placeholder"></span> }
                         <partial name="_BookFlagButton" model="book" />
                         <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
-                                data-kind="book" data-id="@book.Id" data-name="@book.Title" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
+                                data-kind="book" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
                     </div>
@@ -103,14 +103,14 @@
                                 <div class="book-row">
                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item" style="padding:0.4rem 0.6rem">
                                     <span class="series-order" style="min-width:22px">@(book.OrderInSeries?.ToString() ?? "·")</span>
-                                    <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
+                                    <span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span>
                                     <partial name="_BookFlagBadges" model="book" />
                                 </a>
                                 @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
                                 else { <span class="fav-placeholder"></span> }
                                 <partial name="_BookFlagButton" model="book" />
                                 <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
-                                data-kind="series-book" data-id="@book.Id" data-name="@book.Title" data-series-id="@series.Id" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
+                                data-kind="series-book" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" data-series-id="@series.Id" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
                                 </div>
@@ -236,21 +236,20 @@ function addPartRow() {
 }
 document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), 'Book added!', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; softReload(); });
+    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), '@L["Toast_BookAdded"]', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; softReload(); });
 });
 document.getElementById('formAddSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), 'Series added!', () => { closeModal('modalAddSeries'); this.reset(); softReload(); });
+    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), '@L["Toast_SeriesAdded"]', () => { closeModal('modalAddSeries'); this.reset(); softReload(); });
 });
 document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), 'Photo updated!', () => { closeModal('modalUpdatePhoto'); softReload(); });
+    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), '@L["Toast_PhotoUpdated"]', () => { closeModal('modalUpdatePhoto'); softReload(); });
 });
 function confirmDeleteAuthorItem(btn) {
     const kind = btn.dataset.kind;
-    const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const question = kind === 'series' ? '@L["Series_ConfirmDelete"]' : '@L["Book_ConfirmDelete"]';
-    openConfirmModal(`${question}<br><strong>${esc(btn.dataset.name)}</strong>`, async () => {
+    openConfirmModal(`${question}<br><strong>${escapeHtml(btn.dataset.name)}</strong>`, async () => {
         const fd = new FormData();
         fd.append('__RequestVerificationToken', getAntiForgeryToken());
         let url;
@@ -258,7 +257,7 @@ function confirmDeleteAuthorItem(btn) {
         else if (kind === 'series-book') { url = '/Series/DeleteBook'; fd.append('bookId', btn.dataset.id); fd.append('seriesId', btn.dataset.seriesId); }
         else { url = '/Book/Delete'; fd.append('bookId', btn.dataset.id); fd.append('authorId', '@author.Id'); }
         const d = await (await fetch(url, { method: 'POST', body: fd })).json();
-        if (d.success) { showToast(kind === 'series' ? 'Series moved to trash.' : 'Book moved to trash.', 'success'); softReload(); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]', 'success'); softReload(); }
         else showToast(d.message, 'error');
     });
 }
@@ -268,7 +267,7 @@ function confirmDeleteAuthor() {
         const fd = new FormData(); fd.append('id','@author.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const r = await fetch('/Author/Delete',{method:'POST',body:fd});
         const d = await r.json();
-        if (d.success) { showToast('Author moved to trash.','success'); setTimeout(()=>window.location.href='/',800); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]','success'); setTimeout(()=>window.location.href='/',800); }
         else showToast(d.message,'error');
     });
 }

@@ -1,16 +1,14 @@
+@inject PersonalLibrary.Services.LocalizationService L
+
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = L["Error_Title"];
 }
 
 <div class="empty-state" style="padding:8rem 2rem">
     <div class="empty-state-icon">⚠️</div>
-    <div class="empty-state-title">Something went wrong</div>
-    <div class="empty-state-text" style="margin-top:0.75rem">
-        An unexpected error occurred. Please try again or return to the catalogue.
-    </div>
+    <div class="empty-state-title">@L["Error_Title"]</div>
+    <div class="empty-state-text" style="margin-top:0.75rem">@L["Error_Text"]</div>
     <div style="margin-top:2rem">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
-            Return to Catalogue
-        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">@L["Error_Back"]</a>
     </div>
 </div>

@@ -163,7 +163,7 @@ else
                                         {
                                             <li class="item-row">
                                                 <svg class="item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-                                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
+                                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</a>
                                                 <partial name="_FavoriteMark" model="book.IsFavoriteActive" />
                                                 <span class="badge-sm-wrap"><partial name="_BookFlagBadges" model="book" /></span>
                                             </li>
@@ -184,7 +184,7 @@ else
                                                     {
                                                         <div class="series-book-row">
                                                             <span class="series-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
-                                                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
+                                                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</a>
                                                             <partial name="_FavoriteMark" model="book.IsFavoriteActive" />
                                                             <span class="badge-sm-wrap"><partial name="_BookFlagBadges" model="book" /></span>
                                                         </div>
@@ -245,13 +245,12 @@ else
 @section Scripts {
 <script>
 function confirmDeleteCatalogueAuthor(btn) {
-    const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    openConfirmModal(`@L["Author_ConfirmDelete"]<br><strong>${esc(btn.dataset.name)}</strong>`, async () => {
+    openConfirmModal(`@L["Author_ConfirmDelete"]<br><strong>${escapeHtml(btn.dataset.name)}</strong>`, async () => {
         const fd = new FormData();
         fd.append('id', btn.dataset.id);
         fd.append('__RequestVerificationToken', getAntiForgeryToken());
         const d = await (await fetch('/Author/Delete', { method: 'POST', body: fd })).json();
-        if (d.success) { showToast('Author moved to trash.', 'success'); softReload(); }
+        if (d.success) { showToast('@L["Toast_MovedToTrash"]', 'success'); softReload(); }
         else showToast(d.message, 'error');
     });
 }
@@ -284,7 +283,7 @@ function scrollToLetter(l) {
 document.getElementById('formAddAuthor')?.addEventListener('submit', function(e) {
     e.preventDefault();
     submitFormWithFile(this, '/Author/Add', 'errAddAuthor', document.getElementById('btnAddAuthor'),
-        'Author added!', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; softReload(); });
+        '@L["Toast_AuthorAdded"]', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; softReload(); });
 });
 </script>
 }
