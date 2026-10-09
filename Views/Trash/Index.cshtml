@@ -26,25 +26,29 @@
 }
 else
 {
-    <div class="trash-grid">
+    <div class="missing-grid">
         @foreach (var item in Model.Items)
         {
-            var icon = item.ItemType switch {
-                PersonalLibrary.Models.TrashItemType.Author => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='4'/><path d='M20 21a8 8 0 0 0-16 0'/></svg>",
-                PersonalLibrary.Models.TrashItemType.Series => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4v16'/><path d='M8 8v12'/><path d='M12 6v14'/><path d='m16 6 4 14'/></svg>",
-                _ => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M12 7v14'/><path d='M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'/></svg>"
-            };
             var typeLabel = item.ItemType switch {
                 PersonalLibrary.Models.TrashItemType.Author => L["Label_Author"],
                 PersonalLibrary.Models.TrashItemType.Series => L["Label_Series"],
                 _ => L["Label_Book"]
             };
-            <div class="trash-card" id="trashCard-@item.Id">
-                <div class="trash-card-icon">@Html.Raw(icon)</div>
-                <div class="trash-card-name">@item.ItemName</div>
-                <div class="trash-card-meta">
-                    <div><span class="text-muted">@L["Trash_Author"]:</span> @item.AuthorName</div>
-                    <div><span class="text-muted">@L["Trash_Type"]:</span> @typeLabel</div>
+            var typeClass = item.ItemType switch {
+                PersonalLibrary.Models.TrashItemType.Author => "trash-type-author",
+                PersonalLibrary.Models.TrashItemType.Series => "trash-type-series",
+                _ => "trash-type-book"
+            };
+            <div class="missing-card flag-card trash-item @typeClass" id="trashCard-@item.Id">
+                <div class="fav-card-head">
+                    <div class="missing-card-series flag-card-title">@item.ItemName</div>
+                    <span class="badge badge-flag">@typeLabel</span>
+                </div>
+                <div class="missing-card-meta">
+                    @if (item.ItemType != PersonalLibrary.Models.TrashItemType.Author)
+                    {
+                        <div><span class="text-muted">@L["Trash_Author"]:</span> @item.AuthorName</div>
+                    }
                     @if (!string.IsNullOrEmpty(item.SeriesName))
                     {
                         <div><span class="text-muted">@L["Label_Series"]:</span> @item.SeriesName</div>

@@ -874,7 +874,13 @@ body.modal-open { overflow: hidden; }
 .trash-card-icon svg { width: 26px; height: 26px; stroke-width: 1.6; }
 .trash-card-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.3rem; }
 .trash-card-meta { font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.8; }
-.trash-card-actions { display: flex; gap: 0.5rem; }
+.trash-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.missing-book-card { --fc: var(--gold-muted); }
+.trash-item .trash-card-actions { margin-top: auto; padding-top: 0.25rem; }
+.trash-item .trash-card-actions .btn { flex: 1 1 auto; justify-content: center; }
+.trash-type-author { --fc: var(--gold); }
+.trash-type-series { --fc: var(--flag-ongoing); }
+.trash-type-book   { --fc: var(--flag-duplicate); }
 
 .history-list { display: flex; flex-direction: column; }
 .history-entry {
