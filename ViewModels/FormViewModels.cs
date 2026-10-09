@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PersonalLibrary.Models;
 
 namespace PersonalLibrary.ViewModels
 {
@@ -68,6 +69,36 @@ namespace PersonalLibrary.ViewModels
         [Required(ErrorMessage = "New name is required.")]
         [StringLength(500, MinimumLength = 1)]
         public string NewName { get; set; } = string.Empty;
+    }
+
+    public class UpdateFlagsForm
+    {
+        [Required]
+        public string Id { get; set; } = string.Empty;
+
+        public List<BookFlag> Flags { get; set; } = new();
+
+        [StringLength(1000)]
+        public string? Note { get; set; }
+    }
+
+    public class SetFavoriteForm
+    {
+        [Required]
+        public string Kind { get; set; } = string.Empty;
+
+        [Required]
+        public string Id { get; set; } = string.Empty;
+
+        public bool IsFavorite { get; set; }
+    }
+
+    public class SetOngoingForm
+    {
+        [Required]
+        public string Id { get; set; } = string.Empty;
+
+        public bool IsOngoing { get; set; }
     }
 
     public class UpdatePhotoForm

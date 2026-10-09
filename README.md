@@ -17,6 +17,8 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **🌍 Multilingual Support** - English, Russian, and Polish localization
 - **🖼️ Cover Management** - Upload and display book cover images
 - **📊 Missing Books Tracking** - Identify gaps in book series
+- **❤️ Favourites** - Heart authors, series and books and see them on one page
+- **🚩 Flags & Notes** - Mark books (duplicate, for sale, out of print, lent out…) with an optional note; mark ongoing series
 - **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
 
 ## Technologies Used
@@ -55,7 +57,9 @@ PersonalLibrary/
 │   ├── SeriesController   # Series CRUD operations
 │   ├── TrashController    # Trash bin management
 │   ├── HistoryController  # Activity history
-│   └── MissingBooksController  # Missing books tracking
+│   ├── MissingBooksController  # Missing books tracking
+│   ├── FavoritesController  # Favourite authors, series and books
+│   └── FlaggedController  # Flagged books and ongoing series
 ├── Models/                # Domain models
 │   ├── Book              # Book entity with IsMissing flag
 │   ├── Author            # Author entity
@@ -264,11 +268,13 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Book/Create` - Add book
 - `POST /Book/Update/{id}` - Update book
 - `POST /Book/Delete/{id}` - Delete book
+- `POST /Book/UpdateFlags` - Set book flags and note
 
 ### Series
 - `GET /Series/Details/{id}` - Series details
 - `POST /Series/Create` - Create series
 - `POST /Series/Update/{id}` - Update series
+- `POST /Series/SetOngoing` - Mark series as ongoing
 
 ### Trash
 - `GET /Trash/Index` - View trash
@@ -285,6 +291,13 @@ The application supports three languages. The switcher is in the navigation bar 
 
 ### Missing Books
 - `GET /MissingBooks/Index` - View missing books
+
+### Favourites
+- `GET /Favorites/Index` - View favourites
+- `POST /Favorites/Toggle` - Add or remove a favourite
+
+### Flagged
+- `GET /Flagged/Index` - View flagged books and ongoing series
 
 ## Development
 

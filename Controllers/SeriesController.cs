@@ -59,6 +59,15 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult SetOngoing(SetOngoingForm form)
+        {
+            if (!ModelState.IsValid) return Json(new { success = false, message = "Validation failed." });
+            var (success, message) = _libraryService.SetSeriesOngoing(form.Id, form.IsOngoing);
+            if (!success) return Json(new { success = false, message });
+            return Json(new { success = true, isOngoing = form.IsOngoing });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCover(UpdatePhotoForm form)
         {
             var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);

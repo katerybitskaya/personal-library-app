@@ -59,6 +59,15 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult UpdateFlags(UpdateFlagsForm form)
+        {
+            if (!ModelState.IsValid) return Json(new { success = false, message = "Validation failed." });
+            var (success, message) = _libraryService.UpdateBookFlags(form.Id, form.Flags, form.Note);
+            if (!success) return Json(new { success = false, message });
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCover(UpdatePhotoForm form)
         {
             var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);

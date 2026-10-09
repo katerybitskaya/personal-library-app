@@ -1,0 +1,119 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model FlaggedViewModel
+
+@{
+    ViewData["Title"] = L["Flagged_Title"];
+    var groups = BookFlags.All
+        .Select(f => (Flag: f, Books: Model.Books.Where(b => b.Flags.Contains(f)).ToList()))
+        .Where(g => g.Books.Any())
+        .ToList();
+    var totalCount = Model.OngoingSeries.Count + Model.Books.Count;
+}
+
+<div class="page-header">
+    <h1 class="page-title">@L["Flagged_Title"]</h1>
+    @if (!Model.IsEmpty)
+    {
+        <span class="badge badge-gold">@totalCount</span>
+    }
+</div>
+
+@if (Model.IsEmpty)
+{
+    <div class="empty-state">
+        <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 8 2a6 6 0 0 0 3.6-1.2 1 1 0 0 1 1.4.9v10.6a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.5"/></svg></div>
+        <div class="empty-state-title">@L["Flagged_Empty"]</div>
+        <div class="empty-state-text">@L["Flagged_EmptyText"]</div>
+    </div>
+}
+else
+{
+    <div class="flag-filter" role="toolbar" aria-label="@L["Book_Flags"]">
+        <button type="button" class="flag-filter-chip active" data-filter="all" aria-pressed="true">
+            @L["Flagged_All"] <span class="flag-filter-count">@totalCount</span>
+        </button>
+        @if (Model.OngoingSeries.Any())
+        {
+            <button type="button" class="flag-filter-chip flag-ongoing" data-filter="ongoing" aria-pressed="false">
+                @L["Series_OngoingSection"] <span class="flag-filter-count">@Model.OngoingSeries.Count</span>
+            </button>
+        }
+        @foreach (var grp in groups)
+        {
+            <button type="button" class="flag-filter-chip @BookFlags.CssClass(grp.Flag)" data-filter="@grp.Flag" aria-pressed="false">
+                @L[BookFlags.Key(grp.Flag)] <span class="flag-filter-count">@grp.Books.Count</span>
+            </button>
+        }
+    </div>
+
+    @if (Model.OngoingSeries.Any())
+    {
+        <section class="flag-section" data-section="ongoing">
+            <h2 class="flag-section-title flag-ongoing">@L["Series_OngoingSection"] <span class="flag-section-count">@Model.OngoingSeries.Count</span></h2>
+            <div class="missing-grid">
+                @foreach (var item in Model.OngoingSeries)
+                {
+                    <div class="missing-card flag-card flag-ongoing">
+                        <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="missing-card-series flag-card-title">@item.SeriesName</a>
+                        <div class="missing-card-meta">
+                            <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
+                            <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
+                        </div>
+                        <div class="flag-badges">
+                            <span class="badge badge-flag flag-ongoing">@L["Series_Ongoing"]</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @foreach (var grp in groups)
+    {
+        <section class="flag-section" data-section="@grp.Flag">
+            <h2 class="flag-section-title @BookFlags.CssClass(grp.Flag)">@L[BookFlags.Key(grp.Flag)] <span class="flag-section-count">@grp.Books.Count</span></h2>
+            <div class="missing-grid">
+                @foreach (var item in grp.Books)
+                {
+                    <div class="missing-card flag-card @BookFlags.CssClass(grp.Flag)">
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title @(item.IsMissing ? "text-muted" : "")">
+                            @if (item.IsMissing)
+                            {
+                                @L["Missing_Badge"]
+                            }
+                            else
+                            {
+                                @item.Title
+                            }
+                        </a>
+                        <div class="missing-card-meta">
+                            <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
+                            @if (item.SeriesId != null)
+                            {
+                                <div>
+                                    <span class="text-muted">@L["Missing_Series"]:</span>
+                                    <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="flag-card-link">@item.SeriesName</a>
+                                    @if (item.OrderInSeries.HasValue) { <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span> }
+                                </div>
+                            }
+                        </div>
+                        <div class="flag-badges">
+                            @foreach (var flag in item.Flags)
+                            {
+                                <span class="badge badge-flag @BookFlags.CssClass(flag)">@L[BookFlags.Key(flag)]</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    }
+}
+
+@section Scripts {
+<script>initSectionFilter();</script>
+}

@@ -34,7 +34,10 @@
     </div>
 
     <div class="detail-meta">
-        <h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">@author.Name</h1>
+        <div class="title-row">
+            <h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">@author.Name</h1>
+            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("author", author.Id, author.IsFavorite, true)' />
+        </div>
 
         <div class="detail-actions">
             <button class="btn btn-primary btn-sm" onclick="openModal('modalAddBook')">
@@ -57,11 +60,20 @@
                 <div class="items-section-title">@L["Author_Books"] (@author.Books.Count)</div>
                 @foreach (var book in author.Books)
                 {
+                    <div class="book-row">
                     <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                         <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
-                        @if (book.IsMissing) { <span class="badge badge-dim">@L["Missing_Badge"]</span> }
+                        <partial name="_BookFlagBadges" model="book" />
                     </a>
+                        @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
+                        else { <span class="fav-placeholder"></span> }
+                        <partial name="_BookFlagButton" model="book" />
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
+                                data-kind="book" data-id="@book.Id" data-name="@book.Title" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                        </button>
+                    </div>
                 }
             </div>
         }
@@ -78,14 +90,30 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                             <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
                             <span class="badge badge-gold">@series.Books.Count</span>
+                            <partial name="_OngoingToggle" model="series" />
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", series.Id, series.IsFavorite)' />
+                            <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Series_Delete"]" aria-label="@L["Series_Delete"]"
+                                data-kind="series" data-id="@series.Id" data-name="@series.Name" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                        </button>
                         </div>
                         <div class="series-accordion-body" id="acc-@series.Id">
                             @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))
                             {
+                                <div class="book-row">
                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item" style="padding:0.4rem 0.6rem">
                                     <span class="series-order" style="min-width:22px">@(book.OrderInSeries?.ToString() ?? "·")</span>
                                     <span class="@(book.IsMissing ? "text-muted" : "")">@book.Title</span>
+                                    <partial name="_BookFlagBadges" model="book" />
                                 </a>
+                                @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
+                                else { <span class="fav-placeholder"></span> }
+                                <partial name="_BookFlagButton" model="book" />
+                                <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
+                                data-kind="series-book" data-id="@book.Id" data-name="@book.Title" data-series-id="@series.Id" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                        </button>
+                                </div>
                             }
                         </div>
                     </div>
@@ -99,6 +127,8 @@
         }
     </div>
 </div>
+
+<partial name="_BookFlagsModal" />
 
 <div class="modal-overlay" id="modalAddBook">
     <div class="modal">
@@ -216,6 +246,23 @@ document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(
     e.preventDefault();
     submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), 'Photo updated!', () => { closeModal('modalUpdatePhoto'); setTimeout(()=>location.reload(),700); });
 });
+function confirmDeleteAuthorItem(btn) {
+    const kind = btn.dataset.kind;
+    const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const question = kind === 'series' ? '@L["Series_ConfirmDelete"]' : '@L["Book_ConfirmDelete"]';
+    openConfirmModal(`${question}<br><strong>${esc(btn.dataset.name)}</strong>`, async () => {
+        const fd = new FormData();
+        fd.append('__RequestVerificationToken', getAntiForgeryToken());
+        let url;
+        if (kind === 'series') { url = '/Series/Delete'; fd.append('seriesId', btn.dataset.id); fd.append('authorId', '@author.Id'); }
+        else if (kind === 'series-book') { url = '/Series/DeleteBook'; fd.append('bookId', btn.dataset.id); fd.append('seriesId', btn.dataset.seriesId); }
+        else { url = '/Book/Delete'; fd.append('bookId', btn.dataset.id); fd.append('authorId', '@author.Id'); }
+        const d = await (await fetch(url, { method: 'POST', body: fd })).json();
+        if (d.success) { showToast(kind === 'series' ? 'Series moved to trash.' : 'Book moved to trash.', 'success'); setTimeout(() => location.reload(), 700); }
+        else showToast(d.message, 'error');
+    });
+}
+
 function confirmDeleteAuthor() {
     openConfirmModal('@L["Author_ConfirmDelete"]', async () => {
         const fd = new FormData(); fd.append('id','@author.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());

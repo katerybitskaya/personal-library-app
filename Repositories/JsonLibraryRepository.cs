@@ -48,6 +48,7 @@ namespace PersonalLibrary.Repositories
 
             existing.Name = author.Name;
             existing.PhotoPath = author.PhotoPath;
+            existing.IsFavorite = author.IsFavorite;
             Save();
         }
 
@@ -89,6 +90,9 @@ namespace PersonalLibrary.Repositories
             {
                 existing.Title = book.Title;
                 existing.CoverPath = book.CoverPath;
+                existing.Flags = book.Flags;
+                existing.Note = book.Note;
+                existing.IsFavorite = book.IsFavorite;
                 Save();
                 return;
             }
@@ -100,6 +104,9 @@ namespace PersonalLibrary.Repositories
                 {
                     bookInSeries.Title = book.Title;
                     bookInSeries.CoverPath = book.CoverPath;
+                    bookInSeries.Flags = book.Flags;
+                    bookInSeries.Note = book.Note;
+                    bookInSeries.IsFavorite = book.IsFavorite;
                     Save();
                     return;
                 }
@@ -157,6 +164,8 @@ namespace PersonalLibrary.Repositories
 
             existing.Name = series.Name;
             existing.CoverPath = series.CoverPath;
+            existing.IsOngoing = series.IsOngoing;
+            existing.IsFavorite = series.IsFavorite;
             Save();
         }
 
@@ -205,6 +214,9 @@ namespace PersonalLibrary.Repositories
 
             existing.Title = book.Title;
             existing.CoverPath = book.CoverPath;
+            existing.Flags = book.Flags;
+            existing.Note = book.Note;
+            existing.IsFavorite = book.IsFavorite;
             Save();
         }
 

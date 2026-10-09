@@ -4,6 +4,7 @@
       "id": "1c1bdd96-0661-4543-a50a-66646649c2fe",
       "name": "Alexander Pushkin",
       "photoPath": null,
+      "isFavorite": false,
       "dateAdded": "2026-02-28T00:35:55.1016173+01:00",
       "books": [
         {
@@ -14,8 +15,12 @@
           "dateAdded": "2026-02-28T00:36:45.0242575+01:00",
           "authorId": "1c1bdd96-0661-4543-a50a-66646649c2fe",
           "seriesId": null,
+          "flags": [],
+          "note": null,
+          "isFavorite": false,
           "name": "Eugene Onegin",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": false
         },
         {
           "id": "26ee6fd2-5372-4897-80df-2d6492bd24d6",
@@ -25,8 +30,12 @@
           "dateAdded": "2026-02-28T00:37:04.2215431+01:00",
           "authorId": "1c1bdd96-0661-4543-a50a-66646649c2fe",
           "seriesId": null,
+          "flags": [],
+          "note": null,
+          "isFavorite": false,
           "name": "The Captain\u0027s daughter",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": false
         }
       ],
       "series": [],
@@ -36,6 +45,7 @@
       "id": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
       "name": "Mikhail Bulgakov",
       "photoPath": null,
+      "isFavorite": false,
       "dateAdded": "2026-02-28T00:38:02.14006+01:00",
       "books": [
         {
@@ -46,8 +56,14 @@
           "dateAdded": "2026-02-28T00:38:19.0398701+01:00",
           "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
           "seriesId": null,
+          "flags": [
+            "Duplicate"
+          ],
+          "note": null,
+          "isFavorite": false,
           "name": "The Master and Margarita",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": true
         }
       ],
       "series": [
@@ -57,6 +73,8 @@
           "coverPath": null,
           "dateAdded": "2026-02-28T00:45:56.1282154+01:00",
           "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
+          "isOngoing": true,
+          "isFavorite": true,
           "books": [
             {
               "id": "395e7629-15c7-41a0-9bcb-9cf8f5e62626",
@@ -66,8 +84,12 @@
               "dateAdded": "2026-02-28T00:45:56.1282175+01:00",
               "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
               "seriesId": "9a8a4127-1c1c-48ff-bf4d-b0834b5fe1c0",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "Towel with a Rooster",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": false
             },
             {
               "id": "56014627-5ed1-4327-82a2-9aea3070b8c9",
@@ -77,8 +99,12 @@
               "dateAdded": "2026-02-28T00:45:56.1282182+01:00",
               "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
               "seriesId": "9a8a4127-1c1c-48ff-bf4d-b0834b5fe1c0",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "Steel Throat",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": false
             },
             {
               "id": "81862653-a0f3-4749-8989-ec87ff81b0fa",
@@ -88,8 +114,12 @@
               "dateAdded": "2026-02-28T00:45:56.1282197+01:00",
               "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
               "seriesId": "9a8a4127-1c1c-48ff-bf4d-b0834b5fe1c0",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "-",
-              "isMissing": true
+              "isMissing": true,
+              "hasFlags": false
             },
             {
               "id": "c2d402c0-b0f1-4621-8e4e-78e6e1376f7b",
@@ -99,8 +129,12 @@
               "dateAdded": "2026-02-28T00:45:56.1282206+01:00",
               "authorId": "93d0b5ab-c4b8-456a-8c4e-15523e87f736",
               "seriesId": "9a8a4127-1c1c-48ff-bf4d-b0834b5fe1c0",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "-",
-              "isMissing": true
+              "isMissing": true,
+              "hasFlags": false
             }
           ]
         }
@@ -111,6 +145,7 @@
       "id": "dde3d5d8-a07f-4d22-bd92-f2d26ddee857",
       "name": "Jane Austen",
       "photoPath": null,
+      "isFavorite": false,
       "dateAdded": "2026-02-28T00:39:28.5394605+01:00",
       "books": [
         {
@@ -121,8 +156,12 @@
           "dateAdded": "2026-02-28T00:39:47.9387875+01:00",
           "authorId": "dde3d5d8-a07f-4d22-bd92-f2d26ddee857",
           "seriesId": null,
+          "flags": [],
+          "note": null,
+          "isFavorite": false,
           "name": "Pride and Prejudice",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": false
         }
       ],
       "series": [],
@@ -132,6 +171,7 @@
       "id": "ca9f7d21-d7d0-42f4-bcce-12e6ba7d7f8a",
       "name": "Antoine de Saint-Exupery",
       "photoPath": null,
+      "isFavorite": true,
       "dateAdded": "2026-02-28T00:41:07.5797178+01:00",
       "books": [
         {
@@ -142,8 +182,12 @@
           "dateAdded": "2026-02-28T00:41:20.4725393+01:00",
           "authorId": "ca9f7d21-d7d0-42f4-bcce-12e6ba7d7f8a",
           "seriesId": null,
+          "flags": [],
+          "note": null,
+          "isFavorite": false,
           "name": "The Little Prince",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": false
         }
       ],
       "series": [],
@@ -153,6 +197,7 @@
       "id": "8e1968e5-dedf-4179-8233-958c263b68e1",
       "name": "Leo Tolstoy",
       "photoPath": "/uploads/a4b76f7d-105f-4eb4-8649-7bafefcc8d54.jpg",
+      "isFavorite": false,
       "dateAdded": "2026-02-28T00:01:42.5092923+01:00",
       "books": [
         {
@@ -163,8 +208,14 @@
           "dateAdded": "2026-02-28T00:09:56.2197853+01:00",
           "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
           "seriesId": null,
+          "flags": [
+            "Duplicate"
+          ],
+          "note": null,
+          "isFavorite": true,
           "name": "Anna Karenina",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": true
         },
         {
           "id": "7f74146f-fe3c-4e9b-8188-9d211ac212f6",
@@ -174,8 +225,14 @@
           "dateAdded": "2026-02-28T00:30:37.8334748+01:00",
           "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
           "seriesId": null,
+          "flags": [
+            "ForSale"
+          ],
+          "note": "Boring",
+          "isFavorite": false,
           "name": "The Caucasian prisoner",
-          "isMissing": false
+          "isMissing": false,
+          "hasFlags": true
         }
       ],
       "series": [
@@ -185,6 +242,8 @@
           "coverPath": "/uploads/265dbb78-b5ac-49cc-a4c9-759e8de391e6.jpg",
           "dateAdded": "2026-02-28T00:16:23.8715716+01:00",
           "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
+          "isOngoing": true,
+          "isFavorite": false,
           "books": [
             {
               "id": "ab4acae7-4ad2-460f-ba13-8b10d3cf8150",
@@ -194,8 +253,14 @@
               "dateAdded": "2026-02-28T00:16:23.8718885+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
+              "flags": [
+                "OutOfPrint"
+              ],
+              "note": null,
+              "isFavorite": false,
               "name": "-",
-              "isMissing": true
+              "isMissing": true,
+              "hasFlags": true
             },
             {
               "id": "a49b7c12-3ce2-4e85-988e-0939b2927435",
@@ -205,8 +270,12 @@
               "dateAdded": "2026-02-28T00:16:23.8718956+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "-",
-              "isMissing": true
+              "isMissing": true,
+              "hasFlags": false
             },
             {
               "id": "10eabf1e-919f-4b82-bbde-5d05d5670a3c",
@@ -216,8 +285,15 @@
               "dateAdded": "2026-02-28T00:19:46.3435725+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
+              "flags": [
+                "OneOfSeries",
+                "ForSale"
+              ],
+              "note": "This is the third part of a series of 8 books",
+              "isFavorite": false,
               "name": "Volume 3",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": true
             },
             {
               "id": "86e1937c-cf94-4505-a31a-9293ad826e26",
@@ -227,8 +303,15 @@
               "dateAdded": "2026-02-28T00:16:23.871896+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "526b9444-8994-49d6-827f-01d619e1be4c",
+              "flags": [
+                "Lent",
+                "PoorCondition"
+              ],
+              "note": null,
+              "isFavorite": false,
               "name": "Volume 4",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": true
             }
           ]
         },
@@ -238,6 +321,8 @@
           "coverPath": null,
           "dateAdded": "2026-02-28T00:31:41.2423077+01:00",
           "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
+          "isOngoing": false,
+          "isFavorite": false,
           "books": [
             {
               "id": "f11f06ea-a888-4cbd-8147-b51c9bda49f6",
@@ -247,8 +332,12 @@
               "dateAdded": "2026-02-28T00:31:41.2423117+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "138bbf7d-e503-4dc9-836c-5005da9c672c",
+              "flags": [],
+              "note": null,
+              "isFavorite": false,
               "name": "Childhood",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": false
             },
             {
               "id": "7c5d8446-79dc-4f4b-9dba-4d81dead14c9",
@@ -258,8 +347,14 @@
               "dateAdded": "2026-02-28T00:31:41.2423126+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "138bbf7d-e503-4dc9-836c-5005da9c672c",
+              "flags": [
+                "Signed"
+              ],
+              "note": null,
+              "isFavorite": true,
               "name": "Adolescence",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": true
             },
             {
               "id": "3be82607-a58e-4625-8202-0cc3b0639bfc",
@@ -269,8 +364,12 @@
               "dateAdded": "2026-02-28T00:31:41.2423136+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "138bbf7d-e503-4dc9-836c-5005da9c672c",
+              "flags": [],
+              "note": null,
+              "isFavorite": true,
               "name": "Youth",
-              "isMissing": false
+              "isMissing": false,
+              "hasFlags": false
             }
           ]
         }
@@ -281,6 +380,7 @@
       "id": "0b05707d-b134-4ad5-814e-ddd2e59c03cb",
       "name": "Thomas Hardy",
       "photoPath": null,
+      "isFavorite": false,
       "dateAdded": "2026-02-28T00:50:23.7146862+01:00",
       "books": [],
       "series": [],

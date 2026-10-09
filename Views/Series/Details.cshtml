@@ -37,11 +37,17 @@
     <div class="detail-meta">
         <div>
             <div class="meta-label">@L["Series_Type"]</div>
-            <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@series.Name</h1>
+            <div class="title-row">
+                <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@series.Name</h1>
+                <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", series.Id, series.IsFavorite, true)' />
+            </div>
         </div>
         <div>
             <div class="meta-label">@L["Series_Author"]</div>
             <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id" class="meta-value">@author.Name</a>
+        </div>
+        <div>
+            <partial name="_OngoingToggle" model="series" />
         </div>
         <div class="detail-actions">
             <button class="btn btn-primary btn-sm" onclick="openModal('modalAddBookToSeries')">
@@ -71,8 +77,11 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")" style="flex:1">
                             @book.Title
-                            @if (book.IsMissing) { <span class="badge badge-dim" style="margin-left:0.4rem">@L["Missing_Badge"]</span> }
+                            <partial name="_BookFlagBadges" model="book" />
                         </a>
+                        @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
+                        else { <span class="fav-placeholder"></span> }
+                        <partial name="_BookFlagButton" model="book" />
                         <button class="btn btn-icon btn-ghost btn-sm" onclick="confirmDeleteBookFromSeries('@book.Id','@book.Title.Replace("'","\\'")')" title="@L["Book_Delete"]" style="opacity:0" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
@@ -120,6 +129,8 @@
         </form>
     </div>
 </div>
+
+<partial name="_BookFlagsModal" />
 
 <div class="modal-overlay" id="modalRenameSeries">
     <div class="modal">

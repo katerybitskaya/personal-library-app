@@ -1,0 +1,146 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model FavoritesViewModel
+
+@{
+    ViewData["Title"] = L["Favorites_Title"];
+}
+@Html.AntiForgeryToken()
+
+<div class="page-header">
+    <h1 class="page-title">@L["Favorites_Title"]</h1>
+    @if (Model.TotalCount > 0)
+    {
+        <span class="badge badge-gold">@Model.TotalCount</span>
+    }
+</div>
+
+@if (Model.TotalCount == 0)
+{
+    <div class="empty-state">
+        <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+        <div class="empty-state-title">@L["Favorites_Empty"]</div>
+        <div class="empty-state-text">@L["Favorites_EmptyText"]</div>
+    </div>
+}
+else
+{
+    <div class="flag-filter" role="toolbar">
+        <button type="button" class="flag-filter-chip fav-chip active" data-filter="all" aria-pressed="true">
+            @L["Flagged_All"] <span class="flag-filter-count">@Model.TotalCount</span>
+        </button>
+        @if (Model.Authors.Any())
+        {
+            <button type="button" class="flag-filter-chip fav-chip" data-filter="authors" aria-pressed="false">
+                @L["Stat_Authors"] <span class="flag-filter-count">@Model.Authors.Count</span>
+            </button>
+        }
+        @if (Model.Series.Any())
+        {
+            <button type="button" class="flag-filter-chip fav-chip" data-filter="series" aria-pressed="false">
+                @L["Stat_Series"] <span class="flag-filter-count">@Model.Series.Count</span>
+            </button>
+        }
+        @if (Model.Books.Any())
+        {
+            <button type="button" class="flag-filter-chip fav-chip" data-filter="books" aria-pressed="false">
+                @L["Stat_Books"] <span class="flag-filter-count">@Model.Books.Count</span>
+            </button>
+        }
+    </div>
+
+    @if (Model.Authors.Any())
+    {
+        <section class="flag-section fav-section" data-section="authors">
+            <h2 class="flag-section-title">@L["Stat_Authors"] <span class="flag-section-count">@Model.Authors.Count</span></h2>
+            <div class="missing-grid">
+                @foreach (var item in Model.Authors)
+                {
+                    <div class="missing-card flag-card fav-card">
+                        <div class="fav-card-head">
+                            <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="missing-card-series flag-card-title">@item.AuthorName</a>
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("author", item.AuthorId, true)' />
+                        </div>
+                        <div class="missing-card-meta">
+                            <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
+                            <div><span class="text-muted">@L["Stat_Series"]:</span> @item.SeriesCount</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Series.Any())
+    {
+        <section class="flag-section fav-section" data-section="series">
+            <h2 class="flag-section-title">@L["Stat_Series"] <span class="flag-section-count">@Model.Series.Count</span></h2>
+            <div class="missing-grid">
+                @foreach (var item in Model.Series)
+                {
+                    <div class="missing-card flag-card fav-card">
+                        <div class="fav-card-head">
+                            <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="missing-card-series flag-card-title">@item.SeriesName</a>
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", item.SeriesId, true)' />
+                        </div>
+                        <div class="missing-card-meta">
+                            <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
+                            <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
+                        </div>
+                        @if (item.IsOngoing)
+                        {
+                            <div class="flag-badges"><span class="badge badge-flag flag-ongoing">@L["Series_Ongoing"]</span></div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Books.Any())
+    {
+        <section class="flag-section fav-section" data-section="books">
+            <h2 class="flag-section-title">@L["Stat_Books"] <span class="flag-section-count">@Model.Books.Count</span></h2>
+            <div class="missing-grid">
+                @foreach (var item in Model.Books)
+                {
+                    <div class="missing-card flag-card fav-card">
+                        <div class="fav-card-head">
+                            <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title @(item.IsMissing ? "text-muted" : "")">
+                                @if (item.IsMissing) { @L["Missing_Badge"] } else { @item.Title }
+                            </a>
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", item.BookId, true)' />
+                        </div>
+                        <div class="missing-card-meta">
+                            <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
+                            @if (item.SeriesId != null)
+                            {
+                                <div>
+                                    <span class="text-muted">@L["Missing_Series"]:</span>
+                                    <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="flag-card-link">@item.SeriesName</a>
+                                    @if (item.OrderInSeries.HasValue) { <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span> }
+                                </div>
+                            }
+                        </div>
+                        @if (item.Flags.Any())
+                        {
+                            <div class="flag-badges">
+                                @foreach (var flag in item.Flags)
+                                {
+                                    <span class="badge badge-flag @BookFlags.CssClass(flag)">@L[BookFlags.Key(flag)]</span>
+                                }
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    }
+}
+
+@section Scripts {
+<script>initSectionFilter();</script>
+}

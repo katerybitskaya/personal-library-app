@@ -9,6 +9,8 @@ namespace PersonalLibrary.Models
 
         public string? PhotoPath { get; set; }
 
+        public bool IsFavorite { get; set; }
+
         public DateTime DateAdded { get; set; } = DateTime.Now;
 
         public List<Book> Books { get; set; } = new();

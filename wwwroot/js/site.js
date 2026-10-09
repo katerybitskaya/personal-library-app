@@ -105,6 +105,171 @@ function initFilePicker(inputId, previewId, btnId) {
     });
 }
 
+function syncFlagEditor(formEl) {
+    if (!formEl) return;
+    const anyChecked = [...formEl.querySelectorAll('input[name="Flags"]')].some(cb => cb.checked);
+    const note = formEl.querySelector('textarea[name="Note"]');
+    if (note) note.disabled = !anyChecked;
+}
+
+function initFlagEditor(formEl, onSaved) {
+    if (!formEl) return;
+    formEl.querySelectorAll('input[name="Flags"]').forEach(cb => cb.addEventListener('change', () => syncFlagEditor(formEl)));
+    syncFlagEditor(formEl);
+
+    formEl.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const err = formEl.querySelector('.flag-error');
+        const btn = formEl.querySelector('button[type="submit"]');
+        if (err) err.id = err.id || formEl.id + 'Error';
+        submitFormWithFile(formEl, '/Book/UpdateFlags', err ? err.id : null, btn, formEl.dataset.savedMsg || 'Saved!', onSaved);
+    });
+}
+
+function initFlagAutoSave(formEl) {
+    if (!formEl) return;
+    const status = formEl.querySelector('.flag-status');
+    const err = formEl.querySelector('.flag-error');
+    const note = formEl.querySelector('textarea[name="Note"]');
+    let timer = null, pending = false, running = false, hideTimer = null;
+
+    const setStatus = (text, cls) => {
+        if (!status) return;
+        clearTimeout(hideTimer);
+        status.textContent = text;
+        status.className = 'flag-status' + (cls ? ' ' + cls : '');
+        if (cls === 'is-saved') hideTimer = setTimeout(() => { status.textContent = ''; status.className = 'flag-status'; }, 2000);
+    };
+
+    async function save() {
+        if (running) { pending = true; return; }
+        running = true;
+        if (err) err.style.display = 'none';
+        setStatus(formEl.dataset.savingMsg || 'Saving…', 'is-saving');
+        try {
+            const d = await (await fetch('/Book/UpdateFlags', { method: 'POST', body: new FormData(formEl) })).json();
+            if (d.success) setStatus(formEl.dataset.savedMsg || 'Saved!', 'is-saved');
+            else { setStatus('', ''); if (err) { err.textContent = d.message; err.style.display = 'block'; } }
+        } catch {
+            setStatus('', '');
+            if (err) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
+        } finally {
+            running = false;
+            if (pending) { pending = false; save(); }
+        }
+    }
+    const saveSoon = (ms) => { clearTimeout(timer); timer = setTimeout(() => { timer = null; save(); }, ms); };
+
+    formEl.querySelectorAll('input[name="Flags"]').forEach(cb => cb.addEventListener('change', () => {
+        syncFlagEditor(formEl);
+        saveSoon(0);
+    }));
+    if (note) {
+        note.addEventListener('input', () => saveSoon(800));
+        note.addEventListener('blur', () => { if (timer) saveSoon(0); });
+    }
+    formEl.addEventListener('submit', e => { e.preventDefault(); saveSoon(0); });
+    window.addEventListener('beforeunload', () => {
+        if (!timer) return;
+        clearTimeout(timer);
+        navigator.sendBeacon('/Book/UpdateFlags', new FormData(formEl));
+    });
+    syncFlagEditor(formEl);
+}
+
+function openBookFlagsModal(btn) {
+    const form = document.getElementById('formModalBookFlags');
+    const flags = (btn.dataset.flags || '').split(',').filter(Boolean);
+    form.querySelector('input[name="Id"]').value = btn.dataset.bookId;
+    const missing = btn.dataset.missing === 'true';
+    form.querySelectorAll('.flag-chip').forEach(chip => {
+        const ok = missing === (chip.dataset.missingOk === 'true');
+        const cb = chip.querySelector('input');
+        chip.hidden = !ok;
+        cb.disabled = !ok;
+        cb.checked = ok && flags.includes(cb.value);
+    });
+    form.querySelector('textarea[name="Note"]').value = btn.dataset.note || '';
+    form.querySelector('.flag-error').style.display = 'none';
+    document.getElementById('flagModalBook').textContent = btn.dataset.bookTitle;
+    syncFlagEditor(form);
+    openModal('modalBookFlags');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initFlagEditor(document.getElementById('formModalBookFlags'), () => { closeModal('modalBookFlags'); setTimeout(() => location.reload(), 700); });
+});
+
+function initSectionFilter() {
+    const chips = document.querySelectorAll('.flag-filter-chip');
+    const sections = document.querySelectorAll('.flag-section');
+    if (!chips.length) return;
+
+    function apply(filter) {
+        if (![...chips].some(c => c.dataset.filter === filter)) filter = 'all';
+        chips.forEach(c => {
+            const on = c.dataset.filter === filter;
+            c.classList.toggle('active', on);
+            c.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        sections.forEach(s => { s.hidden = filter !== 'all' && s.dataset.section !== filter; });
+    }
+
+    chips.forEach(c => c.addEventListener('click', () => {
+        const filter = c.dataset.filter;
+        history.replaceState(null, '', filter === 'all' ? location.pathname : '#' + filter);
+        apply(filter);
+    }));
+
+    const fromHash = () => apply(decodeURIComponent(location.hash.slice(1)) || 'all');
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+}
+
+async function toggleFavorite(btn) {
+    const next = btn.getAttribute('aria-pressed') !== 'true';
+    const fd = new FormData();
+    fd.append('Kind', btn.dataset.kind);
+    fd.append('Id', btn.dataset.id);
+    fd.append('IsFavorite', next ? 'true' : 'false');
+    fd.append('__RequestVerificationToken', getAntiForgeryToken());
+    btn.disabled = true;
+    try {
+        const d = await (await fetch('/Favorites/Toggle', { method: 'POST', body: fd })).json();
+        if (d.success) {
+            btn.classList.toggle('is-on', next);
+            btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+            const t = next ? btn.dataset.titleOn : btn.dataset.titleOff;
+            btn.title = t; btn.setAttribute('aria-label', t);
+            btn.closest('.fav-card')?.classList.toggle('is-removed', !next);
+        } else showToast(d.message || 'Error.', 'error');
+    } catch {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function toggleSeriesOngoing(btn) {
+    const next = btn.getAttribute('aria-pressed') !== 'true';
+    const fd = new FormData();
+    fd.append('Id', btn.dataset.seriesId);
+    fd.append('IsOngoing', next ? 'true' : 'false');
+    fd.append('__RequestVerificationToken', getAntiForgeryToken());
+    btn.disabled = true;
+    try {
+        const d = await (await fetch('/Series/SetOngoing', { method: 'POST', body: fd })).json();
+        if (d.success) {
+            btn.classList.toggle('is-on', next);
+            btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        } else showToast(d.message || 'Error.', 'error');
+    } catch {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onSuccess) {
     const err = errorElId ? document.getElementById(errorElId) : null;
     if (err) err.style.display = 'none';

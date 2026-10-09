@@ -9,6 +9,8 @@ namespace PersonalLibrary.Models
         public string? CoverPath { get; set; }  
         public DateTime DateAdded { get; set; } = DateTime.Now;
         public string AuthorId { get; set; } = string.Empty;
+        public bool IsOngoing { get; set; }
+        public bool IsFavorite { get; set; }
         public List<Book> Books { get; set; } = new();
 
         public void Display(int depth)

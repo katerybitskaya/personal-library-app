@@ -144,11 +144,15 @@ else
                                         }
                                     </div>
                                     <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id"
-                                       class="author-name-link" onclick="event.stopPropagation()">@author.Name</a>
+                                       class="author-name-link" onclick="event.stopPropagation()">@author.Name <partial name="_FavoriteMark" model="author.IsFavorite" /></a>
                                     <div class="author-stats">
                                         @if (author.Books.Any()) { <span>@author.Books.Count @L["Author_Books"].ToLower()</span> }
                                         @if (author.Series.Any()) { <span>@author.Series.Count @L["Author_Series"].ToLower()</span> }
                                     </div>
+                                    <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Author_Delete"]" aria-label="@L["Author_Delete"]"
+                                            data-id="@author.Id" data-name="@author.Name" onclick="event.stopPropagation();confirmDeleteCatalogueAuthor(this)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                                    </button>
                                     <div class="author-toggle" id="toggle-@author.Id">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
                                     </div>
@@ -160,7 +164,8 @@ else
                                             <li class="item-row">
                                                 <svg class="item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
                                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
-                                                @if (book.IsMissing) { <span class="badge badge-dim" style="font-size:0.65rem">@L["Missing_Badge"]</span> }
+                                                <partial name="_FavoriteMark" model="book.IsFavoriteActive" />
+                                                <span class="badge-sm-wrap"><partial name="_BookFlagBadges" model="book" /></span>
                                             </li>
                                         }
                                         @foreach (var series in author.Series)
@@ -170,7 +175,9 @@ else
                                                     <svg class="series-toggle" id="stoggle-@series.Id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                                                     <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
+                                                    <partial name="_FavoriteMark" model="series.IsFavorite" />
                                                     <span class="badge badge-gold" style="font-size:0.65rem">@series.Books.Count</span>
+                                                    @if (series.IsOngoing) { <span class="badge badge-flag flag-ongoing" style="font-size:0.65rem">@L["Series_Ongoing"]</span> }
                                                 </div>
                                                 <div class="series-books" id="sbooks-@series.Id">
                                                     @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))
@@ -178,6 +185,8 @@ else
                                                         <div class="series-book-row">
                                                             <span class="series-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
                                                             <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@book.Title</a>
+                                                            <partial name="_FavoriteMark" model="book.IsFavoriteActive" />
+                                                            <span class="badge-sm-wrap"><partial name="_BookFlagBadges" model="book" /></span>
                                                         </div>
                                                     }
                                                 </div>
@@ -235,6 +244,17 @@ else
 
 @section Scripts {
 <script>
+function confirmDeleteCatalogueAuthor(btn) {
+    const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    openConfirmModal(`@L["Author_ConfirmDelete"]<br><strong>${esc(btn.dataset.name)}</strong>`, async () => {
+        const fd = new FormData();
+        fd.append('id', btn.dataset.id);
+        fd.append('__RequestVerificationToken', getAntiForgeryToken());
+        const d = await (await fetch('/Author/Delete', { method: 'POST', body: fd })).json();
+        if (d.success) { showToast('Author moved to trash.', 'success'); setTimeout(() => location.reload(), 700); }
+        else showToast(d.message, 'error');
+    });
+}
 initFilePicker('fileAddAuthor','prevAddAuthor','btnFileAddAuthor');
 
 let searchTimer;

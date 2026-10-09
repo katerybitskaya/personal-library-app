@@ -29,14 +29,27 @@ else
         @foreach (var item in Model.Items)
         {
             <div class="missing-card">
-                <div class="missing-card-series">@item.SeriesName</div>
+                <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="missing-card-series flag-card-title">@item.SeriesName</a>
                 <div class="missing-card-meta">
-                    <div><span style="color:var(--text-muted)">@L["Missing_Author"]:</span> @item.AuthorName</div>
+                    <div><span style="color:var(--text-muted)">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                     <div>
                         <span style="color:var(--text-muted)">@L["Missing_Order"]:</span>
-                        <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span>
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</a>
                     </div>
                 </div>
+                @if (item.Flags.Any())
+                {
+                    <div class="flag-badges" style="margin-top:0.6rem">
+                        @foreach (var flag in item.Flags)
+                        {
+                            <span class="badge badge-flag @BookFlags.CssClass(flag)">@L[BookFlags.Key(flag)]</span>
+                        }
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(item.Note))
+                {
+                    <p class="flag-card-note flag-out-of-print" style="margin-top:0.6rem">@item.Note</p>
+                }
             </div>
         }
     </div>

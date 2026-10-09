@@ -1,0 +1,44 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model Book
+
+@{
+    var formId = ViewData["FlagFormId"] as string ?? "formBookFlags";
+}
+@{
+    var autoSave = ViewData["FlagAutoSave"] as bool? == true;
+}
+<form id="@formId" class="flag-editor" data-saved-msg="@L["Flags_Saved"]" data-saving-msg="@L["Flags_Saving"]">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="flag-chips">
+        @foreach (var flag in BookFlags.All)
+        {
+            var allowed = BookFlags.AllowedFor(Model).Contains(flag);
+            <label class="flag-chip @BookFlags.CssClass(flag)" data-missing-ok="@(BookFlags.ForMissing.Contains(flag) ? "true" : "false")" @(allowed ? "" : "hidden")>
+                <input type="checkbox" name="Flags" value="@flag" @(Model.ActiveFlags.Contains(flag) ? "checked" : "") @(allowed ? "" : "disabled") />
+                <span>@L[BookFlags.Key(flag)]</span>
+            </label>
+        }
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="@(formId)Note">@L["Book_Note"]</label>
+        <textarea id="@(formId)Note" name="Note" class="form-control flag-note" rows="3" maxlength="1000" placeholder="@L["Book_NotePlaceholder"]">@Model.Note</textarea>
+        <div class="form-hint">@L["Book_NoteHint"]</div>
+    </div>
+    <div class="flag-error text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+    @if (ViewData["FlagFormFooter"] as bool? == true)
+    {
+        <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" onclick="closeModal('modalBookFlags')">@L["Btn_Cancel"]</button>
+            <button type="submit" class="btn btn-primary">@L["Btn_Save"]</button>
+        </div>
+    }
+    else if (autoSave)
+    {
+        <div class="flag-status" aria-live="polite"></div>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary btn-sm">@L["Btn_Save"]</button>
+    }
+</form>

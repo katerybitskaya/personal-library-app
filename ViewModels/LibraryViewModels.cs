@@ -55,6 +55,23 @@ namespace PersonalLibrary.ViewModels
         public int LastItem => Math.Min(Page * PageSize, TotalCount);
     }
 
+    public class FlaggedViewModel
+    {
+        public List<OngoingSeriesInfo> OngoingSeries { get; set; } = new();
+        public List<FlaggedBookInfo> Books { get; set; } = new();
+        public bool IsEmpty => !OngoingSeries.Any() && !Books.Any();
+    }
+
+    public record FavoriteToggleModel(string Kind, string Id, bool IsFavorite, bool Large = false);
+
+    public class FavoritesViewModel
+    {
+        public List<FavoriteAuthorInfo> Authors { get; set; } = new();
+        public List<OngoingSeriesInfo> Series { get; set; } = new();
+        public List<FlaggedBookInfo> Books { get; set; } = new();
+        public int TotalCount => Authors.Count + Series.Count + Books.Count;
+    }
+
     public class MissingBooksViewModel
     {
         public List<MissingBookInfo> Items { get; set; } = new();

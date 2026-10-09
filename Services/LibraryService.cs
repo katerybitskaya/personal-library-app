@@ -120,10 +120,32 @@ namespace PersonalLibrary.Services
 
             string oldTitle = book.Title;
             book.Title = newTitleTrimmed;
+            if (book.IsMissing) book.IsFavorite = false;
+            book.Flags = book.ActiveFlags;
+            if (book.Flags.Count == 0) book.Note = null;
             _repository.UpdateBook(book);
             var _renameSeries = author.Series.FirstOrDefault(s => s.Books.Any(b => b.Id == bookId));
             _publisher.BookRenamed(oldTitle, newTitleTrimmed, author.Name, _renameSeries?.Name);
 
+            return (true, string.Empty);
+        }
+
+        public (bool Success, string Message) UpdateBookFlags(string bookId, IEnumerable<BookFlag>? flags, string? note)
+        {
+            var book = _repository.GetBookById(bookId);
+            if (book == null) return (false, "Book not found.");
+
+            var allowed = BookFlags.AllowedFor(book);
+            book.Flags = (flags ?? Enumerable.Empty<BookFlag>())
+                .Where(f => allowed.Contains(f))
+                .Distinct()
+                .OrderBy(f => f)
+                .ToList();
+
+            var noteTrimmed = note?.Trim();
+            book.Note = book.Flags.Count > 0 && !string.IsNullOrEmpty(noteTrimmed) ? noteTrimmed : null;
+
+            _repository.UpdateBook(book);
             return (true, string.Empty);
         }
 
@@ -195,6 +217,16 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
+
+        public (bool Success, string Message) SetSeriesOngoing(string seriesId, bool isOngoing)
+        {
+            var series = _repository.GetSeriesById(seriesId);
+            if (series == null) return (false, "Series not found.");
+
+            series.IsOngoing = isOngoing;
+            _repository.UpdateSeries(series);
+            return (true, string.Empty);
+        }
 
         public void UpdateSeriesCover(string seriesId, string coverPath)
         {
@@ -269,9 +301,14 @@ namespace PersonalLibrary.Services
                     {
                         result.Add(new MissingBookInfo
                         {
+                            AuthorId = author.Id,
                             AuthorName = author.Name,
+                            SeriesId = series.Id,
                             SeriesName = series.Name,
-                            OrderInSeries = book.OrderInSeries ?? 0
+                            BookId = book.Id,
+                            OrderInSeries = book.OrderInSeries ?? 0,
+                            Flags = book.ActiveFlags,
+                            Note = book.HasFlags ? book.Note : null
                         });
                     }
                 }
@@ -279,6 +316,161 @@ namespace PersonalLibrary.Services
 
             return result;
         }
+
+        public (bool Success, string Message) SetFavorite(string kind, string id, bool isFavorite)
+        {
+            switch (kind)
+            {
+                case "author":
+                    var author = _repository.GetAuthorById(id);
+                    if (author == null) return (false, "Author not found.");
+                    author.IsFavorite = isFavorite;
+                    _repository.UpdateAuthor(author);
+                    return (true, string.Empty);
+                case "series":
+                    var series = _repository.GetSeriesById(id);
+                    if (series == null) return (false, "Series not found.");
+                    series.IsFavorite = isFavorite;
+                    _repository.UpdateSeries(series);
+                    return (true, string.Empty);
+                case "book":
+                    var book = _repository.GetBookById(id);
+                    if (book == null) return (false, "Book not found.");
+                    if (book.IsMissing && isFavorite) return (false, "A missing book cannot be a favourite.");
+                    book.IsFavorite = isFavorite && !book.IsMissing;
+                    _repository.UpdateBook(book);
+                    return (true, string.Empty);
+                default:
+                    return (false, "Unknown item type.");
+            }
+        }
+
+        public List<FavoriteAuthorInfo> GetFavoriteAuthors()
+        {
+            return _repository.GetAllAuthors()
+                .Where(a => a.IsFavorite)
+                .Select(a => new FavoriteAuthorInfo
+                {
+                    AuthorId    = a.Id,
+                    AuthorName  = a.Name,
+                    PhotoPath   = a.PhotoPath,
+                    BookCount   = a.Books.Count(b => !b.IsMissing) + a.Series.Sum(s => s.Books.Count(b => !b.IsMissing)),
+                    SeriesCount = a.Series.Count
+                })
+                .ToList();
+        }
+
+        public List<OngoingSeriesInfo> GetFavoriteSeries()
+        {
+            return _repository.GetAllAuthors()
+                .SelectMany(a => a.Series.Where(s => s.IsFavorite).OrderBy(s => s.Name).Select(s => new OngoingSeriesInfo
+                {
+                    AuthorId   = a.Id,
+                    AuthorName = a.Name,
+                    SeriesId   = s.Id,
+                    SeriesName = s.Name,
+                    BookCount  = s.Books.Count(b => !b.IsMissing),
+                    IsOngoing  = s.IsOngoing
+                }))
+                .ToList();
+        }
+
+        public List<FlaggedBookInfo> GetFavoriteBooks()
+        {
+            var result = new List<FlaggedBookInfo>();
+            foreach (var author in _repository.GetAllAuthors())
+            {
+                foreach (var book in author.Books.Where(b => b.IsFavoriteActive).OrderBy(b => b.Title))
+                    result.Add(FlaggedBookInfo.From(author, null, book));
+                foreach (var series in author.Series.OrderBy(s => s.Name))
+                    foreach (var book in series.Books.Where(b => b.IsFavoriteActive).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
+                        result.Add(FlaggedBookInfo.From(author, series, book));
+            }
+            return result;
+        }
+
+        public List<OngoingSeriesInfo> GetOngoingSeries()
+        {
+            return _repository.GetAllAuthors()
+                .SelectMany(a => a.Series.Where(s => s.IsOngoing).Select(s => new OngoingSeriesInfo
+                {
+                    AuthorId   = a.Id,
+                    AuthorName = a.Name,
+                    SeriesId   = s.Id,
+                    SeriesName = s.Name,
+                    BookCount  = s.Books.Count(b => !b.IsMissing),
+                    IsOngoing  = true
+                }))
+                .OrderBy(i => i.AuthorName)
+                .ThenBy(i => i.SeriesName)
+                .ToList();
+        }
+
+        public List<FlaggedBookInfo> GetFlaggedBooks()
+        {
+            var result = new List<FlaggedBookInfo>();
+
+            foreach (var author in _repository.GetAllAuthors())
+            {
+                foreach (var book in author.Books.Where(b => b.HasFlags).OrderBy(b => b.Title))
+                    result.Add(FlaggedBookInfo.From(author, null, book));
+
+                foreach (var series in author.Series.OrderBy(s => s.Name))
+                    foreach (var book in series.Books.Where(b => b.HasFlags).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
+                        result.Add(FlaggedBookInfo.From(author, series, book));
+            }
+
+            return result;
+        }
+    }
+
+    public class OngoingSeriesInfo
+    {
+        public string AuthorId { get; set; } = string.Empty;
+        public string AuthorName { get; set; } = string.Empty;
+        public string SeriesId { get; set; } = string.Empty;
+        public string SeriesName { get; set; } = string.Empty;
+        public int BookCount { get; set; }
+        public bool IsOngoing { get; set; }
+    }
+
+    public class FavoriteAuthorInfo
+    {
+        public string AuthorId { get; set; } = string.Empty;
+        public string AuthorName { get; set; } = string.Empty;
+        public string? PhotoPath { get; set; }
+        public int BookCount { get; set; }
+        public int SeriesCount { get; set; }
+    }
+
+    public class FlaggedBookInfo
+    {
+        public string AuthorId { get; set; } = string.Empty;
+        public string AuthorName { get; set; } = string.Empty;
+        public string? SeriesId { get; set; }
+        public string? SeriesName { get; set; }
+        public string BookId { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public int? OrderInSeries { get; set; }
+        public bool IsMissing { get; set; }
+        public List<BookFlag> Flags { get; set; } = new();
+        public string? Note { get; set; }
+        public bool IsFavorite { get; set; }
+
+        public static FlaggedBookInfo From(Author author, Series? series, Book book) => new()
+        {
+            AuthorId      = author.Id,
+            AuthorName    = author.Name,
+            SeriesId      = series?.Id,
+            SeriesName    = series?.Name,
+            BookId        = book.Id,
+            Title         = book.Title,
+            OrderInSeries = series != null ? book.OrderInSeries : null,
+            IsMissing     = book.IsMissing,
+            Flags         = book.ActiveFlags,
+            Note          = book.Note,
+            IsFavorite    = book.IsFavoriteActive
+        };
     }
 
     public class SearchResult
@@ -293,8 +485,13 @@ namespace PersonalLibrary.Services
 
     public class MissingBookInfo
     {
+        public string AuthorId { get; set; } = string.Empty;
         public string AuthorName { get; set; } = string.Empty;
+        public string SeriesId { get; set; } = string.Empty;
         public string SeriesName { get; set; } = string.Empty;
+        public string BookId { get; set; } = string.Empty;
         public int OrderInSeries { get; set; }
+        public List<BookFlag> Flags { get; set; } = new();
+        public string? Note { get; set; }
     }
 }

@@ -33,7 +33,9 @@
 
     <ul class="nav-links">
         <li><a asp-controller="Home" asp-action="Index" class="@(isHome ? "active" : "")">@L["Nav_Catalogue"]</a></li>
+        <li><a asp-controller="Favorites" asp-action="Index" class="@(currentController == "favorites" ? "active" : "")">@L["Nav_Favorites"]</a></li>
         <li><a asp-controller="MissingBooks" asp-action="Index" class="@(currentController == "missingbooks" ? "active" : "")">@L["Nav_MissingBooks"]</a></li>
+        <li><a asp-controller="Flagged" asp-action="Index" class="@(currentController == "flagged" ? "active" : "")">@L["Nav_Flagged"]</a></li>
         <li><a asp-controller="History" asp-action="Index" class="@(currentController == "history" ? "active" : "")">@L["Nav_History"]</a></li>
         <li>
             <a asp-controller="Trash" asp-action="Index" class="@(currentController == "trash" ? "active" : "")">
@@ -79,7 +81,9 @@
     </button>
     <ul class="drawer-links">
         <li><a asp-controller="Home" asp-action="Index" class="@(isHome ? "active" : "")">@L["Nav_Catalogue"]</a></li>
+        <li><a asp-controller="Favorites" asp-action="Index" class="@(currentController == "favorites" ? "active" : "")">@L["Nav_Favorites"]</a></li>
         <li><a asp-controller="MissingBooks" asp-action="Index" class="@(currentController == "missingbooks" ? "active" : "")">@L["Nav_MissingBooks"]</a></li>
+        <li><a asp-controller="Flagged" asp-action="Index" class="@(currentController == "flagged" ? "active" : "")">@L["Nav_Flagged"]</a></li>
         <li><a asp-controller="History" asp-action="Index" class="@(currentController == "history" ? "active" : "")">@L["Nav_History"]</a></li>
         <li>
             <a asp-controller="Trash" asp-action="Index" class="@(currentController == "trash" ? "active" : "")">
