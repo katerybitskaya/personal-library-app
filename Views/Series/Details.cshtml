@@ -197,18 +197,18 @@ initFilePicker('fileUpdateCover',null,'btnFileUpdateCover');
 
 document.getElementById('formAddBookToSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Series/AddBook','errAddSBook',document.getElementById('btnAddSBook'),'Book added!',()=>{ closeModal('modalAddBookToSeries'); this.reset(); document.getElementById('prevAddSBook').style.display='none'; setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this,'/Series/AddBook','errAddSBook',document.getElementById('btnAddSBook'),'Book added!',()=>{ closeModal('modalAddBookToSeries'); this.reset(); document.getElementById('prevAddSBook').style.display='none'; softReload(); });
 });
 document.getElementById('formRenameSeries')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const err = document.getElementById('errRenameSeries'); err.style.display='none';
     const d = await (await fetch('/Series/Rename',{method:'POST',body:new FormData(this)})).json();
-    if (d.success) { showToast('Series renamed!','success'); setTimeout(()=>location.reload(),700); }
+    if (d.success) { showToast('Series renamed!','success'); softReload(); }
     else { err.textContent=d.message; err.style.display='block'; }
 });
 document.getElementById('formUpdateCover')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Series/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this,'/Series/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); softReload(); });
 });
 function confirmDeleteSeries() {
     openConfirmModal('@L["Series_ConfirmDelete"]', async () => {
@@ -222,7 +222,7 @@ function confirmDeleteBookFromSeries(bookId, bookTitle) {
     openConfirmModal(`Move "${bookTitle}" to trash?`, async () => {
         const fd = new FormData(); fd.append('bookId',bookId); fd.append('seriesId','@series.Id'); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Series/DeleteBook',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('Book moved to trash.','success'); setTimeout(()=>location.reload(),700); }
+        if (d.success) { showToast('Book moved to trash.','success'); softReload(); }
         else showToast(d.message,'error');
     });
 }

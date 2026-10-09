@@ -251,7 +251,7 @@ function confirmDeleteCatalogueAuthor(btn) {
         fd.append('id', btn.dataset.id);
         fd.append('__RequestVerificationToken', getAntiForgeryToken());
         const d = await (await fetch('/Author/Delete', { method: 'POST', body: fd })).json();
-        if (d.success) { showToast('Author moved to trash.', 'success'); setTimeout(() => location.reload(), 700); }
+        if (d.success) { showToast('Author moved to trash.', 'success'); softReload(); }
         else showToast(d.message, 'error');
     });
 }
@@ -284,7 +284,7 @@ function scrollToLetter(l) {
 document.getElementById('formAddAuthor')?.addEventListener('submit', function(e) {
     e.preventDefault();
     submitFormWithFile(this, '/Author/Add', 'errAddAuthor', document.getElementById('btnAddAuthor'),
-        'Author added!', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; setTimeout(()=>location.reload(),700); });
+        'Author added!', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; softReload(); });
 });
 </script>
 }

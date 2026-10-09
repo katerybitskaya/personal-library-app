@@ -5,7 +5,7 @@ function syncModalScrollLock() {
 function openModal(id) {
     const overlay = document.getElementById(id);
     if (!overlay) return;
-    if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+    if (overlay.parentElement !== document.body) { overlay.dataset.moved = '1'; document.body.appendChild(overlay); }
     overlay.scrollTop = 0;
     overlay.classList.add('open');
     syncModalScrollLock();
@@ -170,7 +170,7 @@ function initFlagAutoSave(formEl) {
             const d = await (await fetch('/Book/UpdateFlags', { method: 'POST', body: new FormData(formEl) })).json();
             if (d.success) {
                 setStatus(formEl.dataset.savedMsg || 'Saved!', 'is-saved');
-                if (reloadAfter) { reloadAfter = false; setTimeout(() => location.reload(), 400); }
+                if (reloadAfter) { reloadAfter = false; softReload(); }
             } else {
                 setStatus('', '');
                 if (err) { err.textContent = d.message; err.style.display = 'block'; }
@@ -228,9 +228,51 @@ function openBookFlagsModal(btn) {
     openModal('modalBookFlags');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initFlagEditor(document.getElementById('formModalBookFlags'), () => { closeModal('modalBookFlags'); setTimeout(() => location.reload(), 700); });
-});
+function initPageWidgets() {
+    initFlagEditor(document.getElementById('formModalBookFlags'), () => { closeModal('modalBookFlags'); softReload(); });
+}
+document.addEventListener('DOMContentLoaded', initPageWidgets);
+
+let softReloadRunning = false;
+async function softReload() {
+    if (softReloadRunning) return;
+    softReloadRunning = true;
+    try {
+        const r = await fetch(location.href, { cache: 'no-store', headers: { 'X-Soft-Reload': '1' } });
+        if (!r.ok || new URL(r.url).pathname !== location.pathname) throw new Error('reload');
+        const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+        const oldMain = document.querySelector('main.main-content');
+        const newMain = doc.querySelector('main.main-content');
+        if (!oldMain || !newMain) throw new Error('reload');
+
+        const openIds = [...oldMain.querySelectorAll('[id].open')].map(el => el.id);
+        const y = window.scrollY;
+
+        document.querySelectorAll('body > .modal-overlay[data-moved]').forEach(el => el.remove());
+        oldMain.classList.add('no-anim');
+        oldMain.innerHTML = newMain.innerHTML;
+        ['.nav-links', '.drawer-links'].forEach(sel => {
+            const a = document.querySelector(sel), b = doc.querySelector(sel);
+            if (a && b) a.innerHTML = b.innerHTML;
+        });
+        document.title = doc.title;
+        openIds.forEach(id => document.getElementById(id)?.classList.add('open'));
+
+        doc.querySelectorAll('body > script:not([src])').forEach(s => {
+            const el = document.createElement('script');
+            el.textContent = '{\n' + s.textContent + '\n}';
+            document.body.appendChild(el);
+            el.remove();
+        });
+        initPageWidgets();
+        window.scrollTo({ top: y, behavior: 'instant' });
+        syncModalScrollLock();
+    } catch {
+        location.reload();
+    } finally {
+        softReloadRunning = false;
+    }
+}
 
 function initSectionFilter() {
     const chips = document.querySelectorAll('.flag-filter-chip');
@@ -254,6 +296,8 @@ function initSectionFilter() {
     }));
 
     const fromHash = () => apply(decodeURIComponent(location.hash.slice(1)) || 'all');
+    if (window._sectionFilterHash) window.removeEventListener('hashchange', window._sectionFilterHash);
+    window._sectionFilterHash = fromHash;
     window.addEventListener('hashchange', fromHash);
     fromHash();
 }

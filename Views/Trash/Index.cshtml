@@ -75,7 +75,7 @@ async function restoreItem(id) {
         showToast('@L["Trash_Restore"] — OK','success');
         const c = document.getElementById('trashCard-'+id);
         if (c) { c.style.opacity='0'; c.style.transition='opacity 0.3s'; setTimeout(()=>c.remove(),300); }
-        setTimeout(()=>location.reload(),900);
+        softReload();
     } else {
         showToast(d.message || '@L["Error_CannotRestore"]','error');
     }
@@ -95,7 +95,7 @@ function confirmClearTrash() {
     openConfirmModal('@L["Trash_ConfirmClear"]', async () => {
         const fd = new FormData(); fd.append('__RequestVerificationToken',getAntiForgeryToken());
         const d = await (await fetch('/Trash/Clear',{method:'POST',body:fd})).json();
-        if (d.success) { showToast('@L["Trash_Clear"] — OK','success'); setTimeout(()=>location.reload(),800); }
+        if (d.success) { showToast('@L["Trash_Clear"] — OK','success'); softReload(); }
     });
 }
 </script>

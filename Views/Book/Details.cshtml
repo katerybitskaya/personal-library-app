@@ -138,12 +138,12 @@ document.getElementById('formRenameBook')?.addEventListener('submit', async func
     const err = document.getElementById('errRenameBook'); err.style.display='none';
     const r = await fetch('/Book/Rename',{method:'POST',body:new FormData(this)});
     const d = await r.json();
-    if (d.success) { showToast('@L["Book_Rename"] — saved!','success'); setTimeout(()=>location.reload(),700); }
+    if (d.success) { showToast('@L["Book_Rename"] — saved!','success'); softReload(); }
     else { err.textContent=d.message; err.style.display='block'; }
 });
 document.getElementById('formUpdateCover')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this,'/Book/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this,'/Book/UpdateCover',null,document.getElementById('btnUpdateCover'),'Cover updated!',()=>{ closeModal('modalUpdateCover'); softReload(); });
 });
 function confirmDeleteBook() {
     openConfirmModal('@L["Book_ConfirmDelete"]', async () => {

@@ -362,12 +362,14 @@
               "dateAdded": "2026-02-28T00:31:41.2423136+01:00",
               "authorId": "8e1968e5-dedf-4179-8233-958c263b68e1",
               "seriesId": "138bbf7d-e503-4dc9-836c-5005da9c672c",
-              "flags": [],
+              "flags": [
+                "OtherEdition"
+              ],
               "note": null,
               "isFavorite": true,
               "name": "Youth",
               "isMissing": false,
-              "hasFlags": false
+              "hasFlags": true
             }
           ]
         }

@@ -631,6 +631,7 @@ a:hover { color: var(--gold-light); }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 html { scrollbar-gutter: stable; }
 body.modal-open { overflow: hidden; }
+.no-anim, .no-anim * { animation: none !important; }
 
 .modal {
     background: var(--bg-modal);

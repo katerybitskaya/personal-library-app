@@ -236,15 +236,15 @@ function addPartRow() {
 }
 document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), 'Book added!', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), 'Book added!', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; softReload(); });
 });
 document.getElementById('formAddSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), 'Series added!', () => { closeModal('modalAddSeries'); this.reset(); setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), 'Series added!', () => { closeModal('modalAddSeries'); this.reset(); softReload(); });
 });
 document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), 'Photo updated!', () => { closeModal('modalUpdatePhoto'); setTimeout(()=>location.reload(),700); });
+    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), 'Photo updated!', () => { closeModal('modalUpdatePhoto'); softReload(); });
 });
 function confirmDeleteAuthorItem(btn) {
     const kind = btn.dataset.kind;
@@ -258,7 +258,7 @@ function confirmDeleteAuthorItem(btn) {
         else if (kind === 'series-book') { url = '/Series/DeleteBook'; fd.append('bookId', btn.dataset.id); fd.append('seriesId', btn.dataset.seriesId); }
         else { url = '/Book/Delete'; fd.append('bookId', btn.dataset.id); fd.append('authorId', '@author.Id'); }
         const d = await (await fetch(url, { method: 'POST', body: fd })).json();
-        if (d.success) { showToast(kind === 'series' ? 'Series moved to trash.' : 'Book moved to trash.', 'success'); setTimeout(() => location.reload(), 700); }
+        if (d.success) { showToast(kind === 'series' ? 'Series moved to trash.' : 'Book moved to trash.', 'success'); softReload(); }
         else showToast(d.message, 'error');
     });
 }
