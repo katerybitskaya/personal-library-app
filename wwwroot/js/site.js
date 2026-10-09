@@ -145,7 +145,7 @@ function initFilePicker(inputId, previewId, btnId) {
 function syncFlagEditor(formEl) {
     if (!formEl) return;
     const missingCb = formEl.querySelector('input[name="IsMissing"][type="checkbox"]');
-    const missing = missingCb && !missingCb.disabled ? missingCb.checked : formEl.dataset.missing === 'true';
+    const missing = missingCb ? missingCb.checked : formEl.dataset.missing === 'true';
     formEl.querySelectorAll('.flag-chip').forEach(chip => {
         const ok = missing === (chip.dataset.missingOk === 'true');
         const cb = chip.querySelector('input');
@@ -156,21 +156,6 @@ function syncFlagEditor(formEl) {
     const anyChecked = [...formEl.querySelectorAll('input[name="Flags"]')].some(cb => cb.checked);
     const note = formEl.querySelector('textarea[name="Note"]');
     if (note) note.disabled = !anyChecked;
-}
-
-function initFlagEditor(formEl, onSaved) {
-    if (!formEl) return;
-    formEl.querySelector('input[name="IsMissing"][type="checkbox"]')?.addEventListener('change', () => syncFlagEditor(formEl));
-    formEl.querySelectorAll('input[name="Flags"]').forEach(cb => cb.addEventListener('change', () => syncFlagEditor(formEl)));
-    syncFlagEditor(formEl);
-
-    formEl.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const err = formEl.querySelector('.flag-error');
-        const btn = formEl.querySelector('button[type="submit"]');
-        if (err) err.id = err.id || formEl.id + 'Error';
-        submitFormWithFile(formEl, '/Book/UpdateFlags', err ? err.id : null, btn, formEl.dataset.savedMsg || 'Saved!', onSaved);
-    });
 }
 
 function initFlagAutoSave(formEl) {
@@ -236,30 +221,6 @@ function initFlagAutoSave(formEl) {
     syncFlagEditor(formEl);
 }
 
-function openBookFlagsModal(btn) {
-    const form = document.getElementById('formModalBookFlags');
-    const flags = (btn.dataset.flags || '').split(',').filter(Boolean);
-    form.querySelector('input[name="Id"]').value = btn.dataset.bookId;
-    const inSeries = btn.dataset.inSeries === 'true';
-    form.dataset.missing = btn.dataset.missing;
-    const wrap = form.querySelector('.missing-toggle-wrap');
-    if (wrap) {
-        wrap.hidden = !inSeries;
-        wrap.querySelectorAll('input').forEach(i => { i.disabled = !inSeries; });
-        wrap.querySelector('input[type="checkbox"]').checked = btn.dataset.missing === 'true';
-    }
-    form.querySelectorAll('input[name="Flags"]').forEach(cb => { cb.disabled = false; cb.checked = flags.includes(cb.value); });
-    form.querySelector('textarea[name="Note"]').value = btn.dataset.note || '';
-    form.querySelector('.flag-error').style.display = 'none';
-    document.getElementById('flagModalBook').textContent = btn.dataset.bookTitle;
-    syncFlagEditor(form);
-    openModal('modalBookFlags');
-}
-
-function initPageWidgets() {
-    initFlagEditor(document.getElementById('formModalBookFlags'), () => { closeModal('modalBookFlags'); softReload(); });
-}
-document.addEventListener('DOMContentLoaded', initPageWidgets);
 
 let softReloadRunning = false;
 async function softReload() {
@@ -292,7 +253,6 @@ async function softReload() {
             document.body.appendChild(el);
             el.remove();
         });
-        initPageWidgets();
         window.scrollTo({ top: y, behavior: 'instant' });
         syncModalScrollLock();
     } catch {

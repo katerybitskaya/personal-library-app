@@ -70,19 +70,10 @@
                 <div class="items-section-title">@L["Series_Parts"] (@orderedBooks.Count)</div>
                 @foreach (var book in orderedBooks)
                 {
-                    <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;border-radius:var(--radius);border:1px solid transparent;transition:all var(--transition)"
-                         onmouseenter="this.style.background='var(--bg-card-hover)';this.style.borderColor='var(--border)'"
-                         onmouseleave="this.style.background='';this.style.borderColor='transparent'">
-                        <span style="font-family:var(--font-ui);font-size:0.8rem;color:var(--gold-muted);min-width:28px;text-align:right;font-weight:600">@(book.OrderInSeries?.ToString() ?? "·")</span>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")" style="flex:1">
-                            @L.BookTitle(book.Title)
-                            <partial name="_BookFlagBadges" model="book" />
-                        </a>
-                        @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
-                        else { <span class="fav-placeholder"></span> }
-                        <partial name="_BookFlagButton" model="book" />
-                        <button class="btn btn-icon btn-ghost btn-sm" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="confirmDeleteBookFromSeries(this.dataset.id, this.dataset.name)" title="@L["Book_Delete"]" style="opacity:0" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
+                    <div class="series-part-row">
+                        <span class="part-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link book-title-line @(book.IsMissing ? "text-muted" : "")"><span>@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></a>
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="confirmDeleteBookFromSeries(this.dataset.id, this.dataset.name)" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
                         </button>
                     </div>
@@ -136,8 +127,6 @@
         </form>
     </div>
 </div>
-
-<partial name="_BookFlagsModal" />
 
 <div class="modal-overlay" id="modalRenameSeries">
     <div class="modal">

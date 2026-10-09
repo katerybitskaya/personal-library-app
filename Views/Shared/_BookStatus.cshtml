@@ -1,0 +1,8 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model Book
+
+<partial name="_FavoriteMark" model="Model.IsFavoriteActive" />
+@if (Model.IsMissing)
+{
+    <span class="badge @(Model.HasFlags ? "badge-flag " + BookFlags.CssClass(Model.ActiveFlags[0]) : "badge-dim")">@L["Missing_Badge"]</span>
+}

@@ -63,12 +63,8 @@
                     <div class="book-row">
                     <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-                        <span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span>
-                        <partial name="_BookFlagBadges" model="book" />
+                        <span class="book-title-line"><span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></span>
                     </a>
-                        @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
-                        else { <span class="fav-placeholder"></span> }
-                        <partial name="_BookFlagButton" model="book" />
                         <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
                                 data-kind="book" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
@@ -90,8 +86,7 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                             <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
                             <span class="badge badge-gold">@series.Books.Count</span>
-                            <partial name="_OngoingToggle" model="series" />
-                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", series.Id, series.IsFavorite)' />
+                            <partial name="_FavoriteMark" model="series.IsFavorite" />
                             <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Series_Delete"]" aria-label="@L["Series_Delete"]"
                                 data-kind="series" data-id="@series.Id" data-name="@series.Name" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
@@ -103,12 +98,8 @@
                                 <div class="book-row">
                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item" style="padding:0.4rem 0.6rem">
                                     <span class="series-order" style="min-width:22px">@(book.OrderInSeries?.ToString() ?? "·")</span>
-                                    <span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span>
-                                    <partial name="_BookFlagBadges" model="book" />
+                                    <span class="book-title-line"><span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></span>
                                 </a>
-                                @if (!book.IsMissing) { <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite)' /> }
-                                else { <span class="fav-placeholder"></span> }
-                                <partial name="_BookFlagButton" model="book" />
                                 <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"
                                 data-kind="series-book" data-id="@book.Id" data-name="@L.BookTitle(book.Title)" data-series-id="@series.Id" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
@@ -127,8 +118,6 @@
         }
     </div>
 </div>
-
-<partial name="_BookFlagsModal" />
 
 <div class="modal-overlay" id="modalAddBook">
     <div class="modal">

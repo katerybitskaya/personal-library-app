@@ -377,8 +377,7 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count(b => !b.IsMissing),
-                    IsOngoing  = s.IsOngoing
+                    BookCount  = s.Books.Count(b => !b.IsMissing)
                 }))
                 .ToList();
         }
@@ -406,8 +405,7 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count(b => !b.IsMissing),
-                    IsOngoing  = true
+                    BookCount  = s.Books.Count(b => !b.IsMissing)
                 }))
                 .OrderBy(i => i.AuthorName)
                 .ThenBy(i => i.SeriesName)
@@ -439,7 +437,6 @@ namespace PersonalLibrary.Services
         public string SeriesId { get; set; } = string.Empty;
         public string SeriesName { get; set; } = string.Empty;
         public int BookCount { get; set; }
-        public bool IsOngoing { get; set; }
     }
 
     public class FavoriteAuthorInfo

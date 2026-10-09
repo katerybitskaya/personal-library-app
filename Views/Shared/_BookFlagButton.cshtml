@@ -1,8 +1,0 @@
-@inject PersonalLibrary.Services.LocalizationService L
-@model Book
-
-<button type="button" class="btn btn-icon btn-ghost btn-sm flag-btn @(Model.HasFlags ? "has-flags" : "")" title="@L["Book_EditFlags"]" aria-label="@L["Book_EditFlags"]"
-        data-book-id="@Model.Id" data-book-title="@L.BookTitle(Model.Title)" data-flags="@(string.Join(",", Model.ActiveFlags))" data-missing="@(Model.IsMissing ? "true" : "false")" data-in-series="@(string.IsNullOrEmpty(Model.SeriesId) ? "false" : "true")" data-note="@Model.Note"
-        onclick="event.preventDefault();event.stopPropagation();openBookFlagsModal(this)">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 8 2a6 6 0 0 0 3.6-1.2 1 1 0 0 1 1.4.9v10.6a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.5"/></svg>
-</button>

@@ -86,10 +86,6 @@ else
                             <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                             <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
                         </div>
-                        @if (item.IsOngoing)
-                        {
-                            <div class="flag-badges"><span class="badge badge-flag flag-ongoing">@L["Series_Ongoing"]</span></div>
-                        }
                     </div>
                 }
             </div>
@@ -121,19 +117,6 @@ else
                                 </div>
                             }
                         </div>
-                        @if (item.Flags.Any())
-                        {
-                            <div class="flag-badges">
-                                @foreach (var flag in item.Flags)
-                                {
-                                    <span class="badge badge-flag @BookFlags.CssClass(flag)">@L[BookFlags.Key(flag)]</span>
-                                }
-                            </div>
-                        }
-                        @if (!string.IsNullOrEmpty(item.Note))
-                        {
-                            <p class="flag-card-note">@item.Note</p>
-                        }
                     </div>
                 }
             </div>
