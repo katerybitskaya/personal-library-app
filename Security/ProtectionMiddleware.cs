@@ -13,9 +13,7 @@ namespace PersonalLibrary.Security
             "/home/setlanguage",
             "/css/",
             "/js/",
-            "/lib/",
             "/favicon.ico",
-            "/personallibrary.styles.css",
         };
 
         private readonly RequestDelegate _next;

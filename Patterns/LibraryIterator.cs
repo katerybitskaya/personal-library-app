@@ -103,7 +103,7 @@ namespace PersonalLibrary.Patterns
             while (iterator.HasNext())
             {
                 var book = iterator.Next();
-                if (book.IsMissing || !book.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!book.Title.StartsWith(query, StringComparison.OrdinalIgnoreCase)) continue;
                 if (!authorsById.TryGetValue(book.AuthorId, out var author)) continue;
                 Series? series = book.SeriesId != null && seriesById.TryGetValue(book.SeriesId, out var s) ? s : null;
                 results.Add((author, book, series));

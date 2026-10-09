@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using PersonalLibrary.Filters;
 using PersonalLibrary.Interfaces;
 using PersonalLibrary.Middleware;
 using PersonalLibrary.Models;
@@ -32,11 +31,7 @@ namespace PersonalLibrary
             builder.Services.AddSingleton<LoginAttemptTracker>();
 
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<TrashCountFilter>();
-            builder.Services.AddControllersWithViews(options =>
-            {
-                options.Filters.AddService<TrashCountFilter>();
-            });
+            builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<LocalizationService>();
 

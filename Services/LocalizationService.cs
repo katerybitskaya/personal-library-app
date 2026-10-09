@@ -72,6 +72,7 @@ namespace PersonalLibrary.Services
                 ["Series_ConfirmDelete"] = "Are you sure you want to delete this series?",
                 ["Series_Type"]          = "Type: Series",
                 ["Series_Parts"]         = "Parts",
+                ["Series_PartsOf"]       = "{0} of {1}",
                 ["Series_Part"]          = "Part",
                 ["Series_PartsOptional"] = "Parts (optional)",
                 ["Series_AddBook"]       = "Add Book to Series",
@@ -93,13 +94,14 @@ namespace PersonalLibrary.Services
                 ["Trash_AlreadyExists_Author"]  = "Cannot restore: author \"{0}\" already exists.",
                 ["Trash_AlreadyExists_Series"]  = "Cannot restore: series \"{0}\" already exists for this author.",
                 ["Trash_AlreadyExists_Book"]    = "Cannot restore: book \"{0}\" already exists for this author.",
+                ["Trash_AlreadyExists_BookInSeries"] = "Cannot restore: series \"{1}\" already has a book \"{0}\".",
                 ["Trash_NoParentAuthor"]        = "Cannot restore: the parent author was also deleted.",
                 ["History_Title"]        = "History",
                 ["History_Empty"]        = "No actions recorded yet.",
                 ["History_Clear"]        = "Clear History",
                 ["History_ConfirmClear"] = "Are you sure you want to clear the history?",
                 ["Hist_AuthorAdded"]     = "Author added: {0}",
-                ["Hist_AuthorDeleted"]   = "Author deleted: {0} (with all books and series)",
+                ["Hist_AuthorDeleted"]   = "Author deleted: {0}",
                 ["Hist_AuthorPhoto"]     = "Photo updated for author: {0}",
                 ["Hist_BookAdded"]       = "Book added: \"{0}\" by {1}",
                 ["Hist_BookAddedSeries"] = "Book added: \"{0}\" by {1} (series: {2})",
@@ -109,7 +111,7 @@ namespace PersonalLibrary.Services
                 ["Hist_BookRenamedSeries"] = "Book renamed: \"{0}\" → \"{1}\" by {2} (series: {3})",
                 ["Hist_BookCover"]       = "Cover updated for book: \"{0}\" by {1}",
                 ["Hist_SeriesAdded"]     = "Series added: \"{0}\" by {1}",
-                ["Hist_SeriesDeleted"]   = "Series deleted: \"{0}\" by {1} (with all books)",
+                ["Hist_SeriesDeleted"]   = "Series deleted: \"{0}\" by {1}",
                 ["Hist_SeriesRenamed"]   = "Series renamed: \"{0}\" → \"{1}\" by {2}",
                 ["Hist_SeriesCover"]     = "Cover updated for series: \"{0}\" by {1}",
                 ["Hist_Restored"]        = "Restored from trash: {0} \"{1}\"",
@@ -157,7 +159,7 @@ namespace PersonalLibrary.Services
                 ["Storage_ErrorTitle"]   = "The library is temporarily unavailable",
                 ["Storage_ErrorText"]    = "The data files (library.json, trash.json, history.json) and their backups could not be read. To protect your data, the application has stopped working with them.",
                 ["Storage_ErrorHint"]    = "Check the files in the Data folder and the server log, then restart the application.",
-                ["Book_Untitled"]        = "Untitled book",
+                ["Book_Untitled"]        = "No title",
                 ["Book_MissingNeedsTitle"] = "Give the book a title first.",
                 ["Book_IsMissing"]       = "Not owned",
                 ["Book_IsMissingHint"]   = "The book belongs to the series but isn't in your library.",
@@ -266,6 +268,7 @@ namespace PersonalLibrary.Services
                 ["Series_ConfirmDelete"] = "Вы уверены, что хотите удалить эту серию?",
                 ["Series_Type"]          = "Тип: Серия",
                 ["Series_Parts"]         = "Части",
+                ["Series_PartsOf"]       = "{0} из {1}",
                 ["Series_Part"]          = "Часть",
                 ["Series_PartsOptional"] = "Части (необязательно)",
                 ["Series_AddBook"]       = "Добавить книгу в серию",
@@ -287,13 +290,14 @@ namespace PersonalLibrary.Services
                 ["Trash_AlreadyExists_Author"]  = "Невозможно восстановить: автор «{0}» уже существует.",
                 ["Trash_AlreadyExists_Series"]  = "Невозможно восстановить: серия «{0}» уже существует у этого автора.",
                 ["Trash_AlreadyExists_Book"]    = "Невозможно восстановить: книга «{0}» уже существует у этого автора.",
+                ["Trash_AlreadyExists_BookInSeries"] = "Невозможно восстановить: в серии «{1}» уже есть книга «{0}».",
                 ["Trash_NoParentAuthor"]        = "Невозможно восстановить: автор тоже был удалён.",
                 ["History_Title"]        = "История",
                 ["History_Empty"]        = "Действий пока не было.",
                 ["History_Clear"]        = "Очистить историю",
                 ["History_ConfirmClear"] = "Вы уверены, что хотите очистить историю?",
                 ["Hist_AuthorAdded"]     = "Добавлен автор: {0}",
-                ["Hist_AuthorDeleted"]   = "Удалён автор: {0} (со всеми книгами и сериями)",
+                ["Hist_AuthorDeleted"]   = "Удалён автор: {0}",
                 ["Hist_AuthorPhoto"]     = "Обновлено фото автора: {0}",
                 ["Hist_BookAdded"]       = "Добавлена книга: «{0}» — {1}",
                 ["Hist_BookAddedSeries"] = "Добавлена книга: «{0}» — {1} (серия: {2})",
@@ -303,7 +307,7 @@ namespace PersonalLibrary.Services
                 ["Hist_BookRenamedSeries"] = "Переименована книга: «{0}» → «{1}» — {2} (серия: {3})",
                 ["Hist_BookCover"]       = "Обновлена обложка книги: «{0}» — {1}",
                 ["Hist_SeriesAdded"]     = "Добавлена серия: «{0}» — {1}",
-                ["Hist_SeriesDeleted"]   = "Удалена серия: «{0}» — {1} (со всеми книгами)",
+                ["Hist_SeriesDeleted"]   = "Удалена серия: «{0}» — {1}",
                 ["Hist_SeriesRenamed"]   = "Переименована серия: «{0}» → «{1}» — {2}",
                 ["Hist_SeriesCover"]     = "Обновлена обложка серии: «{0}» — {1}",
                 ["Hist_Restored"]        = "Восстановлено из корзины: {0} «{1}»",
@@ -351,7 +355,7 @@ namespace PersonalLibrary.Services
                 ["Storage_ErrorTitle"]   = "Библиотека временно недоступна",
                 ["Storage_ErrorText"]    = "Не удалось прочитать файлы данных (library.json, trash.json, history.json) и их резервные копии. Чтобы не повредить данные, приложение приостановило работу с ними.",
                 ["Storage_ErrorHint"]    = "Проверьте файлы в папке Data и журнал сервера, затем перезапустите приложение.",
-                ["Book_Untitled"]        = "Книга без названия",
+                ["Book_Untitled"]        = "Нет названия",
                 ["Book_MissingNeedsTitle"] = "Сначала дайте книге название.",
                 ["Book_IsMissing"]       = "Нет в наличии",
                 ["Book_IsMissingHint"]   = "Книга есть в серии, но её нет в вашей библиотеке.",
@@ -460,6 +464,7 @@ namespace PersonalLibrary.Services
                 ["Series_ConfirmDelete"] = "Czy na pewno chcesz usunąć tę serię?",
                 ["Series_Type"]          = "Typ: Seria",
                 ["Series_Parts"]         = "Części",
+                ["Series_PartsOf"]       = "{0} z {1}",
                 ["Series_Part"]          = "Część",
                 ["Series_PartsOptional"] = "Części (opcjonalnie)",
                 ["Series_AddBook"]       = "Dodaj książkę do serii",
@@ -481,13 +486,14 @@ namespace PersonalLibrary.Services
                 ["Trash_AlreadyExists_Author"]  = "Nie można przywrócić: autor «{0}» już istnieje.",
                 ["Trash_AlreadyExists_Series"]  = "Nie można przywrócić: seria «{0}» już istnieje dla tego autora.",
                 ["Trash_AlreadyExists_Book"]    = "Nie można przywrócić: książka «{0}» już istnieje dla tego autora.",
+                ["Trash_AlreadyExists_BookInSeries"] = "Nie można przywrócić: seria «{1}» ma już książkę «{0}».",
                 ["Trash_NoParentAuthor"]        = "Nie można przywrócić: autor również został usunięty.",
                 ["History_Title"]        = "Historia",
                 ["History_Empty"]        = "Brak zapisanych działań.",
                 ["History_Clear"]        = "Wyczyść historię",
                 ["History_ConfirmClear"] = "Czy na pewno chcesz wyczyścić historię?",
                 ["Hist_AuthorAdded"]     = "Dodano autora: {0}",
-                ["Hist_AuthorDeleted"]   = "Usunięto autora: {0} (z wszystkimi książkami i seriami)",
+                ["Hist_AuthorDeleted"]   = "Usunięto autora: {0}",
                 ["Hist_AuthorPhoto"]     = "Zaktualizowano zdjęcie autora: {0}",
                 ["Hist_BookAdded"]       = "Dodano książkę: «{0}» — {1}",
                 ["Hist_BookAddedSeries"] = "Dodano książkę: «{0}» — {1} (seria: {2})",
@@ -497,7 +503,7 @@ namespace PersonalLibrary.Services
                 ["Hist_BookRenamedSeries"] = "Zmieniono nazwę książki: «{0}» → «{1}» — {2} (seria: {3})",
                 ["Hist_BookCover"]       = "Zaktualizowano okładkę książki: «{0}» — {1}",
                 ["Hist_SeriesAdded"]     = "Dodano serię: «{0}» — {1}",
-                ["Hist_SeriesDeleted"]   = "Usunięto serię: «{0}» — {1} (z wszystkimi książkami)",
+                ["Hist_SeriesDeleted"]   = "Usunięto serię: «{0}» — {1}",
                 ["Hist_SeriesRenamed"]   = "Zmieniono nazwę serii: «{0}» → «{1}» — {2}",
                 ["Hist_SeriesCover"]     = "Zaktualizowano okładkę serii: «{0}» — {1}",
                 ["Hist_Restored"]        = "Przywrócono z kosza: {0} «{1}»",
@@ -545,7 +551,7 @@ namespace PersonalLibrary.Services
                 ["Storage_ErrorTitle"]   = "Biblioteka jest chwilowo niedostępna",
                 ["Storage_ErrorText"]    = "Nie udało się odczytać plików danych (library.json, trash.json, history.json) ani ich kopii zapasowych. Aby nie uszkodzić danych, aplikacja wstrzymała pracę z nimi.",
                 ["Storage_ErrorHint"]    = "Sprawdź pliki w folderze Data i dziennik serwera, a następnie uruchom aplikację ponownie.",
-                ["Book_Untitled"]        = "Książka bez tytułu",
+                ["Book_Untitled"]        = "Brak tytułu",
                 ["Book_MissingNeedsTitle"] = "Najpierw nadaj książce tytuł.",
                 ["Book_IsMissing"]       = "Brak w kolekcji",
                 ["Book_IsMissingHint"]   = "Książka należy do serii, ale nie ma jej w Twojej bibliotece.",
@@ -602,15 +608,6 @@ namespace PersonalLibrary.Services
                 if (!string.IsNullOrEmpty(langCookie) && _translations.ContainsKey(langCookie))
                     return langCookie;
 
-                var aspCookie = _httpContextAccessor.HttpContext?.Request.Cookies[".AspNetCore.Culture"];
-                if (aspCookie != null)
-                {
-                    var uicPart = aspCookie.Split('|')
-                        .FirstOrDefault(p => p.StartsWith("uic="))
-                        ?.Replace("uic=", "");
-                    if (!string.IsNullOrEmpty(uicPart) && _translations.ContainsKey(uicPart))
-                        return uicPart;
-                }
                 return "en";
             }
         }

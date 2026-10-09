@@ -1,5 +1,6 @@
 using PersonalLibrary.Interfaces;
 using PersonalLibrary.Models;
+using PersonalLibrary.Patterns;
 using PersonalLibrary.Repositories;
 
 namespace PersonalLibrary.Services
@@ -15,7 +16,7 @@ namespace PersonalLibrary.Services
 
         public void OnEvent(string eventMessage)
         {
-            var parts = eventMessage.Split('|');
+            var parts = eventMessage.Split(LibraryEventPublisher.Separator);
             var entry = new HistoryEntry
             {
                 Timestamp  = DateTime.Now,

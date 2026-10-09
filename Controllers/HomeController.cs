@@ -27,8 +27,8 @@ namespace PersonalLibrary.Controllers
             };
             if (!string.IsNullOrWhiteSpace(q))
             {
-                vm.SearchQuery = q;
-                vm.SearchResult = _libraryService.Search(q);
+                vm.SearchQuery = q.Trim();
+                vm.SearchResult = _libraryService.Search(vm.SearchQuery);
             }
             return View(vm);
         }

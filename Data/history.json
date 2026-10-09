@@ -47,5 +47,107 @@
       "Nikolai Gogol"
     ],
     "message": ""
+  },
+  {
+    "id": "5a754954-ddb6-4817-9ed8-5d202f160e69",
+    "timestamp": "2026-10-09T21:58:33.4481153+02:00",
+    "messageKey": "Hist_BookDeletedSeries",
+    "params": [
+      "\u041A\u043D\u0438\u0433\u0430 \u0431\u0435\u0437 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u044F",
+      "Leo Tolstoy",
+      "War and Peace"
+    ],
+    "message": ""
+  },
+  {
+    "id": "176f9658-a8c6-4b3b-a194-ccb09a66fbe9",
+    "timestamp": "2026-10-09T22:00:12.4735562+02:00",
+    "messageKey": "Hist_Restored",
+    "params": [
+      "Label_Book",
+      "Ksi\u0105\u017Cka bez tytu\u0142u"
+    ],
+    "message": ""
+  },
+  {
+    "id": "17683977-054e-403d-be6b-b92818c1f5a4",
+    "timestamp": "2026-10-09T22:02:53.4028379+02:00",
+    "messageKey": "Hist_AuthorDeleted",
+    "params": [
+      "Thomas Hardy"
+    ],
+    "message": ""
+  },
+  {
+    "id": "9b7d6cd4-8bce-4b61-aed8-26e92269cb55",
+    "timestamp": "2026-10-09T22:02:58.6688473+02:00",
+    "messageKey": "Hist_AuthorAdded",
+    "params": [
+      "Thomas Hardy"
+    ],
+    "message": ""
+  },
+  {
+    "id": "e7a5f196-9d29-4951-8ab7-82b546783908",
+    "timestamp": "2026-10-09T22:03:17.4452198+02:00",
+    "messageKey": "Hist_BookAdded",
+    "params": [
+      "Book \u21161",
+      "Thomas Hardy"
+    ],
+    "message": ""
+  },
+  {
+    "id": "f120edc2-317c-4905-972c-66ba344103f6",
+    "timestamp": "2026-10-09T22:03:43.2004831+02:00",
+    "messageKey": "Hist_SeriesAdded",
+    "params": [
+      "Series \u21161",
+      "Thomas Hardy"
+    ],
+    "message": ""
+  },
+  {
+    "id": "c9e2b1fc-aa6e-4796-ad71-3dd77541f5c9",
+    "timestamp": "2026-10-09T22:11:44.9515145+02:00",
+    "messageKey": "Hist_BookDeletedSeries",
+    "params": [
+      "Book_Untitled",
+      "Leo Tolstoy",
+      "War and Peace"
+    ],
+    "message": ""
+  },
+  {
+    "id": "d172b4dd-642b-4c60-ad7d-e2cc95f1e768",
+    "timestamp": "2026-10-09T22:13:53.5033008+02:00",
+    "messageKey": "Hist_Restored",
+    "params": [
+      "Label_Book",
+      "Book_Untitled"
+    ],
+    "message": ""
+  },
+  {
+    "id": "962a339d-1099-4e2f-90c8-1516a8cb600d",
+    "timestamp": "2026-10-09T22:15:30.1668602+02:00",
+    "messageKey": "Hist_BookAddedSeries",
+    "params": [
+      "Book \u21161",
+      "Thomas Hardy",
+      "Series \u21161"
+    ],
+    "message": ""
+  },
+  {
+    "id": "db5c4095-4a0d-4715-9d15-2fcf44e69d6e",
+    "timestamp": "2026-10-09T22:15:40.9530766+02:00",
+    "messageKey": "Hist_BookAddedSeries",
+    "params": [
+      "Book \u21162",
+      "Thomas Hardy",
+      "Series \u21161"
+    ],
+    "message": ""
   }
 ]

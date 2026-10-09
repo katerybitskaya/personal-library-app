@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLibrary.Interfaces;
 using PersonalLibrary.Models;
@@ -35,7 +36,7 @@ namespace PersonalLibrary.Controllers
             var error = _trashService.Restore(id);
             if (error != null) return Json(new { success = false, message = _loc[error] });
 
-            _publisher.ItemRestored(item.ItemType == TrashItemType.Book ? _loc.BookTitle(item.ItemName) : item.ItemName, item.ItemType.ToString());
+            _publisher.ItemRestored(item.ItemName, item.ItemType.ToString());
             return Json(new { success = true });
         }
 
@@ -61,25 +62,22 @@ namespace PersonalLibrary.Controllers
             {
                 case TrashItemType.Author:
                     if (allAuthors.Any(a => a.Name.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase)))
-                        return string.Format(_loc["Trash_AlreadyExists_Author"], item.ItemName);
+                        return string.Format(_loc["Trash_AlreadyExists_Author"], WebUtility.HtmlEncode(item.ItemName));
                     break;
                 case TrashItemType.Series:
                     var a4s = allAuthors.FirstOrDefault(a => a.Id == item.AuthorId);
                     if (a4s != null && a4s.Series.Any(s => s.Name.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase)))
-                        return string.Format(_loc["Trash_AlreadyExists_Series"], item.ItemName);
+                        return string.Format(_loc["Trash_AlreadyExists_Series"], WebUtility.HtmlEncode(item.ItemName));
                     break;
                 case TrashItemType.Book:
                     var a4b = allAuthors.FirstOrDefault(a => a.Id == item.AuthorId);
-                    var trashedBook = System.Text.Json.JsonSerializer.Deserialize<Book>(item.SerializedData,
-                        new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
-                    bool untitledMissing = trashedBook != null && trashedBook.IsMissing && string.IsNullOrWhiteSpace(trashedBook.Title);
-                    if (a4b != null && !untitledMissing)
-                    {
-                        bool exists = a4b.Books.Any(b => b.Title.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase))
-                            || a4b.Series.Any(s => s.Books.Any(b => b.Title.Equals(item.ItemName, StringComparison.OrdinalIgnoreCase)));
-                        if (exists)
-                            return string.Format(_loc["Trash_AlreadyExists_Book"], item.ItemName);
-                    }
+                    if (a4b == null) break;
+                    // Книга вернётся в свою серию, а если серии уже нет — к отдельным книгам автора
+                    var targetSeries = a4b.Series.FirstOrDefault(s => s.Id == item.SeriesId);
+                    if (LibraryService.IsTitleTaken(targetSeries?.Books ?? a4b.Books, item.ItemName))
+                        return targetSeries != null
+                            ? string.Format(_loc["Trash_AlreadyExists_BookInSeries"], WebUtility.HtmlEncode(item.ItemName), WebUtility.HtmlEncode(targetSeries.Name))
+                            : string.Format(_loc["Trash_AlreadyExists_Book"], WebUtility.HtmlEncode(item.ItemName));
                     break;
             }
             return null;

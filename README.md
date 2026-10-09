@@ -88,7 +88,6 @@ PersonalLibrary/
 ├── Interfaces/            # Service contracts
 ├── Middleware/            # Data storage guard, request lock
 ├── Helpers/               # Utility classes (file upload)
-├── Filters/               # Action filters (trash count badge)
 ├── wwwroot/               # Static files (CSS, JS, uploads)
 ├── Data/                  # JSON data storage (auto-generated)
 └── protection.example.json # Template for protection.json
@@ -205,7 +204,7 @@ By default the library is open to everyone. To require a login, create a `protec
 
 Services are configured in `Program.cs` using ASP.NET Core DI container:
 - Singleton repositories and services
-- Scoped localization service and trash count filter
+- Scoped localization service
 
 ## Data Storage
 

@@ -87,7 +87,6 @@
         <form id="formRenameBook">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@book.Id" />
-            <input type="hidden" name="ItemType" value="book" />
             <div class="form-group">
                 <label class="form-label">@L["Book_NewTitle"] <span class="text-danger">*</span></label>
                 <input type="text" name="NewName" class="form-control" value="@book.Title" required />
@@ -108,7 +107,6 @@
         <form id="formUpdateCover" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@book.Id" />
-            <input type="hidden" name="ItemType" value="book" />
             <div class="form-group">
                 @if (!string.IsNullOrEmpty(book.CoverPath))
                 {

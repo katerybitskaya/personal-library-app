@@ -57,7 +57,7 @@
         @if (author.Books.Any())
         {
             <div class="items-section">
-                <div class="items-section-title">@L["Author_Books"] (@author.Books.Count)</div>
+                <div class="items-section-title">@L["Author_Books"] (@author.Books.Count(b => !b.IsMissing))</div>
                 @foreach (var book in author.Books)
                 {
                     <div class="book-row">
@@ -85,7 +85,7 @@
                             <svg class="series-accordion-arrow" id="arr-@series.Id" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold-muted);flex-shrink:0"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                             <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
-                            <span class="badge badge-gold">@series.Books.Count</span>
+                            <span class="badge badge-gold">@series.Books.Count(b => !b.IsMissing)</span>
                             <partial name="_FavoriteMark" model="series.IsFavorite" />
                             <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Series_Delete"]" aria-label="@L["Series_Delete"]"
                                 data-kind="series" data-id="@series.Id" data-name="@series.Name" onclick="event.stopPropagation();confirmDeleteAuthorItem(this)">
@@ -183,7 +183,6 @@
         <form id="formUpdatePhoto" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@author.Id" />
-            <input type="hidden" name="ItemType" value="author" />
             <div class="form-group">
                 @if (!string.IsNullOrEmpty(author.PhotoPath))
                 {
@@ -218,10 +217,19 @@ function addPartRow() {
     const row = document.createElement('div');
     row.className = 'part-row';
     row.innerHTML = `<input type="text" name="Parts[${pi}].Title" class="form-control" placeholder="@L["Series_Part"] ${pi+1}" required />
-        <button type="button" class="btn btn-icon btn-ghost" onclick="this.parentElement.remove()">
+        <button type="button" class="btn btn-icon btn-ghost" onclick="removePartRow(this)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>`;
     list.appendChild(row); pi++;
+}
+function removePartRow(btn) {
+    btn.parentElement.remove();
+    const inputs = document.querySelectorAll('#partsList input');
+    inputs.forEach((input, i) => {
+        input.name = `Parts[${i}].Title`;
+        input.placeholder = `@L["Series_Part"] ${i+1}`;
+    });
+    pi = inputs.length;
 }
 document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
     e.preventDefault();

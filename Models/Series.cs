@@ -22,9 +22,8 @@ namespace PersonalLibrary.Models
 
         public void AddBookToSeries(Book newBook)
         {
-            if (newBook.OrderInSeries.HasValue)
+            if (newBook.OrderInSeries is int order && order >= 1)
             {
-                int order = newBook.OrderInSeries.Value;
                 if (order > Books.Count + 1)
                     newBook.OrderInSeries = Books.Count + 1;
                 else

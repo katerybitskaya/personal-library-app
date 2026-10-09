@@ -10,7 +10,8 @@
     <h1 class="page-title">@L["Trash_Title"]</h1>
     @if (Model.Items.Any())
     {
-        <button class="btn btn-danger btn-sm" onclick="confirmClearTrash()">
+        <span class="badge badge-gold">@Model.Items.Count</span>
+        <button class="btn btn-ghost btn-sm" onclick="confirmClearTrash()" style="margin-left:auto">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
             @L["Trash_Clear"]
         </button>
@@ -56,13 +57,12 @@ else
                     <div><span class="text-muted">@L["Trash_Deleted"]:</span> @L.FormatDate(item.DeletedAt) @item.DeletedAt.ToString("HH:mm")</div>
                 </div>
                 <div class="trash-card-actions">
-                    <button class="btn btn-secondary btn-sm" onclick="restoreItem('@item.Id')">
+                    <button class="btn btn-ghost btn-sm" onclick="restoreItem('@item.Id')">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                         @L["Trash_Restore"]
                     </button>
-                    <button class="btn btn-danger btn-sm" data-id="@item.Id" data-name="@L.BookTitle(item.ItemName)" onclick="deleteForever(this.dataset.id, this.dataset.name)">
+                    <button class="btn btn-icon btn-ghost btn-sm trash-forever-btn" title="@L["Trash_DeleteForever"]" aria-label="@L["Trash_DeleteForever"]" data-id="@item.Id" data-name="@L.BookTitle(item.ItemName)" onclick="deleteForever(this.dataset.id, this.dataset.name)">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
-                        @L["Trash_DeleteForever"]
                     </button>
                 </div>
             </div>

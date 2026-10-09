@@ -9,7 +9,6 @@ namespace PersonalLibrary.ViewModels
         [StringLength(200, MinimumLength = 1)]
         public string Name { get; set; } = string.Empty;
         public IFormFile? PhotoFile { get; set; }
-        public string? PhotoPath { get; set; }
     }
 
     public class AddBookForm
@@ -22,7 +21,6 @@ namespace PersonalLibrary.ViewModels
         public string Title { get; set; } = string.Empty;
 
         public IFormFile? CoverFile { get; set; }
-        public string? CoverPath { get; set; }
     }
 
     public class AddSeriesForm
@@ -41,7 +39,6 @@ namespace PersonalLibrary.ViewModels
     {
         [Required(ErrorMessage = "Part title is required.")]
         public string Title { get; set; } = string.Empty;
-        public string? CoverPath { get; set; }
     }
 
     public class AddBookToSeriesForm
@@ -57,7 +54,6 @@ namespace PersonalLibrary.ViewModels
         public bool IsMissing { get; set; }
 
         public IFormFile? CoverFile { get; set; }
-        public string? CoverPath { get; set; }
     }
 
     public class RenameForm
@@ -65,7 +61,6 @@ namespace PersonalLibrary.ViewModels
         [Required]
         public string Id { get; set; } = string.Empty;
 
-        public string ItemType { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "New name is required.")]
         [StringLength(500, MinimumLength = 1)]
@@ -109,9 +104,7 @@ namespace PersonalLibrary.ViewModels
         [Required]
         public string Id { get; set; } = string.Empty;
 
-        public string ItemType { get; set; } = string.Empty;
 
         public IFormFile? PhotoFile { get; set; }
-        public string? Path { get; set; }
     }
 }

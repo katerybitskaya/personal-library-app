@@ -121,22 +121,6 @@ a:hover { color: var(--gold-light); }
 .nav-links a:hover,
 .nav-links a.active { color: var(--gold-light); background: var(--gold-subtle); }
 
-.nav-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--gold-muted);
-    color: var(--bg-deep);
-    font-family: var(--font-ui);
-    font-size: 0.65rem;
-    font-weight: 700;
-    border-radius: 99px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    margin-left: 5px;
-    vertical-align: middle;
-}
 
 .lang-switcher { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .lang-btn {
@@ -857,8 +841,10 @@ body.modal-open { overflow: hidden; }
 
 .trash-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .missing-book-card { --fc: var(--gold-muted); }
-.trash-item .trash-card-actions { margin-top: auto; padding-top: 0.25rem; }
-.trash-item .trash-card-actions .btn { flex: 1 1 auto; justify-content: center; }
+.trash-item .trash-card-actions { margin-top: auto; padding-top: 0.6rem; border-top: 1px solid var(--border-card); align-items: center; justify-content: space-between; flex-wrap: nowrap; }
+.trash-item .trash-card-actions .btn-ghost:not(.btn-icon) { margin-left: -0.85rem; }
+.trash-forever-btn { color: var(--text-muted); margin-right: -0.55rem; }
+.trash-forever-btn:hover { color: #e07070; }
 .trash-type-author { --fc: var(--gold); }
 .trash-type-series { --fc: var(--flag-ongoing); }
 .trash-type-book   { --fc: var(--flag-duplicate); }
@@ -1002,9 +988,8 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 .series-part-row > .part-order { line-height: 1.4; padding-top: 0.18rem; }
 .book-row:has(.book-title-line),
 .series-part-row { align-items: flex-start; }
-.book-row:has(.book-title-line) > .item-delete-btn { margin-top: 0.2rem; }
-.items-section > .book-row:has(.book-title-line) > .item-delete-btn { margin-top: 0.45rem; }
-.series-part-row > .btn { margin-top: -0.4rem; }
+.book-row > .item-delete-btn,
+.series-part-row > .item-delete-btn { align-self: center; }
 .author-stats { flex-wrap: wrap; justify-content: flex-end; row-gap: 0.15rem; }
 .author-stats span { white-space: nowrap; }
 @media (max-width: 480px) {
@@ -1249,7 +1234,6 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
     .navbar-brand svg { width: 19px; height: 19px; }
     .nav-links { display: none; }
     .nav-toggle { display: flex; }
-    .nav-badge { display: none; }
     .lang-switcher { gap: 3px; }
     .lang-btn { padding: 3px 7px; font-size: 0.7rem; }
     .main-content { padding-left: 1rem; padding-right: 1rem; }
@@ -1297,6 +1281,8 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
     padding: 2rem 1rem;
 }
 .login-card { width: 100%; max-width: 380px; }
+/* Глаз «показать пароль» (Edge) — белый на тёмном поле */
+.login-card input[type="password"]::-ms-reveal { filter: invert(1); }
 .login-header {
     display: flex;
     align-items: center;

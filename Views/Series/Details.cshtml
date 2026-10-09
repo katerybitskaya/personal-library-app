@@ -67,7 +67,7 @@
         @if (orderedBooks.Any())
         {
             <div class="items-section">
-                <div class="items-section-title">@L["Series_Parts"] (@orderedBooks.Count)</div>
+                <div class="items-section-title">@L["Series_Parts"] (@(orderedBooks.Any(b => b.IsMissing) ? string.Format(L["Series_PartsOf"], orderedBooks.Count(b => !b.IsMissing), orderedBooks.Count) : orderedBooks.Count.ToString()))</div>
                 @foreach (var book in orderedBooks)
                 {
                     <div class="series-part-row">
@@ -135,7 +135,6 @@
         <form id="formRenameSeries">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@series.Id" />
-            <input type="hidden" name="ItemType" value="series" />
             <div class="form-group">
                 <label class="form-label">@L["Series_NewName"] <span class="text-danger">*</span></label>
                 <input type="text" name="NewName" class="form-control" value="@series.Name" required />
@@ -156,7 +155,6 @@
         <form id="formUpdateCover" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@series.Id" />
-            <input type="hidden" name="ItemType" value="series" />
             <div class="form-group">
                 @if (!string.IsNullOrEmpty(series.CoverPath))
                 {

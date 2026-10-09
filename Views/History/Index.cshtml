@@ -10,7 +10,7 @@
     <h1 class="page-title">@L["History_Title"]</h1>
     @if (Model.Entries.Any())
     {
-        <span class="badge badge-dim">@Model.TotalCount</span>
+        <span class="badge badge-gold">@Model.TotalCount</span>
         <button class="btn btn-ghost btn-sm" onclick="confirmClearHistory()" style="margin-left:auto">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
             @L["History_Clear"]
@@ -113,7 +113,7 @@ function confirmClearHistory() {
             if (entry.Params.Count > 0)
             {
                 var translatedParams = entry.Params
-                    .Select(p => p.StartsWith("Label_") || p.StartsWith("Hist_") ? L[p] : L.BookTitle(p))
+                    .Select(p => p.StartsWith("Label_") || p.StartsWith("Hist_") || p == "Book_Untitled" ? L[p] : L.BookTitle(p))
                     .Cast<object>()
                     .ToArray();
                 try { return string.Format(template, translatedParams); }

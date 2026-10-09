@@ -7,7 +7,7 @@
         .Select(f => (Flag: f, Books: Model.Books.Where(b => b.Flags.Contains(f)).ToList()))
         .Where(g => g.Books.Any())
         .ToList();
-    var totalCount = Model.OngoingSeries.Count + Model.Books.Count;
+    var totalCount = Model.OngoingSeries.Count + groups.Sum(g => g.Books.Count);
 }
 
 <div class="page-header">
@@ -78,7 +78,6 @@ else
                     <div class="missing-card flag-card @BookFlags.CssClass(grp.Flag)">
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title @(item.IsMissing ? "text-muted" : "")">
                             @L.BookTitle(item.Title)
-                            @if (item.IsMissing) { <span class="badge badge-dim" style="margin-left:0.4rem">@L["Missing_Badge"]</span> }
                         </a>
                         <div class="missing-card-meta">
                             <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
@@ -87,8 +86,14 @@ else
                                 <div>
                                     <span class="text-muted">@L["Missing_Series"]:</span>
                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="flag-card-link">@item.SeriesName</a>
-                                    @if (item.OrderInSeries.HasValue) { <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span> }
                                 </div>
+                                @if (item.OrderInSeries.HasValue)
+                                {
+                                    <div>
+                                        <span class="text-muted">@L["Missing_Order"]:</span>
+                                        <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span>
+                                    </div>
+                                }
                             }
                         </div>
                         <div class="flag-badges">

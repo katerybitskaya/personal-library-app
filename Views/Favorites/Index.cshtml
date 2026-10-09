@@ -101,8 +101,8 @@ else
                 {
                     <div class="missing-card flag-card fav-card">
                         <div class="fav-card-head">
-                            <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title @(item.IsMissing ? "text-muted" : "")">
-                                @if (item.IsMissing) { @L["Missing_Badge"] } else { @item.Title }
+                            <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title">
+                                @L.BookTitle(item.Title)
                             </a>
                             <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", item.BookId, true)' />
                         </div>
@@ -113,8 +113,14 @@ else
                                 <div>
                                     <span class="text-muted">@L["Missing_Series"]:</span>
                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="flag-card-link">@item.SeriesName</a>
-                                    @if (item.OrderInSeries.HasValue) { <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span> }
                                 </div>
+                                @if (item.OrderInSeries.HasValue)
+                                {
+                                    <div>
+                                        <span class="text-muted">@L["Missing_Order"]:</span>
+                                        <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span>
+                                    </div>
+                                }
                             }
                         </div>
                     </div>

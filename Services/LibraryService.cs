@@ -75,11 +75,11 @@ namespace PersonalLibrary.Services
 
         public Book? GetBookById(string id) => _repository.GetBookById(id);
 
-        private static bool IsTitleTaken(Author author, string title, string? exceptBookId = null)
+        // Название уникально в пределах одного места: отдельные книги автора или одна серия
+        public static bool IsTitleTaken(IEnumerable<Book> books, string title, string? exceptBookId = null)
         {
             if (string.IsNullOrWhiteSpace(title)) return false;
-            return author.Books.Concat(author.Series.SelectMany(s => s.Books))
-                .Any(b => b.Id != exceptBookId && b.Title.Trim().Equals(title.Trim(), StringComparison.OrdinalIgnoreCase));
+            return books.Any(b => b.Id != exceptBookId && b.Title.Trim().Equals(title.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public (bool Success, string Message) AddBook(string authorId, Book book)
@@ -87,7 +87,7 @@ namespace PersonalLibrary.Services
             var author = _repository.GetAuthorById(authorId);
             if (author == null) return (false, "Error_NotFound");
 
-            if (IsTitleTaken(author, book.Title))
+            if (IsTitleTaken(author.Books, book.Title))
                 return (false, "Book_AlreadyExists");
 
             book.Title = book.Title.Trim();
@@ -111,7 +111,8 @@ namespace PersonalLibrary.Services
 
             var newTitleTrimmed = newTitle.Trim();
 
-            if (IsTitleTaken(author, newTitleTrimmed, bookId))
+            var siblings = author.Series.FirstOrDefault(s => s.Id == book.SeriesId)?.Books ?? author.Books;
+            if (IsTitleTaken(siblings, newTitleTrimmed, bookId))
                 return (false, "Book_AlreadyExists");
 
             string oldTitle = book.Title;
@@ -179,8 +180,7 @@ namespace PersonalLibrary.Services
                 return (false, "Series_AlreadyExists");
 
             var partTitles = series.Books.Select(b => b.Title.Trim()).Where(t => t.Length > 0).ToList();
-            if (partTitles.Any(t => IsTitleTaken(author, t))
-                || partTitles.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1))
+            if (partTitles.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1))
                 return (false, "Book_AlreadyExists");
 
             series.Name = series.Name.Trim();
@@ -259,7 +259,7 @@ namespace PersonalLibrary.Services
             if (author == null) return (false, "Error_NotFound");
 
             var titleTrimmed = book.Title?.Trim() ?? string.Empty;
-            if (IsTitleTaken(author, titleTrimmed))
+            if (IsTitleTaken(series.Books, titleTrimmed))
                 return (false, "Book_AlreadyExists");
 
             book.Title = titleTrimmed;
@@ -361,8 +361,7 @@ namespace PersonalLibrary.Services
                 {
                     AuthorId    = a.Id,
                     AuthorName  = a.Name,
-                    PhotoPath   = a.PhotoPath,
-                    BookCount   = a.Books.Count(b => !b.IsMissing) + a.Series.Sum(s => s.Books.Count(b => !b.IsMissing)),
+                    BookCount   = a.Books.Count + a.Series.Sum(s => s.Books.Count),
                     SeriesCount = a.Series.Count
                 })
                 .ToList();
@@ -377,7 +376,7 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count(b => !b.IsMissing)
+                    BookCount  = s.Books.Count
                 }))
                 .ToList();
         }
@@ -405,7 +404,7 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count(b => !b.IsMissing)
+                    BookCount  = s.Books.Count
                 }))
                 .OrderBy(i => i.AuthorName)
                 .ThenBy(i => i.SeriesName)
@@ -443,7 +442,6 @@ namespace PersonalLibrary.Services
     {
         public string AuthorId { get; set; } = string.Empty;
         public string AuthorName { get; set; } = string.Empty;
-        public string? PhotoPath { get; set; }
         public int BookCount { get; set; }
         public int SeriesCount { get; set; }
     }
@@ -460,7 +458,6 @@ namespace PersonalLibrary.Services
         public bool IsMissing { get; set; }
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }
-        public bool IsFavorite { get; set; }
 
         public static FlaggedBookInfo From(Author author, Series? series, Book book) => new()
         {
@@ -473,8 +470,7 @@ namespace PersonalLibrary.Services
             OrderInSeries = series != null ? book.OrderInSeries : null,
             IsMissing     = book.IsMissing,
             Flags         = book.ActiveFlags,
-            Note          = book.Note,
-            IsFavorite    = book.IsFavoriteActive
+            Note          = book.Note
         };
     }
 

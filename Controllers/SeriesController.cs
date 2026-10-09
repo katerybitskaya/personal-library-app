@@ -73,7 +73,9 @@ namespace PersonalLibrary.Controllers
         [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCover(UpdatePhotoForm form)
         {
-            var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);
+            if (_libraryService.GetSeriesById(form.Id) == null)
+                return Json(new { success = false, message = _loc["Error_NotFound"] });
+            var path = await FileUploadHelper.SaveAsync(form.PhotoFile, _env);
             if (string.IsNullOrEmpty(path)) return Json(new { success = false, message = _loc["Error_NoImage"] });
             _libraryService.UpdateSeriesCover(form.Id, path);
             return Json(new { success = true });
@@ -88,7 +90,7 @@ namespace PersonalLibrary.Controllers
             if (FileUploadHelper.IsRejected(form.CoverFile))
                 return Json(new { success = false, message = _loc["Error_NoImage"] });
 
-            var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, form.CoverPath, _env);
+            var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, _env);
             var book = new Book { Title = form.Title ?? string.Empty, OrderInSeries = form.OrderInSeries, CoverPath = coverPath, IsMissing = form.IsMissing };
 
             var (success, message) = _libraryService.AddBookToSeries(form.SeriesId, book);
@@ -99,7 +101,7 @@ namespace PersonalLibrary.Controllers
             }
 
             var series = _libraryService.GetSeriesById(form.SeriesId);
-            _publisher.BookAdded(_loc.BookTitle(book.Title), _libraryService.GetAuthorById(series?.AuthorId ?? "")?.Name ?? "", series?.Name);
+            _publisher.BookAdded(book.Title, _libraryService.GetAuthorById(series?.AuthorId ?? "")?.Name ?? "", series?.Name);
             return Json(new { success = true });
         }
 
@@ -125,7 +127,7 @@ namespace PersonalLibrary.Controllers
 
             var author = _libraryService.GetAuthorById(series.AuthorId);
             _trashService.MoveBookToTrash(series.AuthorId, bookId);
-            _publisher.BookDeleted(_loc.BookTitle(book.Title), author?.Name ?? "", series.Name);
+            _publisher.BookDeleted(book.Title, author?.Name ?? "", series.Name);
             return Json(new { success = true });
         }
     }

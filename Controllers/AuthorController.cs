@@ -41,7 +41,7 @@ namespace PersonalLibrary.Controllers
             if (FileUploadHelper.IsRejected(form.PhotoFile))
                 return Json(new { success = false, message = _loc["Error_NoImage"] });
 
-            var photoPath = await FileUploadHelper.SaveAsync(form.PhotoFile, form.PhotoPath, _env);
+            var photoPath = await FileUploadHelper.SaveAsync(form.PhotoFile, _env);
             var author = new Author { Name = form.Name, PhotoPath = photoPath };
 
             var (success, message) = _libraryService.AddAuthor(author);
@@ -58,7 +58,9 @@ namespace PersonalLibrary.Controllers
         [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePhoto(UpdatePhotoForm form)
         {
-            var path = await FileUploadHelper.SaveAsync(form.PhotoFile, form.Path, _env);
+            if (_libraryService.GetAuthorById(form.Id) == null)
+                return Json(new { success = false, message = _loc["Error_NotFound"] });
+            var path = await FileUploadHelper.SaveAsync(form.PhotoFile, _env);
             if (string.IsNullOrEmpty(path))
                 return Json(new { success = false, message = _loc["Error_NoImage"] });
 

@@ -3,7 +3,6 @@
 
 @{
     var currentCulture = L.CurrentCulture;
-    var trashCount = ViewBag.TrashCount as int? ?? 0;
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
     var isHome = currentController == "home" && currentAction == "index";
@@ -43,7 +42,6 @@
         <li>
             <a asp-controller="Trash" asp-action="Index" class="@(currentController == "trash" ? "active" : "")">
                 @L["Nav_Trash"]
-                @if (trashCount > 0) { <span class="nav-badge">@trashCount</span> }
             </a>
         </li>
         @if (showLogout)
@@ -91,7 +89,6 @@
         <li>
             <a asp-controller="Trash" asp-action="Index" class="@(currentController == "trash" ? "active" : "")">
                 @L["Nav_Trash"]
-                @if (trashCount > 0) { <span class="nav-badge" style="display:inline-flex">@trashCount</span> }
             </a>
         </li>
         @if (showLogout)
