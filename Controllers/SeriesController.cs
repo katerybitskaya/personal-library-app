@@ -35,18 +35,26 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
-        public IActionResult Add(AddSeriesForm form)
+        public async Task<IActionResult> Add(AddSeriesForm form)
         {
             if (string.IsNullOrWhiteSpace(form.Name))
                 return Json(new { success = false, message = _loc["Error_SeriesNameRequired"] });
 
-            var series = new Series { Name = form.Name };
+            if (FileUploadHelper.IsRejected(form.CoverFile))
+                return Json(new { success = false, message = _loc["Error_NoImage"] });
+
+            var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, _env);
+            var series = new Series { Name = form.Name, CoverPath = coverPath };
             int order = 1;
             foreach (var part in form.Parts.Where(p => !string.IsNullOrWhiteSpace(p.Title)))
                 series.Books.Add(new Book { Title = part.Title.Trim(), OrderInSeries = order++ });
 
             var (success, message) = _libraryService.AddSeries(form.AuthorId, series);
-            if (!success) return Json(new { success = false, message = _loc[message] });
+            if (!success)
+            {
+                _uploads.DeleteIfUnused(new[] { coverPath });
+                return Json(new { success = false, message = _loc[message] });
+            }
 
             _publisher.SeriesAdded(series.Name, _libraryService.GetAuthorById(form.AuthorId)?.Name ?? "");
             return Json(new { success = true });

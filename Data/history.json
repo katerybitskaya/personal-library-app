@@ -49,27 +49,6 @@
     "message": ""
   },
   {
-    "id": "5a754954-ddb6-4817-9ed8-5d202f160e69",
-    "timestamp": "2026-10-09T21:58:33.4481153+02:00",
-    "messageKey": "Hist_BookDeletedSeries",
-    "params": [
-      "\u041A\u043D\u0438\u0433\u0430 \u0431\u0435\u0437 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u044F",
-      "Leo Tolstoy",
-      "War and Peace"
-    ],
-    "message": ""
-  },
-  {
-    "id": "176f9658-a8c6-4b3b-a194-ccb09a66fbe9",
-    "timestamp": "2026-10-09T22:00:12.4735562+02:00",
-    "messageKey": "Hist_Restored",
-    "params": [
-      "Label_Book",
-      "Ksi\u0105\u017Cka bez tytu\u0142u"
-    ],
-    "message": ""
-  },
-  {
     "id": "17683977-054e-403d-be6b-b92818c1f5a4",
     "timestamp": "2026-10-09T22:02:53.4028379+02:00",
     "messageKey": "Hist_AuthorDeleted",
@@ -147,86 +126,6 @@
       "Book \u21162",
       "Thomas Hardy",
       "Series \u21161"
-    ],
-    "message": ""
-  },
-  {
-    "id": "8850d2b5-44d7-4b67-ac39-86d712b04baa",
-    "timestamp": "2026-10-09T22:42:05.0472946+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "38cce4ac-b3dc-4d50-87c5-2d347d510112",
-    "timestamp": "2026-10-09T22:42:08.7137938+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "dedf13a4-c80b-45a0-9766-01a88b9420a8",
-    "timestamp": "2026-10-09T22:42:11.9050324+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "4e432367-b523-4800-a25f-a866df13b012",
-    "timestamp": "2026-10-09T22:42:15.2545188+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "14c7b9d0-9133-4ff0-b40e-4fc4228f170b",
-    "timestamp": "2026-10-09T22:42:20.0846133+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "ac2817bd-4607-40ff-9fda-321f2d7a85f6",
-    "timestamp": "2026-10-09T22:42:22.8660011+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "70dcf063-61d2-4b05-b5ff-fb4ea767513b",
-    "timestamp": "2026-10-09T22:42:45.9880254+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
-    ],
-    "message": ""
-  },
-  {
-    "id": "9cb204ca-37d9-49fe-a99e-97684b5513d6",
-    "timestamp": "2026-10-09T22:47:32.7426427+02:00",
-    "messageKey": "Hist_SeriesReordered",
-    "params": [
-      "War and Peace",
-      "Leo Tolstoy"
     ],
     "message": ""
   }

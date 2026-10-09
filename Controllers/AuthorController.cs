@@ -69,6 +69,16 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult Rename(RenameForm form)
+        {
+            if (!ModelState.IsValid) return Json(new { success = false, message = _loc["Error_Validation"] });
+            var (success, message) = _libraryService.RenameAuthor(form.Id, form.NewName);
+            if (!success) return Json(new { success = false, message = _loc[message] });
+            _trashService.RenameAuthor(form.Id, form.NewName.Trim());
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public IActionResult Delete(string id)
         {
             var author = _libraryService.GetAuthorById(id);

@@ -44,9 +44,13 @@
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                 @L["Author_AddBook"]
             </button>
-            <button class="btn btn-secondary btn-sm" onclick="openModal('modalAddSeries')">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modalAddSeries')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                 @L["Author_AddSeries"]
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('modalRenameAuthor')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                @L["Author_Rename"]
             </button>
             <button class="btn btn-danger btn-sm" onclick="confirmDeleteAuthor()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
@@ -148,6 +152,26 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="modalRenameAuthor">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('modalRenameAuthor')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <h2 class="modal-title">@L["Author_Rename"]</h2>
+        <form id="formRenameAuthor">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@author.Id" />
+            <div class="form-group">
+                <label class="form-label">@L["Author_NewName"] <span class="text-danger">*</span></label>
+                <input type="text" name="NewName" class="form-control" value="@author.Name" maxlength="200" required />
+            </div>
+            <div id="errRenameAuthor" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalRenameAuthor')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal-overlay" id="modalAddSeries">
     <div class="modal modal-lg">
         <button class="modal-close" onclick="closeModal('modalAddSeries')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
@@ -161,10 +185,19 @@
             </div>
             <div class="form-group">
                 <label class="form-label" style="margin-bottom:0.75rem">@L["Series_PartsOptional"]</label>
-                <div class="parts-list" id="partsList"></div>
+                <div class="parts-list" id="partsList" data-part-label="@L["Series_Part"]"></div>
                 <button type="button" class="btn btn-ghost btn-sm" onclick="addPartRow()">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                     @L["Series_AddPart"]
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Series_Cover"]</label>
+                <div class="img-preview-wrap"><img id="prevAddSeries" class="img-preview" src="" alt="" /></div>
+                <input type="file" name="CoverFile" id="fileAddSeries" class="file-input-hidden" accept="image/*" />
+                <button type="button" class="file-pick-btn" id="btnFileAddSeries">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    @L["Book_SelectFile"]
                 </button>
             </div>
             <div id="errAddSeries" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
@@ -205,6 +238,7 @@
 @section Scripts {
 <script>
 initFilePicker('fileAddBook','prevAddBook','btnFileAddBook');
+initFilePicker('fileAddSeries','prevAddSeries','btnFileAddSeries');
 initFilePicker('fileUpdatePhoto',null,'btnFileUpdatePhoto');
 
 function toggleAccordion(id) {
@@ -216,7 +250,7 @@ function addPartRow() {
     const list = document.getElementById('partsList');
     const row = document.createElement('div');
     row.className = 'part-row';
-    row.innerHTML = `<input type="text" name="Parts[${pi}].Title" class="form-control" placeholder="@L["Series_Part"] ${pi+1}" required />
+    row.innerHTML = `<input type="text" name="Parts[${pi}].Title" class="form-control" placeholder="${list.dataset.partLabel} ${pi+1}" required />
         <button type="button" class="btn btn-icon btn-ghost" onclick="removePartRow(this)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>`;
@@ -227,7 +261,7 @@ function removePartRow(btn) {
     const inputs = document.querySelectorAll('#partsList input');
     inputs.forEach((input, i) => {
         input.name = `Parts[${i}].Title`;
-        input.placeholder = `@L["Series_Part"] ${i+1}`;
+        input.placeholder = `${document.getElementById('partsList').dataset.partLabel} ${i+1}`;
     });
     pi = inputs.length;
 }
@@ -237,7 +271,16 @@ document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
 });
 document.getElementById('formAddSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), '@L["Toast_SeriesAdded"]', () => { closeModal('modalAddSeries'); this.reset(); softReload(); });
+    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), '@L["Toast_SeriesAdded"]', () => { closeModal('modalAddSeries'); this.reset(); document.getElementById('prevAddSeries').style.display='none'; softReload(); });
+});
+document.getElementById('formRenameAuthor')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const err = document.getElementById('errRenameAuthor'); err.style.display='none';
+    try {
+        const d = await (await fetch('/Author/Rename',{method:'POST',body:new FormData(this)})).json();
+        if (d.success) { closeModal('modalRenameAuthor'); showToast('@L["Toast_Renamed"]','success'); softReload(); }
+        else { err.textContent=d.message; err.style.display='block'; }
+    } catch { err.textContent=networkErrorText(); err.style.display='block'; }
 });
 document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(e) {
     e.preventDefault();

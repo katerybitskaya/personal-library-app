@@ -18,7 +18,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **🖼️ Cover Management** - Upload and display book cover images
 - **📊 Missing Books Tracking** - Identify gaps in book series
 - **❤️ Favourites** - Heart authors, series and books and see them on one page
-- **🚩 Flags & Notes** - Mark books (duplicate, for sale, lent out, signed…) with an optional note; mark ongoing series
+- **🚩 Flags & Notes** - Mark books (duplicate, for sale, lent out, collector's edition…) with an optional note; mark ongoing series
 - **📕 Not Owned** - Mark a series book you don't have yet; it can only carry the “out of print” flag and can't be a favourite
 - **⚡ No Page Reloads** - Changes (flags, favourites, adding or deleting) update the page in place
 - **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
@@ -259,6 +259,7 @@ The application supports three languages. The switcher is in the navigation bar 
 ### Authors
 - `GET /Author/Details/{id}` - Author details
 - `POST /Author/Add` - Add author
+- `POST /Author/Rename` - Rename author
 - `POST /Author/UpdatePhoto` - Update photo
 - `POST /Author/Delete` - Delete author
 

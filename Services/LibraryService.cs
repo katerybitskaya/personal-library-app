@@ -202,6 +202,25 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
+        public (bool Success, string Message) RenameAuthor(string authorId, string newName)
+        {
+            var author = _repository.GetAuthorById(authorId);
+            if (author == null) return (false, "Error_NotFound");
+
+            var newNameTrimmed = newName.Trim();
+            if (_repository.GetAllAuthors().Any(a => a.Id != authorId &&
+                    a.Name.Trim().Equals(newNameTrimmed, StringComparison.OrdinalIgnoreCase)))
+                return (false, "Author_AlreadyExists");
+
+            string oldName = author.Name;
+            if (oldName == newNameTrimmed) return (true, string.Empty);
+            author.Name = newNameTrimmed;
+            _repository.UpdateAuthor(author);
+            _publisher.AuthorRenamed(oldName, newNameTrimmed);
+
+            return (true, string.Empty);
+        }
+
         public (bool Success, string Message) RenameSeries(string seriesId, string newName)
         {
             var series = _repository.GetSeriesById(seriesId);
@@ -248,7 +267,6 @@ namespace PersonalLibrary.Services
                 series.Books.First(b => b.Id == bookIds[i]).OrderInSeries = numbers[i];
 
             _repository.UpdateSeries(series);
-            _publisher.SeriesReordered(series.Name, _repository.GetAuthorById(series.AuthorId)?.Name ?? "");
             return (true, string.Empty);
         }
 

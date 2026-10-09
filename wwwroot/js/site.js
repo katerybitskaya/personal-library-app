@@ -222,6 +222,19 @@ function initFlagAutoSave(formEl) {
 }
 
 
+// Смена языка без перезагрузки: сохраняем выбор (cookie) и обновляем страницу через softReload()
+document.addEventListener('submit', async e => {
+    const form = e.target.closest('.navbar .lang-switcher form');
+    if (!form) return;
+    e.preventDefault();
+    try {
+        await fetch(form.action, { method: 'POST', body: new FormData(form), redirect: 'manual' });
+        softReload();
+    } catch {
+        showToast(networkErrorText(), 'error');
+    }
+});
+
 let softReloadRunning = false;
 async function softReload() {
     if (softReloadRunning) return;
@@ -240,11 +253,16 @@ async function softReload() {
         document.querySelectorAll('body > .modal-overlay[data-moved]').forEach(el => el.remove());
         oldMain.classList.add('no-anim');
         oldMain.innerHTML = newMain.innerHTML;
-        ['.nav-links', '.drawer-links'].forEach(sel => {
+        ['.nav-links', '.drawer-links', '.navbar .lang-switcher'].forEach(sel => {
             const a = document.querySelector(sel), b = doc.querySelector(sel);
             if (a && b) a.innerHTML = b.innerHTML;
         });
         document.title = doc.title;
+        // После смены языка: lang страницы, тексты в data-* у body и подпись кнопки «наверх»
+        document.documentElement.lang = doc.documentElement.lang;
+        Object.assign(document.body.dataset, doc.body.dataset);
+        const top = document.getElementById('backToTop'), newTop = doc.getElementById('backToTop');
+        if (top && newTop) { top.title = newTop.title; top.setAttribute('aria-label', newTop.getAttribute('aria-label') || ''); }
         openIds.forEach(id => document.getElementById(id)?.classList.add('open'));
 
         doc.querySelectorAll('body > script:not([src])').forEach(s => {

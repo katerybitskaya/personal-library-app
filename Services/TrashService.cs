@@ -25,6 +25,8 @@ namespace PersonalLibrary.Services
 
         public List<TrashItem> GetAll() => _trashRepository.GetAll();
 
+        public void RenameAuthor(string authorId, string newName) => _trashRepository.RenameAuthor(authorId, newName);
+
         public void MoveBookToTrash(string authorId, string bookId)
         {
             var author = _libraryRepository.GetAuthorById(authorId);

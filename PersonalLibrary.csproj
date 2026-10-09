@@ -18,7 +18,6 @@
     <Folder Include="Views\Trash\" />
     <Folder Include="Views\History\" />
     <Folder Include="Views\MissingBooks\" />
-    <Folder Include="Images\" />
     <Folder Include="Helpers\" />
   </ItemGroup>
 

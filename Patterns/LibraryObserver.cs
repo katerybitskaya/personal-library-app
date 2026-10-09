@@ -21,6 +21,7 @@ namespace PersonalLibrary.Patterns
 
         public void AuthorAdded(string name)                                  => NotifyObservers(Msg("Hist_AuthorAdded", name));
         public void AuthorDeleted(string name)                                => NotifyObservers(Msg("Hist_AuthorDeleted", name));
+        public void AuthorRenamed(string o, string n)                         => NotifyObservers(Msg("Hist_AuthorRenamed", o, n));
         public void AuthorPhotoUpdated(string name)                           => NotifyObservers(Msg("Hist_AuthorPhoto", name));
         public void BookAdded(string title, string author, string? series)    => NotifyObservers(series != null ? Msg("Hist_BookAddedSeries", Title(title), author, series) : Msg("Hist_BookAdded", Title(title), author));
         public void BookDeleted(string title, string author, string? series)  => NotifyObservers(series != null ? Msg("Hist_BookDeletedSeries", Title(title), author, series) : Msg("Hist_BookDeleted", Title(title), author));
@@ -29,7 +30,6 @@ namespace PersonalLibrary.Patterns
         public void SeriesAdded(string name, string author)                   => NotifyObservers(Msg("Hist_SeriesAdded", name, author));
         public void SeriesDeleted(string name, string author)                 => NotifyObservers(Msg("Hist_SeriesDeleted", name, author));
         public void SeriesRenamed(string o, string n, string author)          => NotifyObservers(Msg("Hist_SeriesRenamed", o, n, author));
-        public void SeriesReordered(string name, string author)               => NotifyObservers(Msg("Hist_SeriesReordered", name, author));
         public void SeriesCoverUpdated(string name, string author)            => NotifyObservers(Msg("Hist_SeriesCover", name, author));
         public void ItemRestored(string name, string type)
         {

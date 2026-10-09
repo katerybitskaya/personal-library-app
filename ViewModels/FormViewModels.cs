@@ -33,6 +33,7 @@ namespace PersonalLibrary.ViewModels
         public string Name { get; set; } = string.Empty;
 
         public List<SeriesPartForm> Parts { get; set; } = new();
+        public IFormFile? CoverFile { get; set; }
     }
 
     public class SeriesPartForm
