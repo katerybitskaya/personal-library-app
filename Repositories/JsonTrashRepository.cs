@@ -52,7 +52,6 @@ namespace PersonalLibrary.Repositories
             }
         }
 
-        // После переименования автора — новое имя у его книг и серий в корзине
         public void RenameAuthor(string authorId, string newName)
         {
             var items = _items.Where(i => i.AuthorId == authorId && i.ItemType != TrashItemType.Author).ToList();

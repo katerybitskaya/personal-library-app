@@ -251,7 +251,6 @@ if (si) {
         searchTimer = setTimeout(() => runSearch(this.value.trim()), 300);
     });
 }
-// Поиск без перезагрузки: запрашиваем страницу и заменяем только блок результатов/каталога
 let searchSeq = 0;
 async function runSearch(q) {
     const seq = ++searchSeq;
@@ -266,7 +265,7 @@ async function runSearch(q) {
         current.replaceWith(fresh);
         history.replaceState(null, '', url);
         document.querySelectorAll('.lang-switcher input[name=returnUrl]').forEach(i => i.value = url);
-    } catch { /* сеть недоступна — оставляем текущий результат */ }
+    } catch { }
 }
 function clearSearch() {
     clearTimeout(searchTimer);

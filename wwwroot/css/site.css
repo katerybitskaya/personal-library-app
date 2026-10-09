@@ -1289,7 +1289,6 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
     padding: 2rem 1rem;
 }
 .login-card { width: 100%; max-width: 380px; }
-/* Глаз «показать пароль» (Edge) — белый на тёмном поле */
 .login-card input[type="password"]::-ms-reveal { filter: invert(1); }
 .login-header {
     display: flex;

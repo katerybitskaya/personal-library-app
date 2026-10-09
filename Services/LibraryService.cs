@@ -75,7 +75,6 @@ namespace PersonalLibrary.Services
 
         public Book? GetBookById(string id) => _repository.GetBookById(id);
 
-        // Название уникально в пределах одного места: отдельные книги автора или одна серия
         public static bool IsTitleTaken(IEnumerable<Book> books, string title, string? exceptBookId = null)
         {
             if (string.IsNullOrWhiteSpace(title)) return false;
@@ -247,8 +246,6 @@ namespace PersonalLibrary.Services
         }
 
 
-        // Новый порядок книг серии (перетаскивание / стрелки): номера, что уже были в серии,
-        // раздаются книгам по новому порядку — пропуски в нумерации сохраняются
         public (bool Success, string Message) ReorderSeriesBooks(string seriesId, IList<string> bookIds)
         {
             var series = _repository.GetSeriesById(seriesId);

@@ -222,7 +222,6 @@ function initFlagAutoSave(formEl) {
 }
 
 
-// Смена языка без перезагрузки: сохраняем выбор (cookie) и обновляем страницу через softReload()
 document.addEventListener('submit', async e => {
     const form = e.target.closest('.navbar .lang-switcher form');
     if (!form) return;
@@ -258,7 +257,6 @@ async function softReload() {
             if (a && b) a.innerHTML = b.innerHTML;
         });
         document.title = doc.title;
-        // После смены языка: lang страницы, тексты в data-* у body и подпись кнопки «наверх»
         document.documentElement.lang = doc.documentElement.lang;
         Object.assign(document.body.dataset, doc.body.dataset);
         const top = document.getElementById('backToTop'), newTop = doc.getElementById('backToTop');
@@ -352,8 +350,6 @@ async function toggleSeriesOngoing(btn) {
     }
 }
 
-// Порядок книг в серии: на компьютере — перетаскивание строки (видно по курсору),
-// на сенсорных экранах — стрелки «выше/ниже». После сохранения номера обновляются softReload().
 function initSeriesSort(list, savedMsg) {
     if (!list) return;
     const rows = () => [...list.querySelectorAll('.series-part-row')];

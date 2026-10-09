@@ -72,7 +72,6 @@ namespace PersonalLibrary.Controllers
                 case TrashItemType.Book:
                     var a4b = allAuthors.FirstOrDefault(a => a.Id == item.AuthorId);
                     if (a4b == null) break;
-                    // Книга вернётся в свою серию, а если серии уже нет — к отдельным книгам автора
                     var targetSeries = a4b.Series.FirstOrDefault(s => s.Id == item.SeriesId);
                     if (LibraryService.IsTitleTaken(targetSeries?.Books ?? a4b.Books, item.ItemName))
                         return targetSeries != null
