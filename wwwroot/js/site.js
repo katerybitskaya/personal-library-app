@@ -513,6 +513,8 @@ async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onS
     }
 }
 
+let alphaClickedLetter = null;
+let alphaClickTimer = null;
 function updateActiveAlphaBtn() {
     const sections = document.querySelectorAll('.author-section[id^="letter-"]');
     if (!sections.length) return;
@@ -521,10 +523,34 @@ function updateActiveAlphaBtn() {
     sections.forEach(s => {
         if (s.offsetTop <= scrollY) active = s.id.replace('letter-', '');
     });
-    document.querySelectorAll('.alpha-btn').forEach(btn => {
-        btn.classList.toggle('current', btn.textContent.trim() === active);
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2)
+        active = sections[sections.length - 1].id.replace('letter-', '');
+    if (alphaClickedLetter) active = alphaClickedLetter;
+    document.querySelectorAll('.alpha-btn[data-letter]').forEach(btn => {
+        const isCurrent = btn.dataset.letter === active;
+        if (isCurrent && !btn.classList.contains('current') && btn.closest('.alphabet-nav')) {
+            const nav = btn.closest('.alphabet-nav');
+            const top = btn.getBoundingClientRect().top - nav.getBoundingClientRect().top + nav.scrollTop;
+            if (top < nav.scrollTop || top + btn.offsetHeight > nav.scrollTop + nav.clientHeight)
+                nav.scrollTop = top - nav.clientHeight / 2;
+        }
+        btn.classList.toggle('current', isCurrent);
     });
 }
+
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.alpha-btn[data-letter]');
+    if (!btn) return;
+    const section = document.getElementById('letter-' + btn.dataset.letter);
+    if (!section) return;
+    alphaClickedLetter = btn.dataset.letter;
+    clearTimeout(alphaClickTimer);
+    const release = () => { alphaClickedLetter = null; clearTimeout(alphaClickTimer); window.removeEventListener('scrollend', release); };
+    window.addEventListener('scrollend', release);
+    alphaClickTimer = setTimeout(release, 1500);
+    window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+    updateActiveAlphaBtn();
+});
 
 window.addEventListener('scroll', updateActiveAlphaBtn, { passive: true });
 

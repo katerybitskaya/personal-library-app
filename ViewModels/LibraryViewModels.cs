@@ -5,9 +5,13 @@ namespace PersonalLibrary.ViewModels
 {
     public class CatalogueViewModel
     {
-        public Dictionary<char, List<Author>> AuthorsByLetter { get; set; } = new();
+        public List<(string Letter, List<Author> Authors)> AuthorsByLetter { get; set; } = new();
 
-        public List<char> ExistingLetters { get; set; } = new();
+        public List<string> AlphabetLetters { get; set; } = new();
+
+        public List<string> ExtraLetters { get; set; } = new();
+
+        public HashSet<string> ExistingLetters { get; set; } = new();
 
         public SearchResult? SearchResult { get; set; }
 

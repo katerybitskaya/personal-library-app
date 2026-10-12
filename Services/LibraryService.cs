@@ -26,20 +26,28 @@ namespace PersonalLibrary.Services
 
         public Author? GetAuthorById(string id) => _repository.GetAuthorById(id);
 
-        public Dictionary<char, List<Author>> GetAuthorsByLetter()
+        public const string OtherLetter = "#";
+
+        private static string LetterOf(string name)
         {
-            return _repository.GetAllAuthors()
-                .GroupBy(a => char.ToUpper(a.Name.FirstOrDefault()))
-                .OrderBy(g => g.Key)
-                .ToDictionary(g => g.Key, g => g.ToList());
+            var first = name.Trim().FirstOrDefault();
+            return char.IsLetter(first) ? char.ToUpperInvariant(first).ToString() : OtherLetter;
         }
 
-        public List<char> GetExistingLetters()
+        public List<(string Letter, List<Author> Authors)> GetAuthorsByLetter(string alphabet)
         {
+            int Rank(string letter)
+            {
+                if (letter == OtherLetter) return int.MaxValue;
+                int i = alphabet.IndexOf(letter, StringComparison.Ordinal);
+                return i >= 0 ? i : alphabet.Length;
+            }
+
             return _repository.GetAllAuthors()
-                .Select(a => char.ToUpper(a.Name.FirstOrDefault()))
-                .Distinct()
-                .OrderBy(c => c)
+                .GroupBy(a => LetterOf(a.Name))
+                .OrderBy(g => Rank(g.Key))
+                .ThenBy(g => g.Key, StringComparer.InvariantCulture)
+                .Select(g => (g.Key, g.ToList()))
                 .ToList();
         }
 

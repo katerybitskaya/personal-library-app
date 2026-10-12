@@ -91,8 +91,15 @@ namespace PersonalLibrary
 
             if (app.Services.GetRequiredService<ILibraryRepository>().LoadError == null)
             {
-                var cleared = app.Services.GetRequiredService<UploadCleanupService>().ClearMissingPaths();
-                if (cleared > 0) app.Logger.LogInformation("Removed {Count} links to missing images in wwwroot/uploads", cleared);
+                try
+                {
+                    var cleared = app.Services.GetRequiredService<UploadCleanupService>().ClearMissingPaths();
+                    if (cleared > 0) app.Logger.LogInformation("Removed {Count} links to missing images in wwwroot/uploads", cleared);
+                }
+                catch (Exception ex)
+                {
+                    app.Logger.LogError(ex, "Could not remove links to missing images in wwwroot/uploads");
+                }
             }
 
 

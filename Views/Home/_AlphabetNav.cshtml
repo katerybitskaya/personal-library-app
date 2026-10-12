@@ -1,0 +1,15 @@
+@model CatalogueViewModel
+
+@foreach (var letter in Model.AlphabetLetters)
+{
+    var hasEntries = Model.ExistingLetters.Contains(letter);
+    <button type="button" class="alpha-btn @(hasEntries ? "has-entries" : "disabled")" data-letter="@letter" title="@letter">@letter</button>
+}
+@if (Model.ExtraLetters.Any())
+{
+    <span class="alpha-sep" aria-hidden="true"></span>
+    @foreach (var letter in Model.ExtraLetters)
+    {
+        <button type="button" class="alpha-btn has-entries" data-letter="@letter" title="@letter">@letter</button>
+    }
+}

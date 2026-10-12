@@ -660,6 +660,13 @@ namespace PersonalLibrary.Services
             }
         }
 
+        public string Alphabet => CurrentCulture switch
+        {
+            "ru" => "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+            "pl" => "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ",
+            _    => "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        };
+
         public string this[string key]
         {
             get

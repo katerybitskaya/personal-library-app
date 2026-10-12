@@ -3,7 +3,6 @@
 
 @{
     ViewData["Title"] = L["Page_Catalogue"];
-    var allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 }
 
 <div class="page-header">
@@ -54,11 +53,11 @@
                     {
                         <div class="search-result-row">
                             <div class="author-avatar" style="width:30px;height:30px;font-size:0.85rem;flex-shrink:0">
+                                <span class="avatar-letter">@(author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?")</span>
                                 @if (!string.IsNullOrEmpty(author.PhotoPath))
                                 {
-                                    <img src="@author.PhotoPath" alt="" data-letter="@(author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?")" onerror="this.replaceWith(this.dataset.letter)" />
+                                    <img src="@author.PhotoPath" alt="" onerror="this.remove()" />
                                 }
-                                else { @(author.Name.Length > 0 ? char.ToUpper(author.Name[0]).ToString() : "?") }
                             </div>
                             <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id" class="item-link" style="flex:1">
                                 @Html.Raw(HighlightMatch(author.Name, Model.SearchQuery))
@@ -120,11 +119,7 @@ else
     else
     {
         <nav class="alphabet-nav-mobile" aria-label="Alphabet quick navigation">
-            @foreach (var letter in allLetters)
-            {
-                var hasEntries = Model.ExistingLetters.Contains(letter);
-                <button class="alpha-btn @(hasEntries ? "has-entries" : "disabled")" onclick="scrollToLetter('@letter')" title="@letter">@letter</button>
-            }
+            <partial name="_AlphabetNav" model="Model" />
         </nav>
         <div class="catalogue-layout">
             <div id="catalogueList">
@@ -193,11 +188,7 @@ else
                 }
             </div>
             <nav class="alphabet-nav">
-                @foreach (var letter in allLetters)
-                {
-                    var hasEntries = Model.ExistingLetters.Contains(letter);
-                    <button class="alpha-btn @(hasEntries ? "has-entries" : "disabled")" onclick="scrollToLetter('@letter')" title="@letter">@letter</button>
-                }
+                <partial name="_AlphabetNav" model="Model" />
             </nav>
         </div>
     }
@@ -281,10 +272,6 @@ function toggleAuthor(id) {
 function toggleSeries(id) {
     document.getElementById('sbooks-'+id)?.classList.toggle('open');
     document.getElementById('stoggle-'+id)?.classList.toggle('open');
-}
-function scrollToLetter(l) {
-    const el = document.getElementById('letter-'+l);
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth' });
 }
 document.getElementById('formAddAuthor')?.addEventListener('submit', function(e) {
     e.preventDefault();

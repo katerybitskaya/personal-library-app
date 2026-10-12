@@ -8,9 +8,12 @@ namespace PersonalLibrary.Controllers
     {
         private readonly LibraryService _libraryService;
 
-        public HomeController(LibraryService libraryService)
+        private readonly LocalizationService _loc;
+
+        public HomeController(LibraryService libraryService, LocalizationService loc)
         {
             _libraryService = libraryService;
+            _loc = loc;
         }
 
         public IActionResult Index(string? q)
@@ -18,8 +21,6 @@ namespace PersonalLibrary.Controllers
             var authors = _libraryService.GetAllAuthors();
             var vm = new CatalogueViewModel
             {
-                AuthorsByLetter = _libraryService.GetAuthorsByLetter(),
-                ExistingLetters = _libraryService.GetExistingLetters(),
                 AuthorCount = authors.Count,
                 SeriesCount = authors.Sum(a => a.Series.Count),
                 BookCount = authors.Sum(a => a.Books.Count(b => !b.IsMissing)
@@ -29,6 +30,14 @@ namespace PersonalLibrary.Controllers
             {
                 vm.SearchQuery = q.Trim();
                 vm.SearchResult = _libraryService.Search(vm.SearchQuery);
+            }
+            else
+            {
+                var alphabet = _loc.Alphabet;
+                vm.AuthorsByLetter = _libraryService.GetAuthorsByLetter(alphabet);
+                vm.AlphabetLetters = alphabet.Select(c => c.ToString()).ToList();
+                vm.ExtraLetters = vm.AuthorsByLetter.Select(g => g.Letter).Where(l => !alphabet.Contains(l)).ToList();
+                vm.ExistingLetters = vm.AuthorsByLetter.Select(g => g.Letter).ToHashSet();
             }
             return View(vm);
         }
