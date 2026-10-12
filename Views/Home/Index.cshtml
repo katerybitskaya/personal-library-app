@@ -256,7 +256,7 @@ async function runSearch(q) {
     const seq = ++searchSeq;
     const url = q ? '/?q=' + encodeURIComponent(q) : '/';
     try {
-        const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+        const res = await fetch(url);
         if (!res.ok || seq !== searchSeq) return;
         const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
         const fresh = doc.getElementById('catalogueContent');
@@ -289,7 +289,7 @@ function scrollToLetter(l) {
 document.getElementById('formAddAuthor')?.addEventListener('submit', function(e) {
     e.preventDefault();
     submitFormWithFile(this, '/Author/Add', 'errAddAuthor', document.getElementById('btnAddAuthor'),
-        '@L["Toast_AuthorAdded"]', () => { closeModal('modalAddAuthor'); this.reset(); document.getElementById('prevAddAuthor').style.display='none'; document.getElementById('btnFileAddAuthor').textContent='@L["Book_SelectFile"]'; softReload(); });
+        '@L["Toast_AuthorAdded"]', () => { closeModal('modalAddAuthor'); softReload(); });
 });
 </script>
 }

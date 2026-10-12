@@ -60,6 +60,20 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
+        public (bool Success, string Message) RemoveAuthorPhoto(string authorId)
+        {
+            var author = _repository.GetAuthorById(authorId);
+            if (author == null) return (false, "Error_NotFound");
+            if (string.IsNullOrEmpty(author.PhotoPath)) return (true, string.Empty);
+
+            var oldPath = author.PhotoPath;
+            author.PhotoPath = null;
+            _repository.UpdateAuthor(author);
+            _uploads.DeleteIfUnused(new[] { oldPath });
+            _publisher.AuthorPhotoRemoved(author.Name);
+            return (true, string.Empty);
+        }
+
         public void UpdateAuthorPhoto(string authorId, string photoPath)
         {
             var author = _repository.GetAuthorById(authorId);
@@ -151,6 +165,20 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
+        public (bool Success, string Message) RemoveBookCover(string bookId)
+        {
+            var book = _repository.GetBookById(bookId);
+            if (book == null) return (false, "Error_NotFound");
+            if (string.IsNullOrEmpty(book.CoverPath)) return (true, string.Empty);
+
+            var oldPath = book.CoverPath;
+            book.CoverPath = null;
+            _repository.UpdateBook(book);
+            _uploads.DeleteIfUnused(new[] { oldPath });
+            _publisher.BookCoverRemoved(book.Title, _repository.GetAuthorById(book.AuthorId)?.Name ?? "");
+            return (true, string.Empty);
+        }
+
         public void UpdateBookCover(string bookId, string coverPath)
         {
             var book = _repository.GetBookById(bookId);
@@ -207,6 +235,7 @@ namespace PersonalLibrary.Services
             if (author == null) return (false, "Error_NotFound");
 
             var newNameTrimmed = newName.Trim();
+            if (newNameTrimmed.Length == 0 || newNameTrimmed.Length > 200) return (false, "Error_Validation");
             if (_repository.GetAllAuthors().Any(a => a.Id != authorId &&
                     a.Name.Trim().Equals(newNameTrimmed, StringComparison.OrdinalIgnoreCase)))
                 return (false, "Author_AlreadyExists");
@@ -274,6 +303,20 @@ namespace PersonalLibrary.Services
 
             series.IsOngoing = isOngoing;
             _repository.UpdateSeries(series);
+            return (true, string.Empty);
+        }
+
+        public (bool Success, string Message) RemoveSeriesCover(string seriesId)
+        {
+            var series = _repository.GetSeriesById(seriesId);
+            if (series == null) return (false, "Error_NotFound");
+            if (string.IsNullOrEmpty(series.CoverPath)) return (true, string.Empty);
+
+            var oldPath = series.CoverPath;
+            series.CoverPath = null;
+            _repository.UpdateSeries(series);
+            _uploads.DeleteIfUnused(new[] { oldPath });
+            _publisher.SeriesCoverRemoved(series.Name, _repository.GetAuthorById(series.AuthorId)?.Name ?? "");
             return (true, string.Empty);
         }
 

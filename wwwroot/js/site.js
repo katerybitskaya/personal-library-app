@@ -3,7 +3,18 @@
     let redirecting = false;
     window.fetch = async (...args) => {
         const response = await nativeFetch(...args);
-        if (response.status !== 401) return response;
+        if (response.status !== 401) {
+            const method = (args[1]?.method || 'GET').toUpperCase();
+            const isJson = (response.headers.get('content-type') || '').includes('json');
+            if (method === 'POST' && !response.ok && response.type !== 'opaqueredirect' && !isJson) {
+                const message = response.status === 413
+                    ? tooLargeText()
+                    : genericErrorText();
+                return new Response(JSON.stringify({ success: false, message }),
+                    { status: response.status, headers: { 'Content-Type': 'application/json' } });
+            }
+            return response;
+        }
         if (!redirecting) {
             redirecting = true;
             showToast(document.body.dataset.sessionExpired || 'Your session has expired. Please sign in again.', 'error');
@@ -13,6 +24,11 @@
         return new Promise(() => {});
     };
 })();
+
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+function tooLargeText() {
+    return document.body.dataset.errorTooLarge || 'The file is too large.';
+}
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -213,11 +229,13 @@ function initFlagAutoSave(formEl) {
         note.addEventListener('blur', () => { if (timer) saveSoon(0); });
     }
     formEl.addEventListener('submit', e => { e.preventDefault(); saveSoon(0); });
-    window.addEventListener('beforeunload', () => {
+    if (window._flagBeforeUnload) window.removeEventListener('beforeunload', window._flagBeforeUnload);
+    window._flagBeforeUnload = () => {
         if (!timer) return;
         clearTimeout(timer);
         navigator.sendBeacon('/Book/UpdateFlags', new FormData(formEl));
-    });
+    };
+    window.addEventListener('beforeunload', window._flagBeforeUnload);
     syncFlagEditor(formEl);
 }
 
@@ -227,19 +245,21 @@ document.addEventListener('submit', async e => {
     if (!form) return;
     e.preventDefault();
     try {
-        await fetch(form.action, { method: 'POST', body: new FormData(form), redirect: 'manual' });
-        softReload();
+        const r = await fetch(form.action, { method: 'POST', body: new FormData(form), redirect: 'manual' });
+        if (r.type === 'opaqueredirect' || r.ok) softReload();
+        else showToast((await r.json()).message || genericErrorText(), 'error');
     } catch {
         showToast(networkErrorText(), 'error');
     }
 });
 
 let softReloadRunning = false;
+let softReloadPending = false;
 async function softReload() {
-    if (softReloadRunning) return;
+    if (softReloadRunning) { softReloadPending = true; return; }
     softReloadRunning = true;
     try {
-        const r = await fetch(location.href, { cache: 'no-store', headers: { 'X-Soft-Reload': '1' } });
+        const r = await fetch(location.href, { cache: 'no-store' });
         if (!r.ok || new URL(r.url).pathname !== location.pathname) throw new Error('reload');
         const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
         const oldMain = document.querySelector('main.main-content');
@@ -275,6 +295,7 @@ async function softReload() {
         location.reload();
     } finally {
         softReloadRunning = false;
+        if (softReloadPending) { softReloadPending = false; softReload(); }
     }
 }
 
@@ -411,9 +432,62 @@ function initSeriesSort(list, savedMsg) {
     });
 }
 
+function initImageUpload(frame) {
+    if (!frame) return;
+    const input = document.getElementById(frame.dataset.fileInput);
+    if (!input) return;
+    frame.addEventListener('click', e => {
+        if (frame.classList.contains('is-uploading')) return;
+        const remove = e.target.closest('.photo-remove-btn');
+        if (!remove) { input.click(); return; }
+        e.stopPropagation();
+        openConfirmModal(escapeHtml(remove.dataset.confirm), async () => {
+            const fd = new FormData();
+            fd.append('id', frame.dataset.id);
+            fd.append('__RequestVerificationToken', getAntiForgeryToken());
+            try {
+                const d = await (await fetch(remove.dataset.removeUrl, { method: 'POST', body: fd })).json();
+                if (d.success) { showToast(remove.dataset.removed, 'success'); softReload(); }
+                else showToast(d.message || genericErrorText(), 'error');
+            } catch {
+                showToast(networkErrorText(), 'error');
+            }
+        });
+    });
+    frame.addEventListener('keydown', e => {
+        if (e.target !== frame || frame.classList.contains('is-uploading')) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', async () => {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > MAX_UPLOAD_BYTES) { showToast(tooLargeText(), 'error'); input.value = ''; return; }
+        const fd = new FormData();
+        fd.append('Id', frame.dataset.id);
+        fd.append('PhotoFile', file);
+        fd.append('__RequestVerificationToken', getAntiForgeryToken());
+        frame.classList.add('is-uploading');
+        try {
+            const d = await (await fetch(frame.dataset.uploadUrl, { method: 'POST', body: fd })).json();
+            if (d.success) { showToast(frame.dataset.success, 'success'); softReload(); }
+            else showToast(d.message || genericErrorText(), 'error');
+        } catch {
+            showToast(networkErrorText(), 'error');
+        } finally {
+            frame.classList.remove('is-uploading');
+            input.value = '';
+        }
+    });
+}
+
 async function submitFormWithFile(formEl, url, errorElId, btnEl, successMsg, onSuccess) {
     const err = errorElId ? document.getElementById(errorElId) : null;
     if (err) err.style.display = 'none';
+    if ([...formEl.querySelectorAll('input[type=file]')].some(i => i.files[0]?.size > MAX_UPLOAD_BYTES)) {
+        if (err) { err.textContent = tooLargeText(); err.style.display = 'block'; }
+        else showToast(tooLargeText(), 'error');
+        return;
+    }
     const origHtml = btnEl.innerHTML;
     btnEl.disabled = true;
     btnEl.innerHTML = '<span class="spinner"></span>';
@@ -452,9 +526,7 @@ function updateActiveAlphaBtn() {
     });
 }
 
-if (document.querySelector('.alphabet-nav')) {
-    window.addEventListener('scroll', updateActiveAlphaBtn, { passive: true });
-}
+window.addEventListener('scroll', updateActiveAlphaBtn, { passive: true });
 
 (function () {
     const navToggle = document.getElementById('navToggle');
@@ -477,7 +549,7 @@ if (document.querySelector('.alphabet-nav')) {
     navToggle.addEventListener('click', openDrawer);
     if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
     overlay.addEventListener('click', closeDrawer);
-    drawer.querySelectorAll('a').forEach(link => link.addEventListener('click', closeDrawer));
+    drawer.addEventListener('click', e => { if (e.target.closest('a')) closeDrawer(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 })();
 

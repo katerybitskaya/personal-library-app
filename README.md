@@ -261,6 +261,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Author/Add` - Add author
 - `POST /Author/Rename` - Rename author
 - `POST /Author/UpdatePhoto` - Update photo
+- `POST /Author/RemovePhoto` - Remove photo
 - `POST /Author/Delete` - Delete author
 
 ### Books
@@ -268,6 +269,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Book/Add` - Add book
 - `POST /Book/Rename` - Rename book
 - `POST /Book/UpdateCover` - Update cover
+- `POST /Book/RemoveCover` - Remove cover
 - `POST /Book/Delete` - Delete book
 - `POST /Book/UpdateFlags` - Set book flags, note and “not owned”
 
@@ -276,6 +278,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `POST /Series/Add` - Create series
 - `POST /Series/Rename` - Rename series
 - `POST /Series/UpdateCover` - Update cover
+- `POST /Series/RemoveCover` - Remove cover
 - `POST /Series/AddBook` - Add book to series
 - `POST /Series/DeleteBook` - Delete book from series
 - `POST /Series/Delete` - Delete series

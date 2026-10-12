@@ -27,6 +27,25 @@ namespace PersonalLibrary.Services
         public static IEnumerable<string?> ImagePaths(Series series) =>
             new[] { series.CoverPath }.Concat(series.Books.Select(b => b.CoverPath));
 
+        public int ClearMissingPaths()
+        {
+            bool Missing(string? path) =>
+                !string.IsNullOrEmpty(path) && path.StartsWith(UploadsPrefix, StringComparison.OrdinalIgnoreCase)
+                && !File.Exists(Path.Combine(_env.WebRootPath, "uploads", Path.GetFileName(path)));
+
+            int cleared = 0;
+            foreach (var author in _libraryRepository.GetAllAuthors())
+            {
+                if (Missing(author.PhotoPath)) { author.PhotoPath = null; cleared++; }
+                foreach (var book in author.Books.Concat(author.Series.SelectMany(s => s.Books)))
+                    if (Missing(book.CoverPath)) { book.CoverPath = null; cleared++; }
+                foreach (var series in author.Series)
+                    if (Missing(series.CoverPath)) { series.CoverPath = null; cleared++; }
+            }
+            if (cleared > 0) _libraryRepository.Save();
+            return cleared;
+        }
+
         public void DeleteIfUnused(IEnumerable<string?> paths)
         {
             var candidates = paths

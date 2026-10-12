@@ -87,6 +87,14 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult RemoveCover(string id)
+        {
+            var (success, message) = _libraryService.RemoveSeriesCover(id);
+            if (!success) return Json(new { success = false, message = _loc[message] });
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCover(UpdatePhotoForm form)
         {
             if (_libraryService.GetSeriesById(form.Id) == null)

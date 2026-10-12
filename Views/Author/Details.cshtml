@@ -17,14 +17,18 @@
 
 <div class="detail-layout">
     <div>
-        <div class="detail-photo" onclick="openModal('modalUpdatePhoto')" title="@L["Photo_Change"]">
+        <div class="detail-photo" role="button" tabindex="0" title="@L["Photo_Change"]"
+             data-file-input="fileUpdatePhoto" data-upload-url="/Author/UpdatePhoto" data-id="@author.Id" data-success="@L["Toast_PhotoUpdated"]">
             <span style="font-size:3rem;z-index:1">@initials</span>
             <span style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">@L["Photo_Add"]</span>
             @if (!string.IsNullOrEmpty(author.PhotoPath))
             {
                 <img src="@author.PhotoPath" alt="@author.Name"
-                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2"
-                     onerror="this.remove()" />
+                     onerror="this.parentElement.querySelector('.photo-remove-btn')?.remove(); this.remove()" />
+                <button type="button" class="photo-remove-btn" title="@L["Photo_Remove"]" aria-label="@L["Photo_Remove"]"
+                        data-remove-url="/Author/RemovePhoto" data-confirm="@L["Photo_ConfirmRemove"]" data-removed="@L["Toast_PhotoRemoved"]">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                </button>
             }
         </div>
         <div style="margin-top:0.75rem;text-align:center">
@@ -209,37 +213,13 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="modalUpdatePhoto">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('modalUpdatePhoto')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-        <h2 class="modal-title">@L["Author_Photo"]</h2>
-        <form id="formUpdatePhoto" enctype="multipart/form-data">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Id" value="@author.Id" />
-            <div class="form-group">
-                @if (!string.IsNullOrEmpty(author.PhotoPath))
-                {
-                    <img src="@author.PhotoPath" class="img-preview has-image" alt="" style="margin-bottom:0.75rem" />
-                }
-                <input type="file" name="PhotoFile" id="fileUpdatePhoto" class="file-input-hidden" accept="image/*" />
-                <button type="button" class="file-pick-btn" id="btnFileUpdatePhoto">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    @L["Book_SelectFile"]
-                </button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('modalUpdatePhoto')">@L["Btn_Cancel"]</button>
-                <button type="submit" class="btn btn-primary" id="btnUpdatePhoto">@L["Btn_Save"]</button>
-            </div>
-        </form>
-    </div>
-</div>
+<input type="file" id="fileUpdatePhoto" class="file-input-hidden" accept="image/*" />
 
 @section Scripts {
 <script>
 initFilePicker('fileAddBook','prevAddBook','btnFileAddBook');
 initFilePicker('fileAddSeries','prevAddSeries','btnFileAddSeries');
-initFilePicker('fileUpdatePhoto',null,'btnFileUpdatePhoto');
+initImageUpload(document.querySelector('.detail-photo'));
 
 function toggleAccordion(id) {
     document.getElementById('acc-'+id)?.classList.toggle('open');
@@ -267,11 +247,11 @@ function removePartRow(btn) {
 }
 document.getElementById('formAddBook')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), '@L["Toast_BookAdded"]', () => { closeModal('modalAddBook'); this.reset(); document.getElementById('prevAddBook').style.display='none'; softReload(); });
+    submitFormWithFile(this, '/Book/Add', 'errAddBook', document.getElementById('btnAddBook'), '@L["Toast_BookAdded"]', () => { closeModal('modalAddBook'); softReload(); });
 });
 document.getElementById('formAddSeries')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), '@L["Toast_SeriesAdded"]', () => { closeModal('modalAddSeries'); this.reset(); document.getElementById('prevAddSeries').style.display='none'; softReload(); });
+    submitFormWithFile(this, '/Series/Add', 'errAddSeries', document.getElementById('btnAddSeries'), '@L["Toast_SeriesAdded"]', () => { closeModal('modalAddSeries'); softReload(); });
 });
 document.getElementById('formRenameAuthor')?.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -281,10 +261,6 @@ document.getElementById('formRenameAuthor')?.addEventListener('submit', async fu
         if (d.success) { closeModal('modalRenameAuthor'); showToast('@L["Toast_Renamed"]','success'); softReload(); }
         else { err.textContent=d.message; err.style.display='block'; }
     } catch { err.textContent=networkErrorText(); err.style.display='block'; }
-});
-document.getElementById('formUpdatePhoto')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitFormWithFile(this, '/Author/UpdatePhoto', null, document.getElementById('btnUpdatePhoto'), '@L["Toast_PhotoUpdated"]', () => { closeModal('modalUpdatePhoto'); softReload(); });
 });
 function confirmDeleteAuthorItem(btn) {
     const kind = btn.dataset.kind;

@@ -89,6 +89,12 @@ namespace PersonalLibrary
             foreach (var error in storageErrors)
                 app.Logger.LogCritical("Data storage error: {Error}. The site shows an error page and saving is disabled.", error);
 
+            if (app.Services.GetRequiredService<ILibraryRepository>().LoadError == null)
+            {
+                var cleared = app.Services.GetRequiredService<UploadCleanupService>().ClearMissingPaths();
+                if (cleared > 0) app.Logger.LogInformation("Removed {Count} links to missing images in wwwroot/uploads", cleared);
+            }
+
 
             app.UseForwardedHeaders();
 

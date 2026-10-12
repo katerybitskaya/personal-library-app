@@ -21,14 +21,18 @@
 
 <div class="detail-layout">
     <div>
-        <div class="detail-photo" onclick="openModal('modalUpdateCover')" title="@L["Cover_Change"]">
+        <div class="detail-photo" role="button" tabindex="0" title="@L["Cover_Change"]"
+             data-file-input="fileUpdateCover" data-upload-url="/Book/UpdateCover" data-id="@book.Id" data-success="@L["Toast_CoverUpdated"]">
             <div style="z-index:1;color:var(--gold-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div>
             <div style="font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);z-index:1">@L["Cover_Add"]</div>
             @if (!string.IsNullOrEmpty(book.CoverPath))
             {
                 <img src="@book.CoverPath" alt="@L.BookTitle(book.Title)"
-                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2"
-                     onerror="this.remove()" />
+                     onerror="this.parentElement.querySelector('.photo-remove-btn')?.remove(); this.remove()" />
+                <button type="button" class="photo-remove-btn" title="@L["Cover_Remove"]" aria-label="@L["Cover_Remove"]"
+                        data-remove-url="/Book/RemoveCover" data-confirm="@L["Cover_ConfirmRemove"]" data-removed="@L["Toast_CoverRemoved"]">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                </button>
             }
         </div>
         <div style="margin-top:0.75rem;text-align:center">
@@ -100,35 +104,11 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="modalUpdateCover">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('modalUpdateCover')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-        <h2 class="modal-title">@L["Book_Cover"]</h2>
-        <form id="formUpdateCover" enctype="multipart/form-data">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Id" value="@book.Id" />
-            <div class="form-group">
-                @if (!string.IsNullOrEmpty(book.CoverPath))
-                {
-                    <img src="@book.CoverPath" class="img-preview has-image" alt="" style="margin-bottom:0.75rem" />
-                }
-                <input type="file" name="PhotoFile" id="fileUpdateCover" class="file-input-hidden" accept="image/*" />
-                <button type="button" class="file-pick-btn" id="btnFileUpdateCover">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    @L["Book_SelectFile"]
-                </button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('modalUpdateCover')">@L["Btn_Cancel"]</button>
-                <button type="submit" class="btn btn-primary" id="btnUpdateCover">@L["Btn_Save"]</button>
-            </div>
-        </form>
-    </div>
-</div>
+<input type="file" id="fileUpdateCover" class="file-input-hidden" accept="image/*" />
 
 @section Scripts {
 <script>
-initFilePicker('fileUpdateCover',null,'btnFileUpdateCover');
+initImageUpload(document.querySelector('.detail-photo'));
 initFlagAutoSave(document.getElementById('formBookFlags'));
 document.getElementById('formRenameBook')?.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -137,10 +117,6 @@ document.getElementById('formRenameBook')?.addEventListener('submit', async func
     const d = await r.json();
     if (d.success) { showToast('@L["Toast_Renamed"]','success'); softReload(); }
     else { err.textContent=d.message; err.style.display='block'; }
-});
-document.getElementById('formUpdateCover')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitFormWithFile(this,'/Book/UpdateCover',null,document.getElementById('btnUpdateCover'),'@L["Toast_CoverUpdated"]',()=>{ closeModal('modalUpdateCover'); softReload(); });
 });
 function confirmDeleteBook() {
     openConfirmModal('@L["Book_ConfirmDelete"]', async () => {

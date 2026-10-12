@@ -56,6 +56,14 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult RemovePhoto(string id)
+        {
+            var (success, message) = _libraryService.RemoveAuthorPhoto(id);
+            if (!success) return Json(new { success = false, message = _loc[message] });
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePhoto(UpdatePhotoForm form)
         {
             if (_libraryService.GetAuthorById(form.Id) == null)
