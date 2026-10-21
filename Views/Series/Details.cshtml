@@ -96,6 +96,8 @@
         {
             <p class="text-muted" style="font-family:var(--font-ui);font-size:0.9rem">@L["Series_NoBooks"]</p>
         }
+
+        <partial name="_NoteEditor" model='new NoteEditorModel("/Series/UpdateNote", series.Id, series.Note)' />
     </div>
 </div>
 
@@ -169,6 +171,7 @@ document.getElementById('chkAddSBookMissing')?.addEventListener('change', functi
     document.getElementById('inpAddSBookTitle').required = !this.checked;
 });
 initImageUpload(document.querySelector('.detail-photo'));
+initNoteAutoSave(document.querySelector('.note-editor'));
 initSeriesSort(document.getElementById('seriesParts'), '@L["Toast_OrderSaved"]');
 
 document.getElementById('formAddBookToSeries')?.addEventListener('submit', function(e) {

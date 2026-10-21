@@ -68,6 +68,33 @@ namespace PersonalLibrary.Services
             return (true, string.Empty);
         }
 
+        private const int NoteMaxLength = 1000;
+
+        private static string? CleanNote(string? note)
+        {
+            var trimmed = note?.Trim();
+            if (string.IsNullOrEmpty(trimmed)) return null;
+            return trimmed.Length > NoteMaxLength ? trimmed[..NoteMaxLength] : trimmed;
+        }
+
+        public (bool Success, string Message) UpdateAuthorNote(string authorId, string? note)
+        {
+            var author = _repository.GetAuthorById(authorId);
+            if (author == null) return (false, "Error_NotFound");
+            author.Note = CleanNote(note);
+            _repository.UpdateAuthor(author);
+            return (true, string.Empty);
+        }
+
+        public (bool Success, string Message) UpdateSeriesNote(string seriesId, string? note)
+        {
+            var series = _repository.GetSeriesById(seriesId);
+            if (series == null) return (false, "Error_NotFound");
+            series.Note = CleanNote(note);
+            _repository.UpdateSeries(series);
+            return (true, string.Empty);
+        }
+
         public (bool Success, string Message) RemoveAuthorPhoto(string authorId)
         {
             var author = _repository.GetAuthorById(authorId);
@@ -168,8 +195,7 @@ namespace PersonalLibrary.Services
             if (BookFlags.Priority.All(book.Flags.Contains))
                 book.Flags.Remove(BookFlag.LowPriority);
 
-            var noteTrimmed = note?.Trim();
-            book.Note = book.Flags.Count > 0 && !string.IsNullOrEmpty(noteTrimmed) ? noteTrimmed : null;
+            book.Note = CleanNote(note);
 
             _repository.UpdateBook(book);
             return (true, string.Empty);
@@ -408,7 +434,7 @@ namespace PersonalLibrary.Services
                             OrderInSeries = book.OrderInSeries ?? 0,
                             Title = book.Title,
                             Flags = book.ActiveFlags,
-                            Note = book.HasFlags ? book.Note : null
+                            Note = book.Note
                         });
                     }
                 }
@@ -454,7 +480,8 @@ namespace PersonalLibrary.Services
                     AuthorId    = a.Id,
                     AuthorName  = a.Name,
                     BookCount   = a.Books.Count + a.Series.Sum(s => s.Books.Count),
-                    SeriesCount = a.Series.Count
+                    SeriesCount = a.Series.Count,
+                    Note        = a.Note
                 })
                 .ToList();
         }
@@ -468,7 +495,8 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count
+                    BookCount  = s.Books.Count,
+                    Note       = s.Note
                 }))
                 .ToList();
         }
@@ -496,7 +524,8 @@ namespace PersonalLibrary.Services
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
-                    BookCount  = s.Books.Count
+                    BookCount  = s.Books.Count,
+                    Note       = s.Note
                 }))
                 .OrderBy(i => i.AuthorName)
                 .ThenBy(i => i.SeriesName)
@@ -528,6 +557,7 @@ namespace PersonalLibrary.Services
         public string SeriesId { get; set; } = string.Empty;
         public string SeriesName { get; set; } = string.Empty;
         public int BookCount { get; set; }
+        public string? Note { get; set; }
     }
 
     public class FavoriteAuthorInfo
@@ -536,6 +566,7 @@ namespace PersonalLibrary.Services
         public string AuthorName { get; set; } = string.Empty;
         public int BookCount { get; set; }
         public int SeriesCount { get; set; }
+        public string? Note { get; set; }
     }
 
     public class FlaggedBookInfo

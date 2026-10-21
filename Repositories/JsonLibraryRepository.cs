@@ -60,6 +60,7 @@ namespace PersonalLibrary.Repositories
             existing.Name = author.Name;
             existing.PhotoPath = author.PhotoPath;
             existing.IsFavorite = author.IsFavorite;
+            existing.Note = author.Note;
             Save();
         }
 
@@ -179,6 +180,7 @@ namespace PersonalLibrary.Repositories
             existing.CoverPath = series.CoverPath;
             existing.IsOngoing = series.IsOngoing;
             existing.IsFavorite = series.IsFavorite;
+            existing.Note = series.Note;
             Save();
         }
 

@@ -11,6 +11,7 @@ namespace PersonalLibrary.Models
         public string AuthorId { get; set; } = string.Empty;
         public bool IsOngoing { get; set; }
         public bool IsFavorite { get; set; }
+        public string? Note { get; set; }
         public List<Book> Books { get; set; } = new();
 
         public void Display(int depth)

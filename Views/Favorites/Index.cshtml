@@ -64,6 +64,10 @@ else
                             <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
                             <div><span class="text-muted">@L["Stat_Series"]:</span> @item.SeriesCount</div>
                         </div>
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
                     </div>
                 }
             </div>
@@ -86,6 +90,10 @@ else
                             <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                             <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
                         </div>
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
                     </div>
                 }
             </div>
@@ -123,6 +131,10 @@ else
                                 }
                             }
                         </div>
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
                     </div>
                 }
             </div>

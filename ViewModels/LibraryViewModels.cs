@@ -66,6 +66,8 @@ namespace PersonalLibrary.ViewModels
         public bool IsEmpty => !OngoingSeries.Any() && !Books.Any();
     }
 
+    public record NoteEditorModel(string Url, string Id, string? Note);
+
     public record FavoriteToggleModel(string Kind, string Id, bool IsFavorite, bool Large = false);
 
     public class FavoritesViewModel

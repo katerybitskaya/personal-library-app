@@ -260,6 +260,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `GET /Author/Details/{id}` - Author details
 - `POST /Author/Add` - Add author
 - `POST /Author/Rename` - Rename author
+- `POST /Author/UpdateNote` - Save author note
 - `POST /Author/UpdatePhoto` - Update photo
 - `POST /Author/RemovePhoto` - Remove photo
 - `POST /Author/Delete` - Delete author
@@ -277,6 +278,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `GET /Series/Details/{id}` - Series details
 - `POST /Series/Add` - Create series
 - `POST /Series/Rename` - Rename series
+- `POST /Series/UpdateNote` - Save series note
 - `POST /Series/UpdateCover` - Update cover
 - `POST /Series/RemoveCover` - Remove cover
 - `POST /Series/AddBook` - Add book to series

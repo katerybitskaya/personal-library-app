@@ -62,6 +62,10 @@ else
                         <div class="flag-badges">
                             <span class="badge badge-flag flag-ongoing">@L["Series_Ongoing"]</span>
                         </div>
+                        @if (!string.IsNullOrEmpty(item.Note))
+                        {
+                            <p class="flag-card-note">@item.Note</p>
+                        }
                     </div>
                 }
             </div>

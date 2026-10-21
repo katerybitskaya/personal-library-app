@@ -11,6 +11,8 @@ namespace PersonalLibrary.Models
 
         public bool IsFavorite { get; set; }
 
+        public string? Note { get; set; }
+
         public DateTime DateAdded { get; set; } = DateTime.Now;
 
         public List<Book> Books { get; set; } = new();

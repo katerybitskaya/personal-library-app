@@ -1,0 +1,13 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model NoteEditorModel
+
+<div class="items-section flags-panel">
+    <div class="items-section-title">@L["Book_Note"]</div>
+    <form class="note-editor" data-url="@Model.Url" data-saved-msg="@L["Flags_Saved"]" data-saving-msg="@L["Flags_Saving"]">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <textarea name="Note" class="form-control flag-note" rows="3" maxlength="1000" aria-label="@L["Book_Note"]">@Model.Note</textarea>
+        <div class="flag-error text-danger" style="font-size:0.85rem;margin-top:0.5rem;display:none"></div>
+        <div class="flag-status" aria-live="polite"></div>
+    </form>
+</div>

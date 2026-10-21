@@ -1087,7 +1087,6 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 }
 .flag-chip:has(input:checked)::before { opacity: 1; }
 .flag-chip:has(input:focus-visible) { outline: 2px solid var(--gold-muted); outline-offset: 2px; }
-.flag-note:disabled { opacity: 0.45; cursor: not-allowed; }
 .missing-toggle-wrap { margin-bottom: 1rem; }
 .missing-toggle-wrap[hidden] { display: none; }
 .missing-toggle { display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; font-family: var(--font-ui); font-size: 0.88rem; color: var(--text-secondary); }

@@ -169,9 +169,53 @@ function syncFlagEditor(formEl) {
         cb.disabled = !ok;
         if (!ok) cb.checked = false;
     });
-    const anyChecked = [...formEl.querySelectorAll('input[name="Flags"]')].some(cb => cb.checked);
+}
+
+function initNoteAutoSave(formEl) {
+    if (!formEl) return;
     const note = formEl.querySelector('textarea[name="Note"]');
-    if (note) note.disabled = !anyChecked;
+    const status = formEl.querySelector('.flag-status');
+    const err = formEl.querySelector('.flag-error');
+    let timer = null, running = false, pending = false, hideTimer = null, saved = note.value;
+
+    const setStatus = (text, cls) => {
+        clearTimeout(hideTimer);
+        status.textContent = text;
+        status.className = 'flag-status' + (cls ? ' ' + cls : '');
+        if (cls === 'is-saved') hideTimer = setTimeout(() => { status.textContent = ''; status.className = 'flag-status'; }, 2000);
+    };
+
+    async function save() {
+        if (note.value === saved) return;
+        if (running) { pending = true; return; }
+        running = true;
+        err.style.display = 'none';
+        setStatus(formEl.dataset.savingMsg, 'is-saving');
+        const value = note.value;
+        try {
+            const d = await (await fetch(formEl.dataset.url, { method: 'POST', body: new FormData(formEl) })).json();
+            if (d.success) { saved = value; setStatus(formEl.dataset.savedMsg, 'is-saved'); }
+            else { setStatus('', ''); err.textContent = d.message || genericErrorText(); err.style.display = 'block'; }
+        } catch {
+            setStatus('', '');
+            err.textContent = networkErrorText();
+            err.style.display = 'block';
+        } finally {
+            running = false;
+            if (pending) { pending = false; save(); }
+        }
+    }
+    const saveSoon = ms => { clearTimeout(timer); timer = setTimeout(() => { timer = null; save(); }, ms); };
+
+    note.addEventListener('input', () => saveSoon(800));
+    note.addEventListener('blur', () => saveSoon(0));
+    formEl.addEventListener('submit', e => { e.preventDefault(); saveSoon(0); });
+    if (window._noteBeforeUnload) window.removeEventListener('beforeunload', window._noteBeforeUnload);
+    window._noteBeforeUnload = () => {
+        if (note.value === saved) return;
+        navigator.sendBeacon(formEl.dataset.url, new FormData(formEl));
+    };
+    window.addEventListener('beforeunload', window._noteBeforeUnload);
 }
 
 function initFlagAutoSave(formEl) {

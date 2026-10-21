@@ -61,6 +61,14 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost][ValidateAntiForgeryToken]
+        public IActionResult UpdateNote(string id, string? note)
+        {
+            var (success, message) = _libraryService.UpdateSeriesNote(id, note);
+            if (!success) return Json(new { success = false, message = _loc[message] });
+            return Json(new { success = true });
+        }
+
+        [HttpPost][ValidateAntiForgeryToken]
         public IActionResult Rename(RenameForm form)
         {
             if (!ModelState.IsValid) return Json(new { success = false, message = _loc["Error_Validation"] });

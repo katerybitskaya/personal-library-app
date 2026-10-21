@@ -124,6 +124,8 @@
         {
             <p class="text-muted" style="font-family:var(--font-ui);font-size:0.9rem">@L["Author_NoBooksOrSeries"]</p>
         }
+
+        <partial name="_NoteEditor" model='new NoteEditorModel("/Author/UpdateNote", author.Id, author.Note)' />
     </div>
 </div>
 
@@ -220,6 +222,7 @@
 initFilePicker('fileAddBook','prevAddBook','btnFileAddBook');
 initFilePicker('fileAddSeries','prevAddSeries','btnFileAddSeries');
 initImageUpload(document.querySelector('.detail-photo'));
+initNoteAutoSave(document.querySelector('.note-editor'));
 
 function toggleAccordion(id) {
     document.getElementById('acc-'+id)?.classList.toggle('open');
