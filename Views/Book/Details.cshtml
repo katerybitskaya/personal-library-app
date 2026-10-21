@@ -60,10 +60,13 @@
         {
             <div>
                 <div class="meta-label">@L["Label_Series"]</div>
-                <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="meta-value text-gold">
-                    @series.Name
-                    @if (book.OrderInSeries.HasValue) { <span class="badge badge-gold" style="margin-left:0.5rem">#@book.OrderInSeries</span> }
-                </a>
+                <div class="series-number-line">
+                    <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="meta-value text-gold">@series.Name</a>
+                    <span class="badge badge-gold">#@book.DisplayNumber</span>
+                    <button type="button" class="btn btn-icon btn-ghost btn-sm series-number-edit" onclick="openModal('modalSeriesNumber')" title="@L["Book_SeriesNumber"]" aria-label="@L["Book_SeriesNumber"]">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                </div>
             </div>
         }
         <div class="detail-actions">
@@ -83,6 +86,29 @@
         </div>
     </div>
 </div>
+
+@if (series != null)
+{
+<div class="modal-overlay" id="modalSeriesNumber">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('modalSeriesNumber')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <h2 class="modal-title">@L["Book_SeriesNumber"]</h2>
+        <form id="formSeriesNumber">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@book.Id" />
+            <div class="form-group">
+                <input type="text" name="SeriesNumber" class="form-control" maxlength="10" value="@book.SeriesNumber" placeholder="@book.OrderInSeries" aria-label="@L["Book_SeriesNumber"]" />
+                <div class="form-hint">@L["Book_SeriesNumberHint"]</div>
+            </div>
+            <div id="errSeriesNumber" class="text-danger" style="font-size:0.85rem;margin-bottom:0.5rem;display:none"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalSeriesNumber')">@L["Btn_Cancel"]</button>
+                <button type="submit" class="btn btn-primary">@L["Btn_Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
 
 <div class="modal-overlay" id="modalRenameBook">
     <div class="modal">
@@ -110,6 +136,15 @@
 <script>
 initImageUpload(document.querySelector('.detail-photo'));
 initFlagAutoSave(document.getElementById('formBookFlags'));
+document.getElementById('formSeriesNumber')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const err = document.getElementById('errSeriesNumber'); err.style.display='none';
+    try {
+        const d = await (await fetch('/Book/SetSeriesNumber',{method:'POST',body:new FormData(this)})).json();
+        if (d.success) { closeModal('modalSeriesNumber'); showToast('@L["Toast_NumberSaved"]','success'); softReload(); }
+        else { err.textContent=d.message; err.style.display='block'; }
+    } catch { err.textContent=networkErrorText(); err.style.display='block'; }
+});
 document.getElementById('formRenameBook')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const err = document.getElementById('errRenameBook'); err.style.display='none';

@@ -10,6 +10,8 @@ namespace PersonalLibrary.Models
 
         public int? OrderInSeries { get; set; }
 
+        public string? SeriesNumber { get; set; }
+
         public string? CoverPath { get; set; }
 
         public DateTime DateAdded { get; set; } = DateTime.Now;
@@ -38,11 +40,13 @@ namespace PersonalLibrary.Models
         {
             if (IsMissing) IsFavorite = false;
             Flags = ActiveFlags;
-            if (Flags.Count == 0) Note = null;
         }
 
         [JsonIgnore]
         public List<BookFlag> ActiveFlags => Flags.Where(f => BookFlags.AllowedFor(this).Contains(f)).ToList();
+
+        [JsonIgnore]
+        public string DisplayNumber => string.IsNullOrWhiteSpace(SeriesNumber) ? OrderInSeries?.ToString() ?? "·" : SeriesNumber;
 
         [JsonIgnore]
         public bool IsFavoriteActive => IsFavorite && !IsMissing;

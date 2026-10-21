@@ -269,6 +269,7 @@ The application supports three languages. The switcher is in the navigation bar 
 - `GET /Book/Details/{id}` - Book details
 - `POST /Book/Add` - Add book
 - `POST /Book/Rename` - Rename book
+- `POST /Book/SetSeriesNumber` - Set the number shown for a book in its series
 - `POST /Book/UpdateCover` - Update cover
 - `POST /Book/RemoveCover` - Remove cover
 - `POST /Book/Delete` - Delete book

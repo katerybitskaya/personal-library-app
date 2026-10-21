@@ -51,6 +51,8 @@ namespace PersonalLibrary.ViewModels
         public string? Title { get; set; }
 
         public int? OrderInSeries { get; set; }
+        [StringLength(10)]
+        public string? SeriesNumber { get; set; }
 
         public bool IsMissing { get; set; }
 

@@ -105,7 +105,7 @@
                             {
                                 <div class="book-row">
                                 <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="book-item" style="padding:0.4rem 0.6rem">
-                                    <span class="series-order" style="min-width:22px">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                                    <span class="series-order" style="min-width:22px">@book.DisplayNumber</span>
                                     <span class="book-title-line"><span class="@(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></span>
                                 </a>
                                 <button type="button" class="btn btn-icon btn-ghost btn-sm item-delete-btn" title="@L["Book_Delete"]" aria-label="@L["Book_Delete"]"

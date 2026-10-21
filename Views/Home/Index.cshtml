@@ -173,7 +173,7 @@ else
                                                     @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))
                                                     {
                                                         <div class="series-book-row">
-                                                            <span class="series-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                                                            <span class="series-order">@book.DisplayNumber</span>
                                                             <span class="book-title-line"><a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="item-link @(book.IsMissing ? "text-muted" : "")">@L.BookTitle(book.Title)</a><partial name="_BookStatus" model="book" /></span>
                                                         </div>
                                                     }

@@ -601,7 +601,7 @@ a:hover { color: var(--gold-light); }
 .series-books.open { display: block; }
 .series-book-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
 .series-book-row:last-child { border-bottom: none; }
-.series-order { font-family: var(--font-ui); font-size: 0.72rem; color: var(--text-muted); min-width: 20px; text-align: right; font-variant-numeric: tabular-nums; }
+.series-order { font-family: var(--font-ui); font-size: 0.72rem; color: var(--text-muted); min-width: 20px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0; }
 
 .modal-overlay {
     position: fixed;
@@ -1078,7 +1078,7 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 @media (hover: none), (pointer: coarse) {
     .series-parts .series-part-row:not(:only-child) .part-move-btn { display: inline-flex; }
 }
-.part-order { font-family: var(--font-ui); font-size: 0.8rem; color: var(--gold-muted); min-width: 28px; text-align: right; font-weight: 600; flex-shrink: 0; }
+.part-order { font-family: var(--font-ui); font-size: 0.8rem; color: var(--gold-muted); min-width: 28px; text-align: right; font-weight: 600; flex-shrink: 0; white-space: nowrap; }
 .flag-chip:hover { border-color: color-mix(in srgb, var(--fc) 45%, transparent); color: var(--text-primary); }
 .flag-chip:has(input:checked) {
     color: var(--fc);
@@ -1102,6 +1102,9 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 .flag-status.is-saved { color: var(--flag-for-sale); }
 
 .title-row { display: flex; align-items: center; gap: 0.75rem; }
+.series-number-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.series-number-edit { color: var(--text-muted); }
+.series-number-edit:hover { color: var(--gold-light); }
 .title-row h1 { min-width: 0; overflow-wrap: anywhere; }
 .fav-toggle {
     display: inline-flex;

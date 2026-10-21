@@ -76,7 +76,7 @@
                 @foreach (var book in orderedBooks)
                 {
                     <div class="series-part-row" data-book-id="@book.Id">
-                        <span class="part-order">@(book.OrderInSeries?.ToString() ?? "·")</span>
+                        <span class="part-order">@book.DisplayNumber</span>
                         <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" draggable="false" class="item-link book-title-line @(book.IsMissing ? "text-muted" : "")"><span>@L.BookTitle(book.Title)</span><partial name="_BookStatus" model="book" /></a>
                         <button type="button" class="btn btn-icon btn-ghost btn-sm part-move-btn" data-move="-1" title="@L["Btn_MoveUp"]" aria-label="@L["Btn_MoveUp"]">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
@@ -123,6 +123,11 @@
             <div class="form-group">
                 <label class="form-label">@L["Series_BookOrder"]</label>
                 <input type="number" name="OrderInSeries" class="form-control" min="1" placeholder="@L["Book_OrderPlaceholder"]" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Book_SeriesNumberOptional"]</label>
+                <input type="text" name="SeriesNumber" class="form-control" maxlength="10" placeholder="@L["Book_SeriesNumberPlaceholder"]" />
+                <div class="form-hint">@L["Book_SeriesNumberHint"]</div>
             </div>
             <div class="form-group">
                 <label class="form-label">@L["Book_Cover"]</label>

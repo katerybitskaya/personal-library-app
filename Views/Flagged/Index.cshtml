@@ -91,11 +91,11 @@ else
                                     <span class="text-muted">@L["Missing_Series"]:</span>
                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="flag-card-link">@item.SeriesName</a>
                                 </div>
-                                @if (item.OrderInSeries.HasValue)
+                                @if (item.Number != null)
                                 {
                                     <div>
                                         <span class="text-muted">@L["Missing_Order"]:</span>
-                                        <span class="badge badge-gold" style="margin-left:4px">#@item.OrderInSeries</span>
+                                        <span class="badge badge-gold" style="margin-left:4px">#@item.Number</span>
                                     </div>
                                 }
                             }

@@ -121,6 +121,7 @@ namespace PersonalLibrary.Repositories
                     bookInSeries.Note = book.Note;
                     bookInSeries.IsFavorite = book.IsFavorite;
                     bookInSeries.IsMissing = book.IsMissing;
+                    bookInSeries.SeriesNumber = book.SeriesNumber;
                     Save();
                     return;
                 }

@@ -77,6 +77,19 @@ namespace PersonalLibrary.Services
             return trimmed.Length > NoteMaxLength ? trimmed[..NoteMaxLength] : trimmed;
         }
 
+        public (bool Success, string Message) SetBookSeriesNumber(string bookId, string? number)
+        {
+            var book = _repository.GetBookById(bookId);
+            if (book == null || string.IsNullOrEmpty(book.SeriesId)) return (false, "Error_NotFound");
+            var trimmed = number?.Trim();
+            if (trimmed?.Length > SeriesNumberMaxLength) return (false, "Error_Validation");
+            book.SeriesNumber = string.IsNullOrEmpty(trimmed) ? null : trimmed;
+            _repository.UpdateBook(book);
+            return (true, string.Empty);
+        }
+
+        private const int SeriesNumberMaxLength = 10;
+
         public (bool Success, string Message) UpdateAuthorNote(string authorId, string? note)
         {
             var author = _repository.GetAuthorById(authorId);
@@ -431,7 +444,7 @@ namespace PersonalLibrary.Services
                             SeriesId = series.Id,
                             SeriesName = series.Name,
                             BookId = book.Id,
-                            OrderInSeries = book.OrderInSeries ?? 0,
+                            Number = book.DisplayNumber,
                             Title = book.Title,
                             Flags = book.ActiveFlags,
                             Note = book.Note
@@ -577,7 +590,7 @@ namespace PersonalLibrary.Services
         public string? SeriesName { get; set; }
         public string BookId { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
-        public int? OrderInSeries { get; set; }
+        public string? Number { get; set; }
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }
 
@@ -589,7 +602,7 @@ namespace PersonalLibrary.Services
             SeriesName    = series?.Name,
             BookId        = book.Id,
             Title         = book.Title,
-            OrderInSeries = series != null ? book.OrderInSeries : null,
+            Number        = series != null ? book.DisplayNumber : null,
             Flags         = book.ActiveFlags,
             Note          = book.Note
         };
@@ -613,7 +626,7 @@ namespace PersonalLibrary.Services
         public string SeriesName { get; set; } = string.Empty;
         public string BookId { get; set; } = string.Empty;
         public string? Title { get; set; }
-        public int OrderInSeries { get; set; }
+        public string Number { get; set; } = string.Empty;
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }
     }

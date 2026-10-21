@@ -119,11 +119,14 @@ namespace PersonalLibrary.Controllers
             if (string.IsNullOrWhiteSpace(form.Title) && !form.IsMissing)
                 return Json(new { success = false, message = _loc["Error_TitleRequired"] });
 
+            if (form.SeriesNumber?.Trim().Length > 10)
+                return Json(new { success = false, message = _loc["Error_Validation"] });
+
             if (FileUploadHelper.IsRejected(form.CoverFile))
                 return Json(new { success = false, message = _loc["Error_NoImage"] });
 
             var coverPath = await FileUploadHelper.SaveAsync(form.CoverFile, _env);
-            var book = new Book { Title = form.Title ?? string.Empty, OrderInSeries = form.OrderInSeries, CoverPath = coverPath, IsMissing = form.IsMissing };
+            var book = new Book { Title = form.Title ?? string.Empty, OrderInSeries = form.OrderInSeries, SeriesNumber = string.IsNullOrWhiteSpace(form.SeriesNumber) ? null : form.SeriesNumber.Trim(), CoverPath = coverPath, IsMissing = form.IsMissing };
 
             var (success, message) = _libraryService.AddBookToSeries(form.SeriesId, book);
             if (!success)
