@@ -10,5 +10,7 @@ namespace PersonalLibrary.Models
         public List<string> Params { get; set; } = new();
 
         public string Message { get; set; } = string.Empty;
+
+        public string? UserId { get; set; }
     }
 }

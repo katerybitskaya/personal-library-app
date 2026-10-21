@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using PersonalLibrary.Models;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace PersonalLibrary.Security
 {
@@ -9,40 +7,12 @@ namespace PersonalLibrary.Security
     {
         public const string StampClaim = "protection_stamp";
 
-        public static string GetStamp(ProtectionSettings s)
+        public static List<Claim> ClaimsFor(AppUser user) => new()
         {
-            var raw = $"{s.Username}\n{s.PasswordHash}\n{s.Password}";
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
-            return Convert.ToBase64String(bytes, 0, 12);
-        }
-
-        public static bool VerifyCredentials(ProtectionSettings s, string? username, string? password)
-        {
-            if (!s.HasCredentials || username == null || password == null) return false;
-
-            var userOk = FixedEquals(username.Trim(), s.Username.Trim());
-            bool passOk;
-
-            if (!string.IsNullOrWhiteSpace(s.PasswordHash))
-            {
-                try
-                {
-                    var result = new PasswordHasher<object>()
-                        .VerifyHashedPassword(new object(), s.PasswordHash.Trim(), password);
-                    passOk = result != PasswordVerificationResult.Failed;
-                }
-                catch (FormatException)
-                {
-                    passOk = false;
-                }
-            }
-            else
-            {
-                passOk = FixedEquals(password, s.Password);
-            }
-
-            return userOk && passOk;
-        }
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.Login),
+            new(StampClaim, user.SecurityStamp),
+        };
 
         public static string GetClientIp(HttpContext context)
         {
@@ -58,7 +28,5 @@ namespace PersonalLibrary.Security
             return remote?.ToString() ?? "unknown";
         }
 
-        private static bool FixedEquals(string a, string b) =>
-            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(a), Encoding.UTF8.GetBytes(b));
     }
 }

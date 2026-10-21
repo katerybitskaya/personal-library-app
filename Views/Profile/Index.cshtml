@@ -1,0 +1,265 @@
+@inject PersonalLibrary.Services.LocalizationService L
+@model ProfileViewModel
+
+@{
+    ViewData["Title"] = L["Nav_Profile"];
+    var me = Model.User;
+}
+@Html.AntiForgeryToken()
+
+<div class="page-header">
+    <h1 class="page-title">@L["Nav_Profile"]</h1>
+    <span class="user-dot user-dot-lg" style="--uc:@UserColors.Hex(me.Color)" aria-hidden="true">@Me.Initial(me)</span>
+</div>
+
+<div class="profile-grid">
+    <section class="card profile-card">
+        <h2 class="profile-card-title">@L["Profile_MyData"]</h2>
+        <form class="profile-form" data-url="/Profile/Update" data-success="@L["Profile_Saved"]">
+            <div class="form-group">
+                <label class="form-label" for="profileName">@L["Profile_Name"]</label>
+                <input type="text" id="profileName" name="displayName" class="form-control" maxlength="40" value="@me.DisplayName"
+                       placeholder="@(me.IsAdmin ? L["Users_Admin"] : me.Login)" />
+                <div class="form-hint">@L["Profile_NameHint"]</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="profileLogin">@L["Profile_Login"]</label>
+                @if (me.IsAdmin)
+                {
+                    <input type="text" id="profileLogin" name="login" class="form-control" maxlength="32" value="@me.Login" autocomplete="username" required />
+                }
+                else
+                {
+                    <div class="profile-static">@me.Login</div>
+                    <div class="form-hint">@L["Profile_LoginHint"]</div>
+                }
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Profile_Color"]</label>
+                <partial name="_ColorPicker" model='new ColorPickerModel(me.Id, me.Color, L["Profile_ColorTaken"])' />
+            </div>
+            <div class="profile-form-error text-danger"></div>
+            <button type="submit" class="btn btn-primary btn-sm">@L["Btn_Save"]</button>
+        </form>
+    </section>
+
+    <section class="card profile-card">
+        <h2 class="profile-card-title">@L["Profile_Password"]</h2>
+        @if (me.PasswordChangedAt.HasValue)
+        {
+            <p class="profile-muted">@string.Format(L["Profile_PasswordChangedAt"], L.FormatDate(me.PasswordChangedAt.Value))</p>
+        }
+        <form class="profile-form" data-url="/Profile/ChangePassword" data-success="@L["Profile_PasswordChanged"]" data-reset="true">
+            <div class="form-group">
+                <label class="form-label" for="pwCurrent">@L["Profile_CurrentPassword"]</label>
+                <input type="password" id="pwCurrent" name="currentPassword" class="form-control" autocomplete="current-password" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="pwNew">@L["Profile_NewPassword"]</label>
+                <input type="password" id="pwNew" name="newPassword" class="form-control" autocomplete="new-password" minlength="@UserService.MinPasswordLength" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="pwRepeat">@L["Profile_RepeatPassword"]</label>
+                <input type="password" id="pwRepeat" name="repeatPassword" class="form-control" autocomplete="new-password" minlength="@UserService.MinPasswordLength" required />
+            </div>
+            <div class="profile-form-error text-danger"></div>
+            <button type="submit" class="btn btn-primary btn-sm">@L["Btn_Save"]</button>
+        </form>
+    </section>
+</div>
+
+@if (Model.IsAdmin)
+{
+    <section class="items-section">
+        <div class="profile-section-head">
+            <div class="items-section-title">@L["Users_Title"] (@Model.Users.Count)</div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="openUserModal()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                @L["Users_Add"]
+            </button>
+        </div>
+        <div class="user-list">
+            @foreach (var u in Model.Users)
+            {
+                <div class="user-row">
+                    <span class="user-dot" style="--uc:@UserColors.Hex(u.Color)" aria-hidden="true">@Me.Initial(u)</span>
+                    <div class="user-row-main">
+                        <div class="user-row-name">@Me.NameOf(u) @if (u.Id == me.Id) { <span class="text-muted">@L["Users_You"]</span> }</div>
+                        <div class="user-row-meta">
+                            <span>@L["Profile_Login"]: @u.Login</span>
+                            @if (u.PasswordChangedAt.HasValue) { <span>@string.Format(L["Profile_PasswordChangedAt"], L.FormatDate(u.PasswordChangedAt.Value))</span> }
+                        </div>
+                    </div>
+                    @if (u.IsAdmin)
+                    {
+                        <span class="badge badge-gold">@L["Users_Admin"]</span>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm" title="@L["Users_Edit"]" aria-label="@L["Users_Edit"]"
+                                data-id="@u.Id" data-name="@u.DisplayName" data-login="@u.Login" data-color="@u.Color" onclick="openUserModal(this)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-ghost btn-sm user-delete-btn" title="@L["Users_Delete"]" aria-label="@L["Users_Delete"]"
+                                data-id="@u.Id" data-name="@Me.NameOf(u)" onclick="confirmDeleteUser(this)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M9 6V4h6v2"/></svg>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="items-section">
+        <div class="items-section-title">@L["ProfileLog_Title"]</div>
+        @if (!Model.Log.Any())
+        {
+            <p class="profile-muted">@L["ProfileLog_Empty"]</p>
+        }
+        else
+        {
+            <div class="profile-log">
+                @foreach (var e in Model.Log)
+                {
+                    var isNew = Model.LogSeenAt == null || e.Timestamp > Model.LogSeenAt;
+                    <div class="profile-log-entry @(isNew ? "is-new" : "")">
+                        <span class="profile-log-time">@L.FormatDate(e.Timestamp) @e.Timestamp.ToString("HH:mm")</span>
+                        <span class="user-dot user-dot-sm" style="--uc:@Me.ColorOf(e.UserId)" title="@Me.NameOf(e.UserId)" aria-hidden="true"></span>
+                        <span>
+                            <strong>@Me.NameOf(e.UserId)</strong>:
+                            @switch (e.Field)
+                            {
+                                case "name":
+                                    @string.Format(L["ProfileLog_Name"], e.OldValue ?? "—", e.NewValue ?? "—")
+                                    break;
+                                case "color":
+                                    @L["ProfileLog_Color"] <span class="user-dot user-dot-sm" style="--uc:@UserColors.Hex(e.OldValue)"></span> <text>→</text> <span class="user-dot user-dot-sm" style="--uc:@UserColors.Hex(e.NewValue)"></span>
+                                    break;
+                                default:
+                                    @L["ProfileLog_Password"]
+                                    break;
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <div class="modal-overlay" id="modalUser">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('modalUser')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            <h2 class="modal-title" id="modalUserTitle" data-add="@L["Users_Add"]" data-edit="@L["Users_Edit"]">@L["Users_Add"]</h2>
+            <form id="formUser" class="profile-form" data-success-add="@L["Users_Added"]" data-success-edit="@L["Users_Updated"]">
+                <input type="hidden" name="id" />
+                <div class="form-group">
+                    <label class="form-label" for="userName">@L["Profile_Name"]</label>
+                    <input type="text" id="userName" name="displayName" class="form-control" maxlength="40" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="userLogin">@L["Profile_Login"] <span class="text-danger">*</span></label>
+                    <input type="text" id="userLogin" name="login" class="form-control" maxlength="32" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="userPassword">@L["Profile_NewPassword"] <span class="text-danger user-password-required">*</span></label>
+                    <input type="password" id="userPassword" class="form-control" autocomplete="new-password" minlength="@UserService.MinPasswordLength" />
+                    <div class="form-hint user-password-hint">@L["Users_NewPasswordHint"]</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">@L["Profile_Color"]</label>
+                    <div id="userColorPicker">
+                        <partial name="_ColorPicker" model='new ColorPickerModel(null, null, L["Profile_ColorTaken"])' />
+                    </div>
+                </div>
+                <div class="profile-form-error text-danger"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('modalUser')">@L["Btn_Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Btn_Save"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<form asp-controller="Account" asp-action="Logout" method="post" class="profile-logout">
+    <button type="submit" class="btn btn-danger btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+        @L["Nav_Logout"]
+    </button>
+</form>
+
+@section Scripts {
+<script>
+document.querySelectorAll('.profile-form[data-url]').forEach(form => form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = form.querySelector('.profile-form-error');
+    err.textContent = '';
+    const fd = new FormData(form);
+    fd.append('__RequestVerificationToken', getAntiForgeryToken());
+    try {
+        const d = await (await fetch(form.dataset.url, { method: 'POST', body: fd })).json();
+        if (d.success) {
+            showToast(form.dataset.success, 'success');
+            if (form.dataset.reset) form.reset();
+            softReload();
+        } else err.textContent = d.message || genericErrorText();
+    } catch { err.textContent = networkErrorText(); }
+}));
+
+function openUserModal(btn) {
+    const form = document.getElementById('formUser');
+    const title = document.getElementById('modalUserTitle');
+    const edit = !!btn;
+    form.reset();
+    form.querySelector('.profile-form-error').textContent = '';
+    form.elements.id.value = edit ? btn.dataset.id : '';
+    form.elements.displayName.value = edit ? btn.dataset.name : '';
+    form.elements.login.value = edit ? btn.dataset.login : '';
+    const pw = document.getElementById('userPassword');
+    pw.name = edit ? 'newPassword' : 'password';
+    pw.required = !edit;
+    form.querySelector('.user-password-required').hidden = edit;
+    form.querySelector('.user-password-hint').hidden = !edit;
+    form.querySelectorAll('input[name="color"]').forEach(r => {
+        const own = edit && r.value === btn.dataset.color;
+        r.disabled = r.dataset.taken === 'true' && !own;
+        r.closest('.color-swatch').classList.toggle('is-taken', r.disabled);
+        r.checked = own;
+    });
+    if (!edit) form.querySelector('input[name="color"]:not(:disabled)')?.click();
+    title.textContent = edit ? title.dataset.edit : title.dataset.add;
+    form.dataset.mode = edit ? 'edit' : 'add';
+    openModal('modalUser');
+}
+
+document.getElementById('formUser')?.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const err = this.querySelector('.profile-form-error');
+    err.textContent = '';
+    const edit = this.dataset.mode === 'edit';
+    const fd = new FormData(this);
+    fd.append('__RequestVerificationToken', getAntiForgeryToken());
+    try {
+        const d = await (await fetch(edit ? '/Profile/EditUser' : '/Profile/AddUser', { method: 'POST', body: fd })).json();
+        if (d.success) {
+            closeModal('modalUser');
+            showToast(edit ? this.dataset.successEdit : this.dataset.successAdd, 'success');
+            softReload();
+        } else err.textContent = d.message || genericErrorText();
+    } catch { err.textContent = networkErrorText(); }
+});
+
+function confirmDeleteUser(btn) {
+    openConfirmModal(`@L["Users_ConfirmDelete"]<br><strong>${escapeHtml(btn.dataset.name)}</strong>`, async () => {
+        const fd = new FormData();
+        fd.append('id', btn.dataset.id);
+        fd.append('__RequestVerificationToken', getAntiForgeryToken());
+        try {
+            const d = await (await fetch('/Profile/DeleteUser', { method: 'POST', body: fd })).json();
+            if (d.success) { showToast('@L["Users_Deleted"]', 'success'); softReload(); }
+            else showToast(d.message || genericErrorText(), 'error');
+        } catch { showToast(networkErrorText(), 'error'); }
+    });
+}
+</script>
+}

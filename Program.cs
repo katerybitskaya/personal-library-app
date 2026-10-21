@@ -21,7 +21,7 @@ namespace PersonalLibrary
                 return;
             }
 
-            var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args.Where(a => a != PasswordTool.ResetAdminArgument).ToArray());
 
             builder.Configuration.AddJsonFile(
                 Path.Combine(AppContext.BaseDirectory, "protection.json"), optional: true, reloadOnChange: true);
@@ -34,9 +34,16 @@ namespace PersonalLibrary
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<LocalizationService>();
+            builder.Services.AddScoped<CurrentUserService>();
 
             var librarySettings = builder.Configuration.GetSection("LibrarySettings").Get<LibrarySettings>() ?? new LibrarySettings();
             var fullDataPath = Path.Combine(builder.Environment.ContentRootPath, librarySettings.DataDirectory);
+
+            if (args.Contains(PasswordTool.ResetAdminArgument))
+            {
+                PasswordTool.ResetAdmin(new UserService(new JsonUserRepository(fullDataPath)));
+                return;
+            }
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(fullDataPath, "keys")));
@@ -64,6 +71,8 @@ namespace PersonalLibrary
             builder.Services.AddSingleton<ILibraryRepository>(_ => new JsonLibraryRepository(fullDataPath));
             builder.Services.AddSingleton(_ => new JsonTrashRepository(fullDataPath));
             builder.Services.AddSingleton(_ => new JsonHistoryRepository(fullDataPath));
+            builder.Services.AddSingleton(_ => new JsonUserRepository(fullDataPath));
+            builder.Services.AddSingleton<UserService>();
 
             builder.Services.AddSingleton<LibraryEventPublisher>();
             builder.Services.AddSingleton<HistoryService>();
@@ -84,10 +93,24 @@ namespace PersonalLibrary
             {
                 app.Services.GetRequiredService<ILibraryRepository>().LoadError,
                 app.Services.GetRequiredService<JsonTrashRepository>().LoadError,
-                app.Services.GetRequiredService<JsonHistoryRepository>().LoadError
+                app.Services.GetRequiredService<JsonHistoryRepository>().LoadError,
+                app.Services.GetRequiredService<JsonUserRepository>().LoadError
             }.Where(e => e != null);
             foreach (var error in storageErrors)
                 app.Logger.LogCritical("Data storage error: {Error}. The site shows an error page and saving is disabled.", error);
+
+            if (app.Services.GetRequiredService<JsonUserRepository>().LoadError == null)
+            {
+                try
+                {
+                    app.Services.GetRequiredService<UserService>().EnsureAdmin(
+                        app.Configuration.GetSection(ProtectionSettings.SectionName).Get<ProtectionSettings>() ?? new ProtectionSettings());
+                }
+                catch (Exception ex)
+                {
+                    app.Logger.LogError(ex, "Could not create the admin account in users.json");
+                }
+            }
 
             if (app.Services.GetRequiredService<ILibraryRepository>().LoadError == null)
             {

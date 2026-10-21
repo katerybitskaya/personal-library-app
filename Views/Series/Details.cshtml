@@ -43,7 +43,7 @@
             <div class="meta-label">@L["Series_Type"]</div>
             <div class="title-row">
                 <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@series.Name</h1>
-                <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", series.Id, series.IsFavorite, true)' />
+                <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", series.Id, series.FavoriteBy.Contains(Me.Id), true)' />
             </div>
         </div>
         <div>

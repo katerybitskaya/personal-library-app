@@ -319,7 +319,8 @@ async function softReload() {
         document.querySelectorAll('body > .modal-overlay[data-moved]').forEach(el => el.remove());
         oldMain.classList.add('no-anim');
         oldMain.innerHTML = newMain.innerHTML;
-        ['.nav-links', '.drawer-links', '.navbar .lang-switcher'].forEach(sel => {
+        ['--fav', '--me'].forEach(v => document.body.style.setProperty(v, doc.body.style.getPropertyValue(v)));
+        ['.nav-links', '.drawer-links', '.navbar .lang-switcher', '.navbar .nav-profile'].forEach(sel => {
             const a = document.querySelector(sel), b = doc.querySelector(sel);
             if (a && b) a.innerHTML = b.innerHTML;
         });
@@ -347,7 +348,7 @@ async function softReload() {
 }
 
 function initSectionFilter() {
-    const chips = document.querySelectorAll('.flag-filter-chip');
+    const chips = document.querySelectorAll('.flag-filter-chip[data-filter]');
     const sections = document.querySelectorAll('.flag-section');
     if (!chips.length) return;
 
@@ -389,7 +390,7 @@ async function toggleFavorite(btn) {
             btn.setAttribute('aria-pressed', next ? 'true' : 'false');
             const t = next ? btn.dataset.titleOn : btn.dataset.titleOff;
             btn.title = t; btn.setAttribute('aria-label', t);
-            btn.closest('.fav-card')?.classList.toggle('is-removed', !next);
+            btn.closest('.fav-card[data-mine]')?.classList.toggle('is-removed', !next);
         } else showToast(d.message || genericErrorText(), 'error');
     } catch {
         showToast(networkErrorText(), 'error');

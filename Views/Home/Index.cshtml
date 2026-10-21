@@ -141,7 +141,7 @@ else
                                         }
                                     </div>
                                     <a asp-controller="Author" asp-action="Details" asp-route-id="@author.Id"
-                                       class="author-name-link" onclick="event.stopPropagation()">@author.Name <partial name="_FavoriteMark" model="author.IsFavorite" /></a>
+                                       class="author-name-link" onclick="event.stopPropagation()">@author.Name <partial name="_FavoriteMark" model="author.FavoriteBy" /></a>
                                     <div class="author-stats">
                                         @if (author.Books.Any(b => !b.IsMissing)) { <span>@author.Books.Count(b => !b.IsMissing) @L["Author_Books"].ToLower()</span> }
                                         @if (author.Series.Any()) { <span>@author.Series.Count @L["Author_Series"].ToLower()</span> }
@@ -167,7 +167,7 @@ else
                                                     <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
                                                     <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
                                                     <span class="badge badge-gold" style="font-size:0.65rem">@series.Books.Count(b => !b.IsMissing)</span>
-                                                    <partial name="_FavoriteMark" model="series.IsFavorite" />
+                                                    <partial name="_FavoriteMark" model="series.FavoriteBy" />
                                                 </div>
                                                 <div class="series-books" id="sbooks-@series.Id">
                                                     @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))

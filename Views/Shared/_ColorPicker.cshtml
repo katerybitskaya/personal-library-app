@@ -1,0 +1,16 @@
+@inject PersonalLibrary.Services.UserService Users
+@inject PersonalLibrary.Services.LocalizationService L
+@model ColorPickerModel
+
+<div class="color-picker" role="radiogroup" aria-label="@L["Profile_Color"]">
+    @foreach (var (key, hex) in UserColors.Palette)
+    {
+        var ownerId = Users.ColorOwner(key, Model.UserId);
+        var taken = ownerId != null;
+        <label class="color-swatch @(taken ? "is-taken" : "")" style="--sw:@hex"
+               title="@(taken ? string.Format(Model.TakenText, Me.NameOf(ownerId)) : key)">
+            <input type="radio" name="color" value="@key" @(key == Model.Selected ? "checked" : "") @(taken ? "disabled" : "") data-taken="@(taken ? "true" : "false")" />
+            <span aria-hidden="true"></span>
+        </label>
+    }
+</div>

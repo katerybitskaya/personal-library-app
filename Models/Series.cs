@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using PersonalLibrary.Interfaces;
 
 namespace PersonalLibrary.Models
@@ -10,7 +11,11 @@ namespace PersonalLibrary.Models
         public DateTime DateAdded { get; set; } = DateTime.Now;
         public string AuthorId { get; set; } = string.Empty;
         public bool IsOngoing { get; set; }
-        public bool IsFavorite { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
+
+        [JsonPropertyName("isFavorite")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool LegacyIsFavorite { get; set; }
         public string? Note { get; set; }
         public List<Book> Books { get; set; } = new();
 

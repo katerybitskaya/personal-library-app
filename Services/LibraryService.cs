@@ -196,7 +196,7 @@ namespace PersonalLibrary.Services
                 if (!isMissing.Value && string.IsNullOrWhiteSpace(book.Title))
                     return (false, "Book_MissingNeedsTitle");
                 book.IsMissing = isMissing.Value;
-                if (book.IsMissing) book.IsFavorite = false;
+                if (book.IsMissing) book.FavoriteBy.Clear();
             }
 
             var allowed = BookFlags.AllowedFor(book);
@@ -456,27 +456,27 @@ namespace PersonalLibrary.Services
             return result;
         }
 
-        public (bool Success, string Message) SetFavorite(string kind, string id, bool isFavorite)
+        public (bool Success, string Message) SetFavorite(string kind, string id, bool isFavorite, string userId)
         {
             switch (kind)
             {
                 case "author":
                     var author = _repository.GetAuthorById(id);
                     if (author == null) return (false, "Error_NotFound");
-                    author.IsFavorite = isFavorite;
+                    Favorites.Set(author.FavoriteBy, userId, isFavorite);
                     _repository.UpdateAuthor(author);
                     return (true, string.Empty);
                 case "series":
                     var series = _repository.GetSeriesById(id);
                     if (series == null) return (false, "Error_NotFound");
-                    series.IsFavorite = isFavorite;
+                    Favorites.Set(series.FavoriteBy, userId, isFavorite);
                     _repository.UpdateSeries(series);
                     return (true, string.Empty);
                 case "book":
                     var book = _repository.GetBookById(id);
                     if (book == null) return (false, "Error_NotFound");
                     if (book.IsMissing && isFavorite) return (false, "Error_MissingNotFavorite");
-                    book.IsFavorite = isFavorite && !book.IsMissing;
+                    Favorites.Set(book.FavoriteBy, userId, isFavorite);
                     _repository.UpdateBook(book);
                     return (true, string.Empty);
                 default:
@@ -484,45 +484,73 @@ namespace PersonalLibrary.Services
             }
         }
 
-        public List<FavoriteAuthorInfo> GetFavoriteAuthors()
+        private static bool IsFavoriteFor(List<string> favoriteBy, string? userId) =>
+            userId == null ? favoriteBy.Count > 0 : favoriteBy.Contains(userId);
+
+        public void RemoveFavoritesOf(string userId)
+        {
+            foreach (var author in _repository.GetAllAuthors())
+            {
+                author.FavoriteBy.Remove(userId);
+                foreach (var book in author.Books) book.FavoriteBy.Remove(userId);
+                foreach (var series in author.Series)
+                {
+                    series.FavoriteBy.Remove(userId);
+                    foreach (var book in series.Books) book.FavoriteBy.Remove(userId);
+                }
+            }
+            _repository.Save();
+        }
+
+        public Dictionary<string, int> CountFavoritesByUser()
+        {
+            var ids = _repository.GetAllAuthors().SelectMany(a => a.FavoriteBy
+                .Concat(a.Series.SelectMany(s => s.FavoriteBy))
+                .Concat(a.Books.Concat(a.Series.SelectMany(s => s.Books)).SelectMany(b => b.ActiveFavoriteBy)));
+            return ids.GroupBy(id => id).ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        public List<FavoriteAuthorInfo> GetFavoriteAuthors(string? userId)
         {
             return _repository.GetAllAuthors()
-                .Where(a => a.IsFavorite)
+                .Where(a => IsFavoriteFor(a.FavoriteBy, userId))
                 .Select(a => new FavoriteAuthorInfo
                 {
                     AuthorId    = a.Id,
                     AuthorName  = a.Name,
                     BookCount   = a.Books.Count + a.Series.Sum(s => s.Books.Count),
                     SeriesCount = a.Series.Count,
-                    Note        = a.Note
+                    Note        = a.Note,
+                    FavoriteBy  = a.FavoriteBy.ToList()
                 })
                 .ToList();
         }
 
-        public List<OngoingSeriesInfo> GetFavoriteSeries()
+        public List<OngoingSeriesInfo> GetFavoriteSeries(string? userId)
         {
             return _repository.GetAllAuthors()
-                .SelectMany(a => a.Series.Where(s => s.IsFavorite).OrderBy(s => s.Name).Select(s => new OngoingSeriesInfo
+                .SelectMany(a => a.Series.Where(s => IsFavoriteFor(s.FavoriteBy, userId)).OrderBy(s => s.Name).Select(s => new OngoingSeriesInfo
                 {
                     AuthorId   = a.Id,
                     AuthorName = a.Name,
                     SeriesId   = s.Id,
                     SeriesName = s.Name,
                     BookCount  = s.Books.Count,
-                    Note       = s.Note
+                    Note       = s.Note,
+                    FavoriteBy = s.FavoriteBy.ToList()
                 }))
                 .ToList();
         }
 
-        public List<FlaggedBookInfo> GetFavoriteBooks()
+        public List<FlaggedBookInfo> GetFavoriteBooks(string? userId)
         {
             var result = new List<FlaggedBookInfo>();
             foreach (var author in _repository.GetAllAuthors())
             {
-                foreach (var book in author.Books.Where(b => b.IsFavoriteActive).OrderBy(b => b.Title))
+                foreach (var book in author.Books.Where(b => IsFavoriteFor(b.ActiveFavoriteBy, userId)).OrderBy(b => b.Title))
                     result.Add(FlaggedBookInfo.From(author, null, book));
                 foreach (var series in author.Series.OrderBy(s => s.Name))
-                    foreach (var book in series.Books.Where(b => b.IsFavoriteActive).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
+                    foreach (var book in series.Books.Where(b => IsFavoriteFor(b.ActiveFavoriteBy, userId)).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
                         result.Add(FlaggedBookInfo.From(author, series, book));
             }
             return result;
@@ -571,6 +599,7 @@ namespace PersonalLibrary.Services
         public string SeriesName { get; set; } = string.Empty;
         public int BookCount { get; set; }
         public string? Note { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
     }
 
     public class FavoriteAuthorInfo
@@ -580,6 +609,7 @@ namespace PersonalLibrary.Services
         public int BookCount { get; set; }
         public int SeriesCount { get; set; }
         public string? Note { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
     }
 
     public class FlaggedBookInfo
@@ -593,6 +623,7 @@ namespace PersonalLibrary.Services
         public string? Number { get; set; }
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
 
         public static FlaggedBookInfo From(Author author, Series? series, Book book) => new()
         {
@@ -604,7 +635,8 @@ namespace PersonalLibrary.Services
             Title         = book.Title,
             Number        = series != null ? book.DisplayNumber : null,
             Flags         = book.ActiveFlags,
-            Note          = book.Note
+            Note          = book.Note,
+            FavoriteBy    = book.ActiveFavoriteBy.ToList()
         };
     }
 

@@ -6,6 +6,33 @@ namespace PersonalLibrary.Security
     public static class PasswordTool
     {
         public const string Argument = "--hash-password";
+        public const string ResetAdminArgument = "--reset-admin-password";
+
+        public static void ResetAdmin(PersonalLibrary.Services.UserService users)
+        {
+            Console.WriteLine("Personal Library — reset the admin password in Data/users.json (stop the site first)");
+            if (users.Admin == null)
+            {
+                Console.WriteLine("Admin account not found. Start the site once to create it.");
+                Environment.ExitCode = 1;
+                return;
+            }
+            var first = ReadHidden("New password: ");
+            if (first.Length < PersonalLibrary.Services.UserService.MinPasswordLength)
+            {
+                Console.WriteLine($"The password must be at least {PersonalLibrary.Services.UserService.MinPasswordLength} characters.");
+                Environment.ExitCode = 1;
+                return;
+            }
+            if (first != ReadHidden("Repeat password: "))
+            {
+                Console.WriteLine("Passwords do not match.");
+                Environment.ExitCode = 1;
+                return;
+            }
+            users.ResetAdminPassword(first);
+            Console.WriteLine($"Done. Admin login: {users.Admin.Login}. Start the site again.");
+        }
 
         public static void Run()
         {

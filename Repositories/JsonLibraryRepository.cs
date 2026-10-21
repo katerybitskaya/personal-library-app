@@ -27,6 +27,7 @@ namespace PersonalLibrary.Repositories
             try
             {
                 _data = JsonFileStore.Load<LibraryData>(_libraryFilePath, _jsonOptions);
+                _data.Authors.ForEach(Favorites.Migrate);
             }
             catch (StorageException ex)
             {
@@ -59,7 +60,7 @@ namespace PersonalLibrary.Repositories
 
             existing.Name = author.Name;
             existing.PhotoPath = author.PhotoPath;
-            existing.IsFavorite = author.IsFavorite;
+            existing.FavoriteBy = author.FavoriteBy;
             existing.Note = author.Note;
             Save();
         }
@@ -104,7 +105,7 @@ namespace PersonalLibrary.Repositories
                 existing.CoverPath = book.CoverPath;
                 existing.Flags = book.Flags;
                 existing.Note = book.Note;
-                existing.IsFavorite = book.IsFavorite;
+                existing.FavoriteBy = book.FavoriteBy;
                 existing.IsMissing = book.IsMissing;
                 Save();
                 return;
@@ -119,7 +120,7 @@ namespace PersonalLibrary.Repositories
                     bookInSeries.CoverPath = book.CoverPath;
                     bookInSeries.Flags = book.Flags;
                     bookInSeries.Note = book.Note;
-                    bookInSeries.IsFavorite = book.IsFavorite;
+                    bookInSeries.FavoriteBy = book.FavoriteBy;
                     bookInSeries.IsMissing = book.IsMissing;
                     bookInSeries.SeriesNumber = book.SeriesNumber;
                     Save();
@@ -180,7 +181,7 @@ namespace PersonalLibrary.Repositories
             existing.Name = series.Name;
             existing.CoverPath = series.CoverPath;
             existing.IsOngoing = series.IsOngoing;
-            existing.IsFavorite = series.IsFavorite;
+            existing.FavoriteBy = series.FavoriteBy;
             existing.Note = series.Note;
             Save();
         }

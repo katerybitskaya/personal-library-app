@@ -37,7 +37,10 @@ else
                         <span style="opacity:0.6">@L.FormatDate(entry.Timestamp)</span>
                         <span style="margin-left:0.4rem;color:var(--text-secondary)">@entry.Timestamp.ToString("HH:mm")</span>
                     </div>
-                    <div class="history-message">@msg</div>
+                    <div class="history-message">@msg@if (entry.UserId != null)
+                        {
+                            <span class="user-dot user-dot-sm history-user" style="--uc:@Me.ColorOf(entry.UserId)" title="@Me.NameOf(entry.UserId)" aria-label="@Me.NameOf(entry.UserId)"></span>
+                        }</div>
                 </div>
             }
         </div>

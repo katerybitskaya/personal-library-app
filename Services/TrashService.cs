@@ -99,6 +99,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Author:
                     {
                         var restoredAuthor = JsonSerializer.Deserialize<Author>(item.SerializedData, _jsonOptions);
+                        if (restoredAuthor != null) Favorites.Migrate(restoredAuthor);
                         if (restoredAuthor != null)
                         {
                             foreach (var b in restoredAuthor.Books)
@@ -120,6 +121,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Series:
                     {
                         var restoredSeries = JsonSerializer.Deserialize<Series>(item.SerializedData, _jsonOptions);
+                        if (restoredSeries != null) Favorites.Migrate(restoredSeries);
                         if (restoredSeries != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);
@@ -132,6 +134,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Book:
                     {
                         var restoredBook = JsonSerializer.Deserialize<Book>(item.SerializedData, _jsonOptions);
+                        if (restoredBook != null) Favorites.Migrate(restoredBook);
                         if (restoredBook != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);

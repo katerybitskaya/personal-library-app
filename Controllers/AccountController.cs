@@ -16,13 +16,16 @@ namespace PersonalLibrary.Controllers
         private readonly LoginAttemptTracker _tracker;
         private readonly LocalizationService _l;
         private readonly ILogger<AccountController> _logger;
+        private readonly UserService _users;
 
         public AccountController(
             IOptionsMonitor<ProtectionSettings> options,
             LoginAttemptTracker tracker,
             LocalizationService l,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            UserService users)
         {
+            _users = users;
             _options = options;
             _tracker = tracker;
             _l = l;
@@ -37,7 +40,7 @@ namespace PersonalLibrary.Controllers
                 return RedirectToLocal(returnUrl);
 
             var vm = new LoginViewModel { ReturnUrl = returnUrl };
-            if (!settings.HasCredentials)
+            if (!_users.AdminHasPassword)
                 vm.Error = _l["Login_NotConfigured"];
             return View(vm);
         }
@@ -50,7 +53,7 @@ namespace PersonalLibrary.Controllers
             if (!settings.Enabled)
                 return RedirectToLocal(vm.ReturnUrl);
 
-            if (!settings.HasCredentials)
+            if (!_users.AdminHasPassword)
             {
                 vm.Error = _l["Login_NotConfigured"];
                 return View(vm);
@@ -66,7 +69,8 @@ namespace PersonalLibrary.Controllers
                 return View(vm);
             }
 
-            if (!ProtectionHelper.VerifyCredentials(settings, vm.Username, vm.Password))
+            var account = _users.Verify(vm.Username, vm.Password);
+            if (account == null)
             {
                 _tracker.RegisterFailure(ip, settings.MaxFailedAttempts, settings.GlobalMaxFailedAttempts, settings.LockoutMinutes);
                 _logger.LogWarning("Failed login attempt from {Ip}", ip);
@@ -81,12 +85,7 @@ namespace PersonalLibrary.Controllers
 
             _tracker.RegisterSuccess(ip);
 
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.Name, settings.Username.Trim()),
-                new(ProtectionHelper.StampClaim, ProtectionHelper.GetStamp(settings)),
-            };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity = new ClaimsIdentity(ProtectionHelper.ClaimsFor(account), CookieAuthenticationDefaults.AuthenticationScheme);
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,

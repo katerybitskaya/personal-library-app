@@ -1,12 +1,11 @@
 @inject PersonalLibrary.Services.LocalizationService L
-@inject Microsoft.Extensions.Options.IOptionsMonitor<PersonalLibrary.Models.ProtectionSettings> Protection
 
 @{
     var currentCulture = L.CurrentCulture;
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
     var isHome = currentController == "home" && currentAction == "index";
-    var showLogout = Protection.CurrentValue.Enabled && User.Identity?.IsAuthenticated == true;
+    var profileUser = Me.IsSignedIn ? Me.User : null;
 }
 <!DOCTYPE html>
 <html lang="@currentCulture">
@@ -17,7 +16,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 7v14' fill='none' stroke='%23c9a84c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/><path d='M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z' fill='none' stroke='%23c9a84c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
 </head>
-<body data-confirm-title="@L["Confirm_Title"]"
+<body style="--fav:@Me.ColorHex; --me:@Me.ColorHex" data-confirm-title="@L["Confirm_Title"]"
       data-confirm-cancel="@L["Confirm_Cancel"]"
       data-confirm-ok="@L["Confirm_Ok"]"
       data-error-network="@L["Error_Network"]"
@@ -45,14 +44,6 @@
                 @L["Nav_Trash"]
             </a>
         </li>
-        @if (showLogout)
-        {
-            <li>
-                <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-                    <button type="submit" class="logout-btn">@L["Nav_Logout"]</button>
-                </form>
-            </li>
-        }
     </ul>
 
     <div class="lang-switcher">
@@ -64,6 +55,17 @@
                 <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
                 <button type="submit" class="lang-btn @(currentCulture == lang.Item1 ? "active" : "")">@lang.Item2</button>
             </form>
+        }
+    </div>
+
+    <div class="nav-profile">
+        @if (profileUser != null)
+        {
+            <a asp-controller="Profile" asp-action="Index" class="profile-btn @(currentController == "profile" ? "active" : "")"
+               style="--uc:@UserColors.Hex(profileUser.Color)" title="@L["Nav_Profile"] — @Me.NameOf(profileUser)" aria-label="@L["Nav_Profile"] — @Me.NameOf(profileUser)">
+                @Me.Initial(profileUser)
+                @if (Me.HasUnseenProfileChanges) { <span class="profile-badge" aria-hidden="true"></span> }
+            </a>
         }
     </div>
 
@@ -92,12 +94,13 @@
                 @L["Nav_Trash"]
             </a>
         </li>
-        @if (showLogout)
+        @if (profileUser != null)
         {
             <li>
-                <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-                    <button type="submit" class="logout-btn">@L["Nav_Logout"]</button>
-                </form>
+                <a asp-controller="Profile" asp-action="Index" class="drawer-profile @(currentController == "profile" ? "active" : "")">
+                    <span class="user-dot user-dot-sm" style="--uc:@UserColors.Hex(profileUser.Color)" aria-hidden="true"></span>
+                    @L["Nav_Profile"] — @Me.NameOf(profileUser)
+                </a>
             </li>
         }
     </ul>

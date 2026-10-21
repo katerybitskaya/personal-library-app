@@ -12,9 +12,9 @@ namespace PersonalLibrary.Middleware
         public StorageGuardMiddleware(RequestDelegate next) => _next = next;
 
         public async Task InvokeAsync(HttpContext context, ILibraryRepository library,
-            JsonTrashRepository trash, JsonHistoryRepository history)
+            JsonTrashRepository trash, JsonHistoryRepository history, JsonUserRepository users)
         {
-            bool failed = library.LoadError != null || trash.LoadError != null || history.LoadError != null;
+            bool failed = library.LoadError != null || trash.LoadError != null || history.LoadError != null || users.LoadError != null;
             if (failed && !context.Request.Path.StartsWithSegments("/Home/SetLanguage"))
             {
                 context.Request.Path = ErrorPath;

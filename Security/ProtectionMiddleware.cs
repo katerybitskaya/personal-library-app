@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using PersonalLibrary.Models;
+using PersonalLibrary.Services;
 
 namespace PersonalLibrary.Security
 {
@@ -20,7 +22,7 @@ namespace PersonalLibrary.Security
 
         public ProtectionMiddleware(RequestDelegate next) => _next = next;
 
-        public async Task InvokeAsync(HttpContext context, IOptionsMonitor<ProtectionSettings> options)
+        public async Task InvokeAsync(HttpContext context, IOptionsMonitor<ProtectionSettings> options, UserService users)
         {
             var settings = options.CurrentValue;
             if (!settings.Enabled)
@@ -32,8 +34,9 @@ namespace PersonalLibrary.Security
             var user = context.User;
             if (user.Identity?.IsAuthenticated == true)
             {
+                var account = users.GetById(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var stamp = user.FindFirst(ProtectionHelper.StampClaim)?.Value;
-                if (stamp == ProtectionHelper.GetStamp(settings))
+                if (account != null && stamp == account.SecurityStamp)
                 {
                     await _next(context);
                     return;

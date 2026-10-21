@@ -14,6 +14,26 @@
     }
 </div>
 
+@if (Model.ShowUsers)
+{
+    <div class="flag-filter user-filter" role="toolbar" aria-label="@L["Users_Title"]">
+        <a href="/Favorites?user=all" class="flag-filter-chip fav-chip @(Model.SelectedUser == "all" ? "active" : "")" onclick="return switchFavoritesUser(this)">
+            @L["Flagged_All"] <span class="flag-filter-count">@Model.AllCount</span>
+        </a>
+        @foreach (var (u, count) in Model.Users)
+        {
+            <a href="/Favorites?user=@u.Id" class="flag-filter-chip user-chip @(Model.SelectedUser == u.Id ? "active" : "")" style="--fc:@UserColors.Hex(u.Color)" onclick="return switchFavoritesUser(this)">
+                <span class="fav-mark" style="color:@UserColors.Hex(u.Color)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+                @Me.NameOf(u)@(u.Id == Me.Id ? " " + L["Users_You"] : "") <span class="flag-filter-count">@count</span>
+            </a>
+        }
+    </div>
+}
+
+@{
+    var selectedUser = Model.Users.FirstOrDefault(x => x.User.Id == Model.SelectedUser).User;
+}
+<div class="fav-content" @(selectedUser != null ? Html.Raw($"style=\"--fav:{UserColors.Hex(selectedUser.Color)}\"") : Html.Raw(""))>
 @if (Model.TotalCount == 0)
 {
     <div class="empty-state">
@@ -55,15 +75,19 @@ else
             <div class="missing-grid">
                 @foreach (var item in Model.Authors)
                 {
-                    <div class="missing-card flag-card fav-card">
+                    <div class="missing-card flag-card fav-card" @(Model.SelectedUser == Me.Id ? "data-mine" : "")>
                         <div class="fav-card-head">
                             <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="missing-card-series flag-card-title">@item.AuthorName</a>
-                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("author", item.AuthorId, true)' />
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("author", item.AuthorId, item.FavoriteBy.Contains(Me.Id))' />
                         </div>
                         <div class="missing-card-meta">
                             <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
                             <div><span class="text-muted">@L["Stat_Series"]:</span> @item.SeriesCount</div>
                         </div>
+                        @if (Model.ShowUsers)
+                        {
+                            <div class="fav-card-users"><partial name="_FavoriteMark" model="item.FavoriteBy" /></div>
+                        }
                         @if (!string.IsNullOrEmpty(item.Note))
                         {
                             <p class="flag-card-note">@item.Note</p>
@@ -81,15 +105,19 @@ else
             <div class="missing-grid">
                 @foreach (var item in Model.Series)
                 {
-                    <div class="missing-card flag-card fav-card">
+                    <div class="missing-card flag-card fav-card" @(Model.SelectedUser == Me.Id ? "data-mine" : "")>
                         <div class="fav-card-head">
                             <a asp-controller="Series" asp-action="Details" asp-route-id="@item.SeriesId" class="missing-card-series flag-card-title">@item.SeriesName</a>
-                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", item.SeriesId, true)' />
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("series", item.SeriesId, item.FavoriteBy.Contains(Me.Id))' />
                         </div>
                         <div class="missing-card-meta">
                             <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
                             <div><span class="text-muted">@L["Stat_Books"]:</span> @item.BookCount</div>
                         </div>
+                        @if (Model.ShowUsers)
+                        {
+                            <div class="fav-card-users"><partial name="_FavoriteMark" model="item.FavoriteBy" /></div>
+                        }
                         @if (!string.IsNullOrEmpty(item.Note))
                         {
                             <p class="flag-card-note">@item.Note</p>
@@ -107,12 +135,12 @@ else
             <div class="missing-grid">
                 @foreach (var item in Model.Books)
                 {
-                    <div class="missing-card flag-card fav-card">
+                    <div class="missing-card flag-card fav-card" @(Model.SelectedUser == Me.Id ? "data-mine" : "")>
                         <div class="fav-card-head">
                             <a asp-controller="Book" asp-action="Details" asp-route-id="@item.BookId" class="missing-card-series flag-card-title">
                                 @L.BookTitle(item.Title)
                             </a>
-                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", item.BookId, true)' />
+                            <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", item.BookId, item.FavoriteBy.Contains(Me.Id))' />
                         </div>
                         <div class="missing-card-meta">
                             <div><span class="text-muted">@L["Missing_Author"]:</span> <a asp-controller="Author" asp-action="Details" asp-route-id="@item.AuthorId" class="flag-card-link">@item.AuthorName</a></div>
@@ -131,6 +159,10 @@ else
                                 }
                             }
                         </div>
+                        @if (Model.ShowUsers)
+                        {
+                            <div class="fav-card-users"><partial name="_FavoriteMark" model="item.FavoriteBy" /></div>
+                        }
                         @if (!string.IsNullOrEmpty(item.Note))
                         {
                             <p class="flag-card-note">@item.Note</p>
@@ -141,7 +173,15 @@ else
         </section>
     }
 }
+</div>
 
 @section Scripts {
-<script>initSectionFilter();</script>
+<script>
+function switchFavoritesUser(link) {
+    history.replaceState(null, '', link.getAttribute('href') + location.hash);
+    softReload();
+    return false;
+}
+initSectionFilter();
+</script>
 }

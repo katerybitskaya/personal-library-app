@@ -21,7 +21,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **🚩 Flags & Notes** - Mark books (duplicate, for sale, lent out, collector's edition…) with an optional note; mark ongoing series
 - **📕 Not Owned** - Mark a series book you don't have yet; it can only carry the “must buy”, “low priority” and “out of print” flags and can't be a favourite
 - **⚡ No Page Reloads** - Changes (flags, favourites, adding or deleting) update the page in place
-- **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
+- **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes; an admin adds users, and each user has their own heart colour
 
 ## Technologies Used
 
@@ -175,13 +175,15 @@ By default the library is open to everyone. To require a login, create a `protec
 | Setting | Meaning |
 |---------|---------|
 | `Enabled` | `true` — every page and uploaded image requires login; `false` or no file — open access |
-| `Username` | Login name |
-| `PasswordHash` | Hash from `--hash-password` (recommended) |
+| `Username` | Admin login (used on the first start to create the admin in `Data/users.json`) |
+| `PasswordHash` | Admin password hash from `--hash-password` (recommended; used on the first start) |
 | `Password` | Plain-text password, used only when `PasswordHash` is empty (not recommended) |
 | `MaxFailedAttempts` | Failed logins from one IP before a temporary lockout |
 | `GlobalMaxFailedAttempts` | Failed logins from all IPs together before the login form is locked |
 | `LockoutMinutes` | Lockout duration; afterwards login is possible again |
 | `SessionDays` | How long "Remember me" keeps you signed in |
+
+After the first start, users, logins, passwords and heart colours are managed on the Profile page (the admin adds users). To reset a forgotten admin password, stop the site and run `dotnet PersonalLibrary.dll --reset-admin-password`.
 
 
 ## Architecture Highlights
@@ -213,6 +215,7 @@ All data is stored in JSON format in the `Data` folder:
 - **library.json** - Authors, books, and series definitions (incl. flags, notes, “not owned”, favourites, ongoing series)
 - **trash.json** - Deleted items with recovery metadata
 - **history.json** - Complete activity log with timestamps
+- **users.json** - Users (password hashes, colours) and the log of profile changes
 - **\*.json.bak** - Previous version of each file, used automatically if the main file can't be read
 - **keys/** - Data Protection keys for login and anti-forgery cookies (keeps sessions valid after a restart)
 
@@ -298,6 +301,10 @@ The application supports three languages. The switcher is in the navigation bar 
 - `GET /Account/Login` - Login page
 - `POST /Account/Login` - Sign in
 - `POST /Account/Logout` - Sign out
+- `GET /Profile/Index` - Profile (admin: users and profile changes)
+- `POST /Profile/Update` - Save name and colour (admin: also login)
+- `POST /Profile/ChangePassword` - Change own password
+- `POST /Profile/AddUser`, `POST /Profile/EditUser`, `POST /Profile/DeleteUser` - Manage users (admin only)
 
 ### History
 - `GET /History/Index?page={n}` - View activity history (30 entries per page)

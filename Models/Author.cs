@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using PersonalLibrary.Interfaces;
 
 namespace PersonalLibrary.Models
@@ -9,7 +10,11 @@ namespace PersonalLibrary.Models
 
         public string? PhotoPath { get; set; }
 
-        public bool IsFavorite { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
+
+        [JsonPropertyName("isFavorite")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool LegacyIsFavorite { get; set; }
 
         public string? Note { get; set; }
 

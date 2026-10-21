@@ -24,7 +24,11 @@ namespace PersonalLibrary.Models
 
         public string? Note { get; set; }
 
-        public bool IsFavorite { get; set; }
+        public List<string> FavoriteBy { get; set; } = new();
+
+        [JsonPropertyName("isFavorite")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool LegacyIsFavorite { get; set; }
 
         [JsonIgnore]
         public string Name => Title;
@@ -38,7 +42,7 @@ namespace PersonalLibrary.Models
 
         public void NormalizeMissing()
         {
-            if (IsMissing) IsFavorite = false;
+            if (IsMissing) FavoriteBy.Clear();
             Flags = ActiveFlags;
         }
 
@@ -49,7 +53,7 @@ namespace PersonalLibrary.Models
         public string DisplayNumber => string.IsNullOrWhiteSpace(SeriesNumber) ? OrderInSeries?.ToString() ?? "·" : SeriesNumber;
 
         [JsonIgnore]
-        public bool IsFavoriteActive => IsFavorite && !IsMissing;
+        public List<string> ActiveFavoriteBy => IsMissing ? new List<string>() : FavoriteBy;
 
         [JsonIgnore]
         public bool HasFlags => ActiveFlags.Count > 0;

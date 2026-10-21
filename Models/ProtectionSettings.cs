@@ -19,9 +19,5 @@ namespace PersonalLibrary.Models
         public int LockoutMinutes { get; set; } = 15;
 
         public int SessionDays { get; set; } = 30;
-
-        public bool HasCredentials =>
-            !string.IsNullOrWhiteSpace(Username) &&
-            (!string.IsNullOrWhiteSpace(PasswordHash) || !string.IsNullOrEmpty(Password));
     }
 }

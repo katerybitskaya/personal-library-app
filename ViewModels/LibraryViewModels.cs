@@ -66,6 +66,8 @@ namespace PersonalLibrary.ViewModels
         public bool IsEmpty => !OngoingSeries.Any() && !Books.Any();
     }
 
+    public record ColorPickerModel(string? UserId, string? Selected, string TakenText);
+
     public record NoteEditorModel(string Url, string Id, string? Note);
 
     public record FavoriteToggleModel(string Kind, string Id, bool IsFavorite, bool Large = false);
@@ -76,6 +78,19 @@ namespace PersonalLibrary.ViewModels
         public List<OngoingSeriesInfo> Series { get; set; } = new();
         public List<FlaggedBookInfo> Books { get; set; } = new();
         public int TotalCount => Authors.Count + Series.Count + Books.Count;
+        public string SelectedUser { get; set; } = string.Empty;
+        public bool ShowUsers { get; set; }
+        public List<(AppUser User, int Count)> Users { get; set; } = new();
+        public int AllCount { get; set; }
+    }
+
+    public class ProfileViewModel
+    {
+        public AppUser User { get; set; } = new();
+        public bool IsAdmin { get; set; }
+        public List<AppUser> Users { get; set; } = new();
+        public List<ProfileLogEntry> Log { get; set; } = new();
+        public DateTime? LogSeenAt { get; set; }
     }
 
     public class MissingBooksViewModel

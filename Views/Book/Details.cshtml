@@ -48,7 +48,7 @@
                 <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-top:0.25rem">@L.BookTitle(book.Title)</h1>
                 @if (!book.IsMissing)
                 {
-                    <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.IsFavorite, true)' />
+                    <partial name="_FavoriteToggle" model='new FavoriteToggleModel("book", book.Id, book.FavoriteBy.Contains(Me.Id), true)' />
                 }
             </div>
         </div>
