@@ -216,6 +216,9 @@ function initFlagAutoSave(formEl) {
     const saveSoon = (ms) => { clearTimeout(timer); timer = setTimeout(() => { timer = null; save(); }, ms); };
 
     formEl.querySelectorAll('input[name="Flags"]').forEach(cb => cb.addEventListener('change', () => {
+        const group = cb.closest('.flag-chip')?.dataset.exclusive;
+        if (group && cb.checked)
+            formEl.querySelectorAll(`.flag-chip[data-exclusive="${group}"] input`).forEach(other => { if (other !== cb) other.checked = false; });
         syncFlagEditor(formEl);
         saveSoon(0);
     }));

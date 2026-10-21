@@ -8,6 +8,8 @@ namespace PersonalLibrary.Models
         OneOfSeries,
         Duplicate,
         ForSale,
+        MustBuy,
+        LowPriority,
         OutOfPrint,
         Lent,
         Signed,
@@ -19,7 +21,9 @@ namespace PersonalLibrary.Models
     {
         public static readonly BookFlag[] All = Enum.GetValues<BookFlag>();
 
-        public static readonly BookFlag[] ForMissing = { BookFlag.OutOfPrint };
+        public static readonly BookFlag[] ForMissing = { BookFlag.MustBuy, BookFlag.LowPriority, BookFlag.OutOfPrint };
+
+        public static readonly BookFlag[] Priority = { BookFlag.MustBuy, BookFlag.LowPriority };
 
         public static readonly BookFlag[] ForRegular = All.Where(f => !ForMissing.Contains(f)).ToArray();
 
@@ -32,6 +36,8 @@ namespace PersonalLibrary.Models
             BookFlag.OneOfSeries   => "flag-one-of-series",
             BookFlag.Duplicate     => "flag-duplicate",
             BookFlag.ForSale       => "flag-for-sale",
+            BookFlag.MustBuy       => "flag-must-buy",
+            BookFlag.LowPriority   => "flag-low-priority",
             BookFlag.OutOfPrint    => "flag-out-of-print",
             BookFlag.Lent          => "flag-lent",
             BookFlag.Signed        => "flag-signed",

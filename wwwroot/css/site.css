@@ -36,6 +36,8 @@
     --flag-one-of-series:   #c9a84c;
     --flag-duplicate:       #6fa3d8;
     --flag-for-sale:        #6cbf84;
+    --flag-must-buy:        #9ccc5a;
+    --flag-low-priority:    #6f7d92;
     --flag-out-of-print:    #e07070;
     --flag-lent:            #e0955a;
     --flag-signed:          #b08ad8;
@@ -973,6 +975,8 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 .flag-one-of-series  { --fc: var(--flag-one-of-series); }
 .flag-duplicate      { --fc: var(--flag-duplicate); }
 .flag-for-sale       { --fc: var(--flag-for-sale); }
+.flag-must-buy       { --fc: var(--flag-must-buy); }
+.flag-low-priority   { --fc: var(--flag-low-priority); }
 .flag-out-of-print   { --fc: var(--flag-out-of-print); }
 .flag-lent           { --fc: var(--flag-lent); }
 .flag-signed         { --fc: var(--flag-signed); }

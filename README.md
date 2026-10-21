@@ -19,7 +19,7 @@ Personal Library is a full-stack ASP.NET MVC application that provides a user-fr
 - **📊 Missing Books Tracking** - Identify gaps in book series
 - **❤️ Favourites** - Heart authors, series and books and see them on one page
 - **🚩 Flags & Notes** - Mark books (duplicate, for sale, lent out, collector's edition…) with an optional note; mark ongoing series
-- **📕 Not Owned** - Mark a series book you don't have yet; it can only carry the “out of print” flag and can't be a favourite
+- **📕 Not Owned** - Mark a series book you don't have yet; it can only carry the “must buy”, “low priority” and “out of print” flags and can't be a favourite
 - **⚡ No Page Reloads** - Changes (flags, favourites, adding or deleting) update the page in place
 - **🔒 Optional Password Protection** - Turn login on or off with a single config file, no code changes
 

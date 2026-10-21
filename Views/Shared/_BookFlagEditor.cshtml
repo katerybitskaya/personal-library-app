@@ -23,7 +23,7 @@
         @foreach (var flag in BookFlags.All)
         {
             var allowed = BookFlags.AllowedFor(Model).Contains(flag);
-            <label class="flag-chip @BookFlags.CssClass(flag)" data-missing-ok="@(BookFlags.ForMissing.Contains(flag) ? "true" : "false")" @(allowed ? "" : "hidden")>
+            <label class="flag-chip @BookFlags.CssClass(flag)" data-missing-ok="@(BookFlags.ForMissing.Contains(flag) ? "true" : "false")" @(BookFlags.Priority.Contains(flag) ? "data-exclusive=priority" : "") @(allowed ? "" : "hidden")>
                 <input type="checkbox" name="Flags" value="@flag" @(Model.ActiveFlags.Contains(flag) ? "checked" : "") @(allowed ? "" : "disabled") />
                 <span>@L[BookFlags.Key(flag)]</span>
             </label>

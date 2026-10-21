@@ -165,6 +165,8 @@ namespace PersonalLibrary.Services
                 .Distinct()
                 .OrderBy(f => f)
                 .ToList();
+            if (BookFlags.Priority.All(book.Flags.Contains))
+                book.Flags.Remove(BookFlag.LowPriority);
 
             var noteTrimmed = note?.Trim();
             book.Note = book.Flags.Count > 0 && !string.IsNullOrEmpty(noteTrimmed) ? noteTrimmed : null;
@@ -507,11 +509,11 @@ namespace PersonalLibrary.Services
 
             foreach (var author in _repository.GetAllAuthors())
             {
-                foreach (var book in author.Books.Where(b => b.HasFlags).OrderBy(b => b.Title))
+                foreach (var book in author.Books.Where(b => b.HasFlags && !b.IsMissing).OrderBy(b => b.Title))
                     result.Add(FlaggedBookInfo.From(author, null, book));
 
                 foreach (var series in author.Series.OrderBy(s => s.Name))
-                    foreach (var book in series.Books.Where(b => b.HasFlags).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
+                    foreach (var book in series.Books.Where(b => b.HasFlags && !b.IsMissing).OrderBy(b => b.OrderInSeries ?? int.MaxValue))
                         result.Add(FlaggedBookInfo.From(author, series, book));
             }
 
@@ -545,7 +547,6 @@ namespace PersonalLibrary.Services
         public string BookId { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public int? OrderInSeries { get; set; }
-        public bool IsMissing { get; set; }
         public List<BookFlag> Flags { get; set; } = new();
         public string? Note { get; set; }
 
@@ -558,7 +559,6 @@ namespace PersonalLibrary.Services
             BookId        = book.Id,
             Title         = book.Title,
             OrderInSeries = series != null ? book.OrderInSeries : null,
-            IsMissing     = book.IsMissing,
             Flags         = book.ActiveFlags,
             Note          = book.Note
         };
