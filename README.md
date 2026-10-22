@@ -84,7 +84,7 @@ PersonalLibrary/
 │   ├── ProtectionMiddleware   # Blocks all pages and files for anonymous users
 │   ├── LoginAttemptTracker    # Temporary lockout after failed logins
 │   ├── ProtectionHelper       # Credential check, client IP detection
-│   └── PasswordTool           # --hash-password console command
+│   └── PasswordTool           # --hash-password and --reset-admin-password console commands
 ├── Interfaces/            # Service contracts
 ├── Middleware/            # Data storage guard, request lock
 ├── Helpers/               # Utility classes (file upload)

@@ -69,7 +69,8 @@ namespace PersonalLibrary.Services
             if (user == null) return "Error_NotFound";
             var cleanName = CleanName(name);
             if (cleanName?.Length > MaxNameLength) return "User_NameTooLong";
-            var error = ValidateColor(color, user.Id) ?? (user.IsAdmin && login != null ? ValidateLogin(login, user.Id) : null);
+            var loginChanged = user.IsAdmin && login != null && login.Trim() != user.Login;
+            var error = ValidateColor(color, user.Id) ?? (loginChanged ? ValidateLogin(login, user.Id) : null);
             if (error != null) return error;
 
             var log = new List<ProfileLogEntry>();
@@ -80,9 +81,9 @@ namespace PersonalLibrary.Services
 
             user.DisplayName = cleanName;
             user.Color = color!;
-            if (user.IsAdmin && login != null && login.Trim() != user.Login)
+            if (loginChanged)
             {
-                user.Login = login.Trim();
+                user.Login = login!.Trim();
                 user.SecurityStamp = NewStamp();
             }
             if (!user.IsAdmin) _repository.AddLog(log);
@@ -194,8 +195,11 @@ namespace PersonalLibrary.Services
             return password != repeat ? "User_PasswordMismatch" : null;
         }
 
+        public bool HasFreeColor => UserColors.Palette.Any(p => ColorOwner(p.Key, null) == null);
+
         private string? ValidateColor(string? color, string? exceptId)
         {
+            if (string.IsNullOrEmpty(color) && exceptId == null && !HasFreeColor) return "User_NoFreeColor";
             if (!UserColors.IsValid(color)) return "Error_Validation";
             return ColorOwner(color!, exceptId) != null ? "User_ColorTaken" : null;
         }

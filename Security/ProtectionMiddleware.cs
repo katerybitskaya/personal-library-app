@@ -42,6 +42,7 @@ namespace PersonalLibrary.Security
                     return;
                 }
                 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                context.User = new ClaimsPrincipal(new ClaimsIdentity());
             }
 
             var path = context.Request.Path.Value?.ToLowerInvariant() ?? "/";

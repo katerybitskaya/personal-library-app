@@ -364,7 +364,7 @@ function initSectionFilter() {
 
     chips.forEach(c => c.addEventListener('click', () => {
         const filter = c.dataset.filter;
-        history.replaceState(null, '', filter === 'all' ? location.pathname : '#' + filter);
+        history.replaceState(null, '', filter === 'all' ? location.pathname + location.search : '#' + filter);
         apply(filter);
     }));
 

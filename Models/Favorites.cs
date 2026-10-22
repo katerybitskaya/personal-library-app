@@ -18,6 +18,22 @@ namespace PersonalLibrary.Models
         public static void Migrate(Book book) =>
             Move(book.FavoriteBy, () => book.LegacyIsFavorite, v => book.LegacyIsFavorite = v);
 
+        public static void KeepUsers(Author author, Func<string, bool> exists)
+        {
+            author.FavoriteBy.RemoveAll(id => !exists(id));
+            author.Books.ForEach(b => KeepUsers(b, exists));
+            author.Series.ForEach(s => KeepUsers(s, exists));
+        }
+
+        public static void KeepUsers(Series series, Func<string, bool> exists)
+        {
+            series.FavoriteBy.RemoveAll(id => !exists(id));
+            series.Books.ForEach(b => KeepUsers(b, exists));
+        }
+
+        public static void KeepUsers(Book book, Func<string, bool> exists) =>
+            book.FavoriteBy.RemoveAll(id => !exists(id));
+
         public static void Set(List<string> favoriteBy, string userId, bool isFavorite)
         {
             favoriteBy.RemoveAll(id => id == userId);

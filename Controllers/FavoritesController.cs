@@ -40,7 +40,7 @@ namespace PersonalLibrary.Controllers
                     .Where(u => u.Id == _me.Id || counts.ContainsKey(u.Id))
                     .Select(u => (u, counts.GetValueOrDefault(u.Id)))
                     .ToList(),
-                AllCount     = counts.Values.Sum()
+                AllCount     = _libraryService.CountFavoriteItems()
             });
         }
 

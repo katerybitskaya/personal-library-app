@@ -10,18 +10,22 @@ namespace PersonalLibrary.Services
         private readonly JsonTrashRepository _trashRepository;
         private readonly ILibraryRepository _libraryRepository;
         private readonly UploadCleanupService _uploads;
+        private readonly JsonUserRepository _users;
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public TrashService(JsonTrashRepository trashRepository, ILibraryRepository libraryRepository, UploadCleanupService uploads)
+        public TrashService(JsonTrashRepository trashRepository, ILibraryRepository libraryRepository, UploadCleanupService uploads, JsonUserRepository users)
         {
+            _users = users;
             _trashRepository = trashRepository;
             _libraryRepository = libraryRepository;
             _uploads = uploads;
         }
+
+        private bool UserExists(string id) => _users.GetById(id) != null;
 
         public List<TrashItem> GetAll() => _trashRepository.GetAll();
 
@@ -99,7 +103,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Author:
                     {
                         var restoredAuthor = JsonSerializer.Deserialize<Author>(item.SerializedData, _jsonOptions);
-                        if (restoredAuthor != null) Favorites.Migrate(restoredAuthor);
+                        if (restoredAuthor != null) { Favorites.Migrate(restoredAuthor); Favorites.KeepUsers(restoredAuthor, UserExists); }
                         if (restoredAuthor != null)
                         {
                             foreach (var b in restoredAuthor.Books)
@@ -121,7 +125,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Series:
                     {
                         var restoredSeries = JsonSerializer.Deserialize<Series>(item.SerializedData, _jsonOptions);
-                        if (restoredSeries != null) Favorites.Migrate(restoredSeries);
+                        if (restoredSeries != null) { Favorites.Migrate(restoredSeries); Favorites.KeepUsers(restoredSeries, UserExists); }
                         if (restoredSeries != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);
@@ -134,7 +138,7 @@ namespace PersonalLibrary.Services
                     case TrashItemType.Book:
                     {
                         var restoredBook = JsonSerializer.Deserialize<Book>(item.SerializedData, _jsonOptions);
-                        if (restoredBook != null) Favorites.Migrate(restoredBook);
+                        if (restoredBook != null) { Favorites.Migrate(restoredBook); Favorites.KeepUsers(restoredBook, UserExists); }
                         if (restoredBook != null)
                         {
                             var existingAuthor = _libraryRepository.GetAuthorById(item.AuthorId);

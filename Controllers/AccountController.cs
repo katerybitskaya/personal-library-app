@@ -40,6 +40,7 @@ namespace PersonalLibrary.Controllers
                 return RedirectToLocal(returnUrl);
 
             var vm = new LoginViewModel { ReturnUrl = returnUrl };
+            if (!_users.AdminHasPassword) _users.EnsureAdmin(settings);
             if (!_users.AdminHasPassword)
                 vm.Error = _l["Login_NotConfigured"];
             return View(vm);
@@ -53,6 +54,7 @@ namespace PersonalLibrary.Controllers
             if (!settings.Enabled)
                 return RedirectToLocal(vm.ReturnUrl);
 
+            if (!_users.AdminHasPassword) _users.EnsureAdmin(settings);
             if (!_users.AdminHasPassword)
             {
                 vm.Error = _l["Login_NotConfigured"];

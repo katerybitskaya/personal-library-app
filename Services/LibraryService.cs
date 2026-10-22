@@ -510,6 +510,12 @@ namespace PersonalLibrary.Services
             return ids.GroupBy(id => id).ToDictionary(g => g.Key, g => g.Count());
         }
 
+        public int CountFavoriteItems() =>
+            _repository.GetAllAuthors().Sum(a =>
+                (a.FavoriteBy.Count > 0 ? 1 : 0)
+                + a.Series.Count(s => s.FavoriteBy.Count > 0)
+                + a.Books.Concat(a.Series.SelectMany(s => s.Books)).Count(b => b.ActiveFavoriteBy.Count > 0));
+
         public List<FavoriteAuthorInfo> GetFavoriteAuthors(string? userId)
         {
             return _repository.GetAllAuthors()
