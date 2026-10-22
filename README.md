@@ -175,7 +175,7 @@ By default the library is open to everyone. To require a login, create a `protec
 | Setting | Meaning |
 |---------|---------|
 | `Enabled` | `true` — every page and uploaded image requires login; `false` or no file — open access |
-| `Username` | Admin login (used on the first start to create the admin in `Data/users.json`) |
+| `Username` | Admin login (used on the first start with protection on to create the admin in `Data/users.json`) |
 | `PasswordHash` | Admin password hash from `--hash-password` (recommended; used on the first start) |
 | `Password` | Plain-text password, used only when `PasswordHash` is empty (not recommended) |
 | `MaxFailedAttempts` | Failed logins from one IP before a temporary lockout |
@@ -215,7 +215,7 @@ All data is stored in JSON format in the `Data` folder:
 - **library.json** - Authors, books, and series definitions (incl. flags, notes, “not owned”, favourites, ongoing series)
 - **trash.json** - Deleted items with recovery metadata
 - **history.json** - Complete activity log with timestamps
-- **users.json** - Users (password hashes, colours) and the log of profile changes
+- **users.json** - Users (password hashes, colours) and the log of profile changes; created and used only when protection is on
 - **\*.json.bak** - Previous version of each file, used automatically if the main file can't be read
 - **keys/** - Data Protection keys for login and anti-forgery cookies (keeps sessions valid after a restart)
 

@@ -36,7 +36,7 @@ namespace PersonalLibrary.Controllers
                 Books        = _libraryService.GetFavoriteBooks(filterId),
                 SelectedUser = selected,
                 ShowUsers    = _me.ProtectionEnabled,
-                Users        = _users.GetAll()
+                Users        = !_me.ProtectionEnabled ? new() : _users.GetAll()
                     .Where(u => u.Id == _me.Id || counts.ContainsKey(u.Id))
                     .Select(u => (u, counts.GetValueOrDefault(u.Id)))
                     .ToList(),

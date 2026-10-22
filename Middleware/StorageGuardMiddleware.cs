@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Options;
 using PersonalLibrary.Interfaces;
+using PersonalLibrary.Models;
 using PersonalLibrary.Repositories;
 
 namespace PersonalLibrary.Middleware
@@ -12,9 +14,11 @@ namespace PersonalLibrary.Middleware
         public StorageGuardMiddleware(RequestDelegate next) => _next = next;
 
         public async Task InvokeAsync(HttpContext context, ILibraryRepository library,
-            JsonTrashRepository trash, JsonHistoryRepository history, JsonUserRepository users)
+            JsonTrashRepository trash, JsonHistoryRepository history, JsonUserRepository users,
+            IOptionsMonitor<ProtectionSettings> protection)
         {
-            bool failed = library.LoadError != null || trash.LoadError != null || history.LoadError != null || users.LoadError != null;
+            bool failed = library.LoadError != null || trash.LoadError != null || history.LoadError != null
+                || (protection.CurrentValue.Enabled && users.LoadError != null);
             if (failed && !context.Request.Path.StartsWithSegments("/Home/SetLanguage"))
             {
                 context.Request.Path = ErrorPath;

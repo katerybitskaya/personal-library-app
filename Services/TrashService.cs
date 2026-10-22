@@ -25,7 +25,7 @@ namespace PersonalLibrary.Services
             _uploads = uploads;
         }
 
-        private bool UserExists(string id) => _users.GetById(id) != null;
+        private bool UserExists(string id) => id == AppUser.AdminId || _users.GetById(id) != null;
 
         public List<TrashItem> GetAll() => _trashRepository.GetAll();
 

@@ -86,20 +86,20 @@ namespace PersonalLibrary
             var historyService = app.Services.GetRequiredService<HistoryService>();
             publisher.Subscribe(historyService);
 
-            app.Logger.LogInformation("Password protection: {State}",
-                app.Configuration.GetValue<bool>("Protection:Enabled") ? "ON" : "OFF");
+            var protectionOn = app.Configuration.GetValue<bool>("Protection:Enabled");
+            app.Logger.LogInformation("Password protection: {State}", protectionOn ? "ON" : "OFF");
 
             var storageErrors = new[]
             {
                 app.Services.GetRequiredService<ILibraryRepository>().LoadError,
                 app.Services.GetRequiredService<JsonTrashRepository>().LoadError,
                 app.Services.GetRequiredService<JsonHistoryRepository>().LoadError,
-                app.Services.GetRequiredService<JsonUserRepository>().LoadError
+                protectionOn ? app.Services.GetRequiredService<JsonUserRepository>().LoadError : null
             }.Where(e => e != null);
             foreach (var error in storageErrors)
                 app.Logger.LogCritical("Data storage error: {Error}. The site shows an error page and saving is disabled.", error);
 
-            if (app.Services.GetRequiredService<JsonUserRepository>().LoadError == null)
+            if (protectionOn && app.Services.GetRequiredService<JsonUserRepository>().LoadError == null)
             {
                 try
                 {

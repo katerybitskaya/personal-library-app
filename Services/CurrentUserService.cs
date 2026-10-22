@@ -24,9 +24,11 @@ namespace PersonalLibrary.Services
 
         public bool IsSignedIn => ProtectionEnabled && _http.HttpContext?.User.Identity?.IsAuthenticated == true;
 
+        private static readonly AppUser LocalAdmin = new() { Id = AppUser.AdminId, IsAdmin = true, Color = UserColors.Default };
+
         public AppUser? User => ProtectionEnabled
             ? _users.GetById(_http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
-            : _users.Admin;
+            : LocalAdmin;
 
         public string Id => User?.Id ?? AppUser.AdminId;
 
@@ -67,6 +69,6 @@ namespace PersonalLibrary.Services
             return list;
         }
 
-        public bool HasUnseenProfileChanges => IsAdmin && _users.UnseenLogCount > 0;
+        public bool HasUnseenProfileChanges => ProtectionEnabled && IsAdmin && _users.UnseenLogCount > 0;
     }
 }

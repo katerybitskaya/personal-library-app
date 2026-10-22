@@ -165,9 +165,9 @@ else
                                                 <div class="series-header" onclick="toggleSeries('@series.Id')">
                                                     <svg class="series-toggle" id="stoggle-@series.Id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                                                     <svg class="item-icon series" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
-                                                    <a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
+                                                    <span class="book-title-line"><a asp-controller="Series" asp-action="Details" asp-route-id="@series.Id" class="item-link text-gold" onclick="event.stopPropagation()">@series.Name</a>
                                                     <span class="badge badge-gold" style="font-size:0.65rem">@series.Books.Count(b => !b.IsMissing)</span>
-                                                    <partial name="_FavoriteMark" model="series.FavoriteBy" />
+                                                    <partial name="_FavoriteMark" model="series.FavoriteBy" /></span>
                                                 </div>
                                                 <div class="series-books" id="sbooks-@series.Id">
                                                     @foreach (var book in series.Books.OrderBy(b => b.OrderInSeries ?? 99))

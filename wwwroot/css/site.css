@@ -1086,6 +1086,8 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 .series-accordion-body .book-row { padding-right: 0.85rem; }
 .series-accordion-header { padding-right: calc(0.85rem - 1px); }
 .series-accordion-header > .item-delete-btn { margin-left: auto; }
+.series-accordion-header > .book-title-line { column-gap: 0.75rem; }
+.series-header > .book-title-line { column-gap: 0.6rem; }
 .series-part-row {
     display: flex;
     gap: 0.5rem;
@@ -1432,7 +1434,6 @@ code { font-family: 'Courier New', monospace; font-size: 0.88em; background: var
 }
 
 .fav-marks { display: inline-flex; align-items: center; gap: 2px; vertical-align: middle; flex-shrink: 0; }
-.fav-more { font-family: var(--font-ui); font-size: 0.68rem; color: var(--text-muted); margin-left: 2px; }
 .fav-card-users { display: flex; }
 .user-chip .fav-mark svg { width: 11px; height: 11px; }
 
