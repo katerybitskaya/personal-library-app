@@ -1,0 +1,11 @@
+bin/
+obj/
+publish/
+.vs/
+.git/
+.github/
+docker/
+Data/
+wwwroot/uploads/
+protection.json
+*.user

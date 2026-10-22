@@ -26,6 +26,8 @@
       <Generator></Generator>
     </Content>
     <Content Update="protection.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <Content Remove="docker\**" />
+    <None Remove="docker\**" />
   </ItemGroup>
 
 </Project>

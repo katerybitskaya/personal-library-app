@@ -17,3 +17,5 @@ desktop.ini
 *.swp
 STRUCTURE.md
 protection.json
+docker/.env
+docker/data/

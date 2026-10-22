@@ -90,6 +90,7 @@ PersonalLibrary/
 ├── Helpers/               # Utility classes (file upload)
 ├── wwwroot/               # Static files (CSS, JS, uploads)
 ├── Data/                  # JSON data storage (auto-generated)
+├── docker/                # docker-compose.yml + env template
 └── protection.example.json # Template for protection.json
 ```
 
@@ -129,6 +130,22 @@ PersonalLibrary/
 1. Open the browser and navigate to the application
 2. The `Data` folder with JSON files will be created automatically on first run
 3. Start adding authors and books through the web interface
+
+### Run with Docker
+
+The compose file runs two independent instances from one image: `library` (port 5000) and
+`library-personal` (port 5001, a password-protected copy). Data is stored in `docker/data/<instance>/`.
+
+```bash
+cd docker
+cp .env.example .env              # time zone
+mkdir -p data/library/Data data/library/uploads data/library-personal/Data data/library-personal/uploads
+cp ../protection.example.json data/library-personal/protection.json
+sudo chown -R 1654:1654 data      # Linux only: the user inside the container
+
+docker compose run --rm library-personal --hash-password   # put the hash into protection.json
+docker compose up -d --build      # http://localhost:5000, http://localhost:5001
+```
 
 ## Configuration
 

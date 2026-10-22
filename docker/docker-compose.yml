@@ -1,0 +1,29 @@
+name: library
+
+services:
+  library:
+    build: ..
+    image: personal-library
+    environment:
+      TZ: ${TZ:-UTC}
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    ports:
+      - "127.0.0.1:5000:8080"
+    volumes:
+      - ./data/library/Data:/app/Data
+      - ./data/library/uploads:/app/wwwroot/uploads
+    restart: unless-stopped
+
+  library-personal:
+    build: ..
+    image: personal-library
+    environment:
+      TZ: ${TZ:-UTC}
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    ports:
+      - "127.0.0.1:5001:8080"
+    volumes:
+      - ./data/library-personal/Data:/app/Data
+      - ./data/library-personal/uploads:/app/wwwroot/uploads
+      - ./data/library-personal/protection.json:/app/protection.json
+    restart: unless-stopped

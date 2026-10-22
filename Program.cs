@@ -66,6 +66,11 @@ namespace PersonalLibrary
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+                if (ProtectionHelper.InContainer)
+                {
+                    options.KnownNetworks.Clear();
+                    options.KnownProxies.Clear();
+                }
             });
 
             builder.Services.AddSingleton<ILibraryRepository>(_ => new JsonLibraryRepository(fullDataPath));
